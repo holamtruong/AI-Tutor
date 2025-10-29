@@ -86,7 +86,7 @@
       <div class="dialog__content">
         <h2>Lần đầu sử dụng?</h2>
         <p>
-          EngChat giúp bạn hiểu nghĩa của từ thông qua định nghĩa, ví dụ minh
+          AI Tutor giúp bạn hiểu nghĩa của từ thông qua định nghĩa, ví dụ minh
           họa và bản dịch cần thiết. Hãy bắt đầu với một từ bạn đang băn khoăn
           nhé!
         </p>

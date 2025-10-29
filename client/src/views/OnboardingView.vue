@@ -8,7 +8,7 @@
         <header class="section__header">
           <h1>Chào mừng!</h1>
           <p>
-            EngChat muốn biết thêm một chút về bạn để có thể đồng hành cùng bạn
+            AI Tutor muốn biết thêm một chút về bạn để có thể đồng hành cùng bạn
             học tiếng Anh hiệu quả hơn.
           </p>
         </header>
