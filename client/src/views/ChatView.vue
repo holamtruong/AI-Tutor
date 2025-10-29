@@ -1,323 +1,276 @@
 <template>
-  <div class="screen">
-    <Navbar />
+  <div
+    class="chat-screen"
+    :class="{ 'chat-screen--sidebar-collapsed': isSidebarCollapsed }"
+  >
+    <Sidebar
+      :collapsed="isSidebarCollapsed"
+      :conversations="conversationSummaries"
+      :active-id="activeConversationId"
+      @toggle="toggleSidebar"
+      @new-chat="startNewChat"
+      @select="selectConversation"
+      @delete="deleteConversation"
+      @clear-all="clearAllConversations"
+    />
 
-    <div class="app-shell">
-      <!-- Sidebar -->
-      <aside class="sidebar" :class="{ 'sidebar--open': sidebarOpen }">
-        <div class="sidebar__header">
-          <button class="sidebar__new" type="button" @click="createNewConversation">
-            + Cuộc trò chuyện mới
-          </button>
-          <button class="sidebar__collapse" type="button" @click="toggleSidebar" aria-label="Đóng thanh bên">
-            ✕
-          </button>
+    <main class="chat-main">
+      <section class="conversation" ref="conversationRef">
+        <div v-if="error" class="conversation__banner">
+          {{ error }}
         </div>
 
-        <div class="sidebar__list" role="list">
-          <button
-            v-for="c in conversations"
-            :key="c.id"
-            class="sidebar__item"
-            :class="{ 'sidebar__item--active': c.id === activeConversationId }"
-            @click="selectConversation(c.id)"
-          >
-            <div class="sidebar__item-main">
-              <div class="sidebar__title" :title="c.title">{{ c.title }}</div>
-              <div class="sidebar__meta">{{ formatDateTime(c.updatedAt ?? c.createdAt) }}</div>
-            </div>
-            <div class="sidebar__item-actions">
-              <button
-                class="icon-btn"
-                type="button"
-                title="Xóa"
-                @click.stop="deleteConversation(c.id)"
-              >
-                🗑
-              </button>
-            </div>
-          </button>
-        </div>
-
-        <div class="sidebar__footer">
-          <span class="sidebar__brand">AI Tutor</span>
-          <span class="sidebar__hint">Lưu cục bộ</span>
-        </div>
-      </aside>
-
-      <!-- Main -->
-      <main class="main">
-        <header class="header">
-          <div class="header__row">
-            <button class="burger" type="button" aria-label="Mở thanh bên" @click="toggleSidebar">
-              ☰
-            </button>
-            <h1>Trò chuyện cùng AI Tutor</h1>
-          </div>
-          <p>
-            Đặt câu hỏi về ngữ pháp, từ vựng hoặc xin gợi ý bài học. AI Tutor sẽ
-            trả lời dựa trên thông tin mới nhất và trình độ của bạn.
-          </p>
-        </header>
-
-        <section class="conversation" ref="conversationRef">
-          <article
-            v-for="message in messages"
-            :key="message.id"
-            class="bubble"
-            :class="`bubble--${message.sender}`"
-          >
+        <article
+          v-for="message in currentMessages"
+          :key="message.id"
+          class="bubble"
+          :class="`bubble--${message.sender}`"
+        >
+          <div class="bubble__header">
             <span class="bubble__meta">
-              {{ message.sender === "user" ? "Bạn" : "AI Tutor" }} •
+              {{ message.sender === "user" ? "Ban" : "EngChat" }} -
               {{ formatTime(message.timestamp) }}
             </span>
-            <p class="bubble__text">{{ message.content }}</p>
-          </article>
-
-          <div v-if="isSending" class="typing">
-            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-            AI Tutor đang soạn câu trả lời...
+            <button
+              class="bubble__action"
+              type="button"
+              title="Phat lai doan hoi thoai"
+              aria-label="Phat lai doan hoi thoai"
+              @click="playMessage(message)"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" class="icon icon--sm">
+                <path d="M8 5v14l11-7z" fill="currentColor" />
+              </svg>
+            </button>
           </div>
-        </section>
+          <p class="bubble__text">{{ message.content }}</p>
+        </article>
 
-        <form class="composer" @submit.prevent="sendMessage">
+        <div v-if="isSending" class="typing">
+          <span class="typing__dot"></span>
+          <span class="typing__dot"></span>
+          <span class="typing__dot"></span>
+          EngChat dang soan cau tra loi...
+        </div>
+      </section>
+
+      <form class="composer" @submit.prevent="sendMessage">
+        <div class="composer__input">
           <textarea
             v-model="draft"
             rows="3"
-            placeholder="Nhập tin nhắn... (Ctrl+Enter để gửi)"
+            placeholder="Nhap tin nhan cua ban..."
             :disabled="isSending"
             required
-            @keydown.enter.ctrl.exact.prevent="sendMessage"
           ></textarea>
-          <div class="composer__actions">
-            <button class="composer__clear" type="button" @click="clearActiveHistory">
-              Xóa hội thoại này
+          <div class="composer__tools">
+            <button
+              class="icon-button"
+              type="button"
+              title="Ghi am giong noi"
+              aria-label="Ghi am giong noi"
+              @click="startVoiceInput"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" class="icon">
+                <path
+                  d="M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zm-5 8a5 5 0 0 0 10 0h-2a3 3 0 0 1-6 0H7zm4 6.93V21h2v-3.07a6.002 6.002 0 0 0 4.995-4.306l-1.94-.485A4 4 0 0 1 8.945 15.9l-1.94.485A6.002 6.002 0 0 0 11 17.93z"
+                  fill="currentColor"
+                />
+              </svg>
             </button>
-            <div class="composer__right">
-              <button class="composer__ghost" type="button" @click="createNewConversation">
-                Cuộc trò chuyện mới
-              </button>
-              <button class="composer__send" type="submit" :disabled="isSending || !draft.trim()">
-                Gửi
-              </button>
-            </div>
           </div>
-        </form>
-
-        <p v-if="error" class="error">{{ error }}</p>
-      </main>
-    </div>
+        </div>
+        <div class="composer__actions">
+          <button class="composer__clear" type="button" @click="resetConversation">
+            Dat lai doan chat
+          </button>
+          <button class="composer__send" type="submit" :disabled="isSending || !draft.trim()">
+            Gui
+          </button>
+        </div>
+      </form>
+    </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
-import Navbar from "@/components/Navbar.vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
+import Sidebar from "@/components/Sidebar.vue";
 import { API_DOMAIN } from "@/config";
 import {
   clearChatHistory,
-  getChatHistory,
+  getActiveConversationId,
+  getChatConversations,
   hasCompletedOnboarding,
-  saveChatHistory,
+  saveActiveConversationId,
+  saveChatConversations,
+  type ChatConversation,
   type ChatMessage,
 } from "@/utils/localStorage";
 import { useRouter } from "vue-router";
 
-type Conversation = {
-  id: string;
-  title: string;
-  messages: ChatMessage[];
-  createdAt: number;
-  updatedAt?: number;
-};
-
 const router = useRouter();
 
-// Sidebar state (for mobile)
-const sidebarOpen = ref(false);
-const toggleSidebar = () => (sidebarOpen.value = !sidebarOpen.value);
-
-// Conversations
-const CONV_KEY = "AI Tutor:conversations:v2";
-
-const conversations = ref<Conversation[]>([]);
-const activeConversationId = ref<string>("");
-
-const activeConversation = computed<Conversation | undefined>(() =>
-  conversations.value.find((c) => c.id === activeConversationId.value)
-);
-
-const messages = computed<ChatMessage[]>({
-  get: () => activeConversation.value?.messages ?? [],
-  set: (val) => {
-    const idx = conversations.value.findIndex((c) => c.id === activeConversationId.value);
-    if (idx !== -1) {
-      conversations.value[idx] = {
-        ...conversations.value[idx],
-        messages: val,
-        updatedAt: Date.now(),
-      };
-      persistConversations();
-      // Keep legacy single-thread history up-to-date (last opened)
-      saveChatHistory(val);
-    }
-  },
-});
-
+const conversations = ref<ChatConversation[]>([]);
+const activeConversationId = ref("");
 const draft = ref("");
 const isSending = ref(false);
 const error = ref("");
+const isSidebarCollapsed = ref(false);
 const conversationRef = ref<HTMLElement | null>(null);
 
-const formatTime = (timestamp: number) => {
-  const date = new Date(timestamp);
-  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+const createWelcomeMessage = (): ChatMessage => ({
+  id: crypto.randomUUID(),
+  content:
+    "Xin chao! Toi la EngChat, tro ly AI cua ban. Toi co the giai thich ngu phap, goi y bai hoc hoac luyen hoi thoai.",
+  sender: "ai",
+  timestamp: Date.now(),
+});
+
+const createConversation = (initialMessages: ChatMessage[] = [createWelcomeMessage()]): ChatConversation => {
+  const now = Date.now();
+  return {
+    id: crypto.randomUUID(),
+    title: "New conversation",
+    messages: initialMessages,
+    createdAt: now,
+    updatedAt: now,
+  };
 };
 
-const formatDateTime = (timestamp: number) => {
-  const d = new Date(timestamp);
-  return d.toLocaleString([], { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" });
+const generatePreview = (conversation: ChatConversation): string => {
+  const last = [...conversation.messages].reverse().find((message) => message.content.trim().length);
+  if (!last) {
+    return "";
+  }
+  const normalized = last.content.replace(/\s+/g, " ").trim();
+  return normalized.length > 60 ? `${normalized.slice(0, 60)}...` : normalized;
+};
+
+const currentConversation = computed(() =>
+  conversations.value.find((conversation) => conversation.id === activeConversationId.value) ?? null
+);
+
+const currentMessages = computed(() => currentConversation.value?.messages ?? []);
+
+const conversationSummaries = computed(() =>
+  conversations.value.map((conversation) => ({
+    id: conversation.id,
+    title: conversation.title,
+    updatedAt: conversation.updatedAt,
+    preview: generatePreview(conversation),
+  }))
+);
+
+const generateTitle = (text: string): string => {
+  const trimmed = text.trim();
+  if (!trimmed) {
+    return "New conversation";
+  }
+  return trimmed.length > 40 ? `${trimmed.slice(0, 40)}...` : trimmed;
+};
+
+const sortByUpdatedAt = (items: ChatConversation[]): ChatConversation[] =>
+  [...items].sort((a, b) => b.updatedAt - a.updatedAt);
+
+const commitConversations = (next: ChatConversation[]) => {
+  const sorted = sortByUpdatedAt(next);
+  conversations.value = sorted;
+  saveChatConversations(sorted);
+  saveActiveConversationId(activeConversationId.value);
+};
+
+const setActiveConversation = (id: string) => {
+  activeConversationId.value = id;
+  saveActiveConversationId(id);
+  nextTick(() => scrollToBottom());
 };
 
 const scrollToBottom = () => {
   window.requestAnimationFrame(() => {
-    const el = conversationRef.value;
-    if (!el) return;
-    el.scrollTop = el.scrollHeight;
+    const element = conversationRef.value;
+    if (!element) {
+      return;
+    }
+    element.scrollTop = element.scrollHeight;
   });
 };
 
-const persistConversations = () => {
-  const payload = {
-    conversations: conversations.value,
-    activeId: activeConversationId.value,
-  };
-  localStorage.setItem(CONV_KEY, JSON.stringify(payload));
+watch(
+  currentMessages,
+  () => {
+    nextTick(() => scrollToBottom());
+  },
+  { deep: true }
+);
+
+watch(activeConversationId, () => {
+  nextTick(() => scrollToBottom());
+});
+
+const toggleSidebar = () => {
+  isSidebarCollapsed.value = !isSidebarCollapsed.value;
 };
 
-const loadConversations = () => {
-  const raw = localStorage.getItem(CONV_KEY);
-  if (raw) {
-    try {
-      const parsed = JSON.parse(raw) as { conversations: Conversation[]; activeId?: string };
-      conversations.value = parsed.conversations ?? [];
-      activeConversationId.value = parsed.activeId ?? conversations.value[0]?.id ?? "";
-    } catch {
-      conversations.value = [];
-      activeConversationId.value = "";
+const playMessage = (message: ChatMessage) => {
+  console.info("[TTS] Play message", message.id);
+};
+
+const startVoiceInput = () => {
+  console.info("[STT] Start voice input");
+};
+
+const startNewChat = () => {
+  error.value = "";
+  draft.value = "";
+  const conversation = createConversation();
+  commitConversations([conversation, ...conversations.value]);
+  setActiveConversation(conversation.id);
+};
+
+const appendMessageToActive = (message: ChatMessage) => {
+  const id = activeConversationId.value;
+  if (!id) {
+    return;
+  }
+
+  const next = conversations.value.map((conversation) => {
+    if (conversation.id !== id) {
+      return conversation;
     }
-  }
 
-  // Migration from legacy single chat history if no conversation exists
-  if (conversations.value.length === 0) {
-    const legacy = getChatHistory();
-    const now = Date.now();
-    const firstUser = legacy.find((m) => m.sender === "user");
-    const title =
-      firstUser?.content?.slice(0, 40) ||
-      "Cuộc trò chuyện mới";
+    const nextMessages = [...conversation.messages, message];
+    const nextTitle =
+      conversation.messages.length === 0 && message.sender === "user"
+        ? generateTitle(message.content)
+        : conversation.title;
 
-    const baseMessages =
-      legacy.length > 0
-        ? legacy
-        : [
-            {
-              id: crypto.randomUUID(),
-              content:
-                "Xin chào! Tôi là AI Tutor, gia sư AI của bạn. Tôi có thể giúp bạn giải thích ngữ pháp, gợi ý bài học hoặc luyện hội thoại.",
-              sender: "ai",
-              timestamp: now,
-            } as ChatMessage,
-          ];
-
-    const conv: Conversation = {
-      id: crypto.randomUUID(),
-      title,
-      messages: baseMessages,
-      createdAt: now,
-      updatedAt: now,
+    return {
+      ...conversation,
+      title: nextTitle,
+      messages: nextMessages,
+      updatedAt: message.timestamp,
     };
-    conversations.value = [conv];
-    activeConversationId.value = conv.id;
-    persistConversations();
+  });
+
+  commitConversations(next);
+};
+
+const ensureActiveConversation = () => {
+  if (currentConversation.value) {
+    return;
   }
-};
-
-const createNewConversation = () => {
-  const now = Date.now();
-  const conv: Conversation = {
-    id: crypto.randomUUID(),
-    title: "Cuộc trò chuyện mới",
-    messages: [
-      {
-        id: crypto.randomUUID(),
-        content:
-          "Xin chào! Tôi là AI Tutor, gia sư AI của bạn. Bạn muốn luyện gì hôm nay?",
-        sender: "ai",
-        timestamp: now,
-      },
-    ],
-    createdAt: now,
-    updatedAt: now,
-  };
-  conversations.value = [conv, ...conversations.value];
-  activeConversationId.value = conv.id;
-  persistConversations();
-  scrollToBottom();
-  // Also reset legacy storage to match active
-  saveChatHistory(conv.messages);
-};
-
-const selectConversation = (id: string) => {
-  activeConversationId.value = id;
-  persistConversations();
-  // Sync legacy single-thread storage
-  const current = conversations.value.find((c) => c.id === id);
-  if (current) saveChatHistory(current.messages);
-  scrollToBottom();
-};
-
-const deleteConversation = (id: string) => {
-  const idx = conversations.value.findIndex((c) => c.id === id);
-  if (idx === -1) return;
-
-  const isActive = id === activeConversationId.value;
-  conversations.value.splice(idx, 1);
-
-  if (conversations.value.length === 0) {
-    createNewConversation();
-  } else if (isActive) {
-    const next = conversations.value[Math.min(idx, conversations.value.length - 1)];
-    activeConversationId.value = next.id;
-    // Sync legacy storage
-    saveChatHistory(next.messages);
-  }
-  persistConversations();
-};
-
-const updateTitleIfNeeded = (firstUserText: string) => {
-  const conv = activeConversation.value;
-  if (!conv) return;
-  const hasOnlyGreeting = conv.messages.filter((m) => m.sender === "user").length <= 1;
-  // If title is still default, update based on the first user message
-  if (conv.title === "Cuộc trò chuyện mới" || !conv.title.trim() || hasOnlyGreeting) {
-    const newTitle = firstUserText.trim().slice(0, 60) || "Cuộc trò chuyện";
-    conv.title = newTitle;
-    conv.updatedAt = Date.now();
-    conversations.value = conversations.value.map((c) => (c.id === conv.id ? { ...conv } : c));
-    persistConversations();
-  }
-};
-
-const addMessage = (message: ChatMessage) => {
-  messages.value = [...messages.value, message];
-  scrollToBottom();
+  startNewChat();
 };
 
 const sendMessage = async () => {
-  if (!draft.value.trim() || isSending.value) return;
-
   const text = draft.value.trim();
+  if (!text || isSending.value) {
+    return;
+  }
+
+  ensureActiveConversation();
+
   draft.value = "";
   error.value = "";
 
@@ -328,8 +281,7 @@ const sendMessage = async () => {
     timestamp: Date.now(),
   };
 
-  addMessage(userMessage);
-  updateTitleIfNeeded(text);
+  appendMessageToActive(userMessage);
   isSending.value = true;
 
   try {
@@ -355,44 +307,88 @@ const sendMessage = async () => {
       timestamp: Date.now(),
     };
 
-    addMessage(aiMessage);
+    appendMessageToActive(aiMessage);
   } catch (error_) {
-    console.error("Không thể gửi tin nhắn", error_);
+    console.error("Cannot send message", error_);
     error.value =
       error_ instanceof Error
         ? error_.message
-        : "Máy chủ đang bận, vui lòng thử lại sau.";
+        : "May chu dang ban, vui long thu lai sau.";
   } finally {
     isSending.value = false;
   }
 };
 
-const clearActiveHistory = () => {
-  const conv = activeConversation.value;
-  if (!conv) return;
+const resetConversation = () => {
+  const conversation = currentConversation.value;
+  if (!conversation) {
+    startNewChat();
+    return;
+  }
+
   const now = Date.now();
-  const resetMessages: ChatMessage[] = [
-    {
-      id: crypto.randomUUID(),
-      content:
-        "Xin chào! Tôi là AI Tutor, gia sư AI của bạn. Tôi có thể giúp bạn giải thích ngữ pháp, gợi ý bài học hoặc luyện hội thoại.",
-      sender: "ai",
-      timestamp: now,
-    },
-  ];
-  conversations.value = conversations.value.map((c) =>
-    c.id === conv.id
-      ? { ...c, messages: resetMessages, updatedAt: now, title: "Cuộc trò chuyện mới" }
-      : c
+  const next = conversations.value.map((item) =>
+    item.id === conversation.id
+      ? {
+          ...item,
+          messages: [createWelcomeMessage()],
+          updatedAt: now,
+        }
+      : item
   );
-  persistConversations();
-  saveChatHistory(resetMessages);
-  scrollToBottom();
+
+  commitConversations(next);
+  error.value = "";
+  nextTick(() => scrollToBottom());
 };
 
-// Backward compatibility: still clear legacy storage when user clears all
-const clearLegacyAll = () => {
+const deleteConversation = (id: string) => {
+  const filtered = conversations.value.filter((conversation) => conversation.id !== id);
+
+  if (!filtered.length) {
+    const conversation = createConversation();
+    commitConversations([conversation]);
+    setActiveConversation(conversation.id);
+    error.value = "";
+    draft.value = "";
+    return;
+  }
+
+  commitConversations(filtered);
+  if (activeConversationId.value === id) {
+    setActiveConversation(filtered[0].id);
+  }
+  error.value = "";
+};
+
+const clearAllConversations = () => {
   clearChatHistory();
+  const conversation = createConversation();
+  commitConversations([conversation]);
+  setActiveConversation(conversation.id);
+  draft.value = "";
+  error.value = "";
+};
+
+const selectConversation = (id: string) => {
+  if (id === activeConversationId.value) {
+    return;
+  }
+  if (!conversations.value.some((conversation) => conversation.id === id)) {
+    return;
+  }
+  setActiveConversation(id);
+  error.value = "";
+};
+
+const formatTime = (timestamp: number) => {
+  const formatter = new Intl.DateTimeFormat(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+    day: "2-digit",
+    month: "2-digit",
+  });
+  return formatter.format(new Date(timestamp));
 };
 
 onMounted(() => {
@@ -401,361 +397,307 @@ onMounted(() => {
     return;
   }
 
-  loadConversations();
-  scrollToBottom();
-});
+  const storedConversations = getChatConversations();
+  const storedActiveId = getActiveConversationId();
 
-// Persist whenever conversations change significantly
-watch(
-  () => [conversations.value.length, activeConversationId.value],
-  () => persistConversations()
-);
+  if (storedConversations.length) {
+    commitConversations(storedConversations);
+    const fallbackId = conversations.value[0]?.id ?? "";
+    if (fallbackId) {
+      const hasStoredActive = conversations.value.some(
+        (conversation) => conversation.id === storedActiveId
+      );
+      setActiveConversation(hasStoredActive ? storedActiveId : fallbackId);
+    }
+  } else {
+    const conversation = createConversation();
+    commitConversations([conversation]);
+    setActiveConversation(conversation.id);
+  }
+});
 </script>
 
 <style scoped>
-/* App shell */
-.screen {
+.chat-screen {
   min-height: 100vh;
-  background:
-    radial-gradient(1200px 600px at 10% -10%, rgba(99, 102, 241, 0.18), transparent 60%),
-    radial-gradient(1000px 500px at 100% 0%, rgba(34, 211, 238, 0.18), transparent 60%),
-    linear-gradient(180deg, #f8fafc 0%, #ffffff 60%);
-}
-
-.app-shell {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem 1rem 3rem;
   display: grid;
   grid-template-columns: 280px 1fr;
-  gap: 1rem;
+  background: #f1f5f9;
+  transition: grid-template-columns 0.25s ease;
 }
 
-@media (max-width: 980px) {
-  .app-shell {
-    grid-template-columns: 1fr;
-  }
+.chat-screen--sidebar-collapsed {
+  grid-template-columns: 90px 1fr;
 }
 
-/* Sidebar */
-.sidebar {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 20px;
-  padding: 0.75rem;
+.chat-main {
+  height: 100vh;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+  overflow: hidden;
+}
+
+.conversation {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 22px;
+  padding: 1.25rem;
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 140px);
-  box-shadow: 0 12px 35px rgba(15, 23, 42, 0.12);
+  gap: 1rem;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
 }
 
-@media (max-width: 980px) {
-  .sidebar {
-    position: fixed;
-    inset: 72px 12px 12px 12px;
-    z-index: 40;
-    display: none;
-  }
-  .sidebar.sidebar--open {
-    display: flex;
-  }
-}
-
-.sidebar__header {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-
-.sidebar__new {
-  flex: 1;
-  border: 1px dashed rgba(99, 102, 241, 0.5);
-  background: rgba(99, 102, 241, 0.08);
-  color: #3730a3;
-  padding: 0.6rem 0.9rem;
-  border-radius: 12px;
+.conversation__banner {
+  padding: 0.75rem 1rem;
+  border-radius: 16px;
+  background: rgba(220, 38, 38, 0.12);
+  color: #991b1b;
   font-weight: 600;
-  cursor: pointer;
-}
-
-.sidebar__collapse {
-  border: none;
-  background: transparent;
-  font-size: 1.1rem;
-  cursor: pointer;
-  color: rgba(15, 23, 42, 0.7);
-}
-
-.sidebar__list {
-  display: grid;
-  gap: 0.25rem;
-  overflow-y: auto;
-  padding: 0.25rem;
-}
-
-.sidebar__item {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 0.5rem;
-  align-items: center;
-  text-align: left;
-  width: 100%;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  background: rgba(248, 250, 252, 0.8);
-  border-radius: 14px;
-  padding: 0.6rem 0.75rem;
-  cursor: pointer;
-}
-
-.sidebar__item:hover {
-  background: rgba(224, 231, 255, 0.35);
-  border-color: rgba(99, 102, 241, 0.25);
-}
-
-.sidebar__item--active {
-  background: rgba(199, 210, 254, 0.45);
-  border-color: rgba(99, 102, 241, 0.45);
-}
-
-.sidebar__item-main {
-  min-width: 0;
-}
-
-.sidebar__title {
-  font-weight: 700;
-  color: #111827;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.sidebar__meta {
-  font-size: 0.78rem;
-  color: rgba(15, 23, 42, 0.6);
-  margin-top: 2px;
-}
-
-.icon-btn {
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  color: rgba(15, 23, 42, 0.6);
-}
-
-.sidebar__footer {
-  margin-top: auto;
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.85rem;
-  color: rgba(15, 23, 42, 0.55);
-  padding: 0.25rem 0.25rem 0;
-}
-
-/* Main */
-.main {
-  display: grid;
-  grid-template-rows: auto 1fr auto auto;
-  gap: 1rem;
-}
-
-.header {
-  display: grid;
-  gap: 0.4rem;
-  text-align: left;
-  color: #0f172a;
-}
-
-.header__row {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.header h1 {
-  margin: 0;
-  font-size: clamp(1.6rem, 3.2vw, 2.4rem);
-  letter-spacing: -0.02em;
-}
-
-.header p {
-  margin: 0;
-  max-width: 680px;
-  color: rgba(15, 23, 42, 0.7);
-  line-height: 1.6;
-}
-
-.burger {
-  display: none;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  background: rgba(255, 255, 255, 0.8);
-  padding: 0.4rem 0.6rem;
-  border-radius: 10px;
-  cursor: pointer;
-}
-@media (max-width: 980px) {
-  .burger {
-    display: inline-block;
-  }
-}
-
-/* Conversation */
-.conversation {
-  background: rgba(255, 255, 255, 0.85);
-  border-radius: 24px;
-  padding: 1.25rem;
-  display: grid;
-  gap: 1rem;
-  max-height: 56vh;
-  overflow-y: auto;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 25px 45px rgba(15, 23, 42, 0.18);
+  font-size: 0.9rem;
 }
 
 .bubble {
   display: grid;
-  gap: 0.35rem;
-  padding: 1rem 1.1rem;
-  border-radius: 18px;
-  background: rgba(241, 245, 249, 0.85);
-  color: #0f172a;
-  border: 1px solid rgba(148, 163, 184, 0.25);
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+  border-radius: 20px;
+  max-width: min(640px, 100%);
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
 }
 
-.bubble--ai {
-  background: linear-gradient(180deg, rgba(199, 210, 254, 0.55), rgba(199, 210, 254, 0.3));
-  border: 1px solid rgba(99, 102, 241, 0.25);
-}
-
-.bubble--user {
-  justify-self: end;
-  background: linear-gradient(180deg, rgba(34, 211, 238, 0.28), rgba(34, 211, 238, 0.18));
-  border: 1px solid rgba(8, 145, 178, 0.35);
+.bubble__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
 .bubble__meta {
-  font-size: 0.75rem;
-  color: rgba(15, 23, 42, 0.6);
+  font-size: 0.8rem;
+  color: rgba(15, 23, 42, 0.55);
+  letter-spacing: 0.01em;
+}
+
+.bubble__action {
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.12);
+  color: #4338ca;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.bubble__action:hover {
+  background: rgba(79, 70, 229, 0.18);
+  color: #312e81;
 }
 
 .bubble__text {
   margin: 0;
   white-space: pre-wrap;
   line-height: 1.6;
+  font-size: 1rem;
+}
+
+.bubble--ai {
+  align-self: flex-start;
+  background: #ffffff;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  color: #0f172a;
+}
+
+.bubble--user {
+  align-self: flex-end;
+  background: linear-gradient(135deg, #2563eb, #6366f1);
+  color: #ffffff;
+}
+
+.bubble--user .bubble__meta {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.bubble--user .bubble__action {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
 }
 
 .typing {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   font-size: 0.9rem;
-  color: rgba(15, 23, 42, 0.7);
-  font-style: italic;
+  color: #475569;
 }
-.dot {
+
+.typing__dot {
   width: 6px;
   height: 6px;
-  background: rgba(99, 102, 241, 0.9);
-  border-radius: 50%;
-  display: inline-block;
-  animation: bounce 1.2s infinite ease-in-out;
-}
-.dot:nth-child(1) { animation-delay: 0s; }
-.dot:nth-child(2) { animation-delay: 0.15s; }
-.dot:nth-child(3) { animation-delay: 0.3s; }
-
-@keyframes bounce {
-  0%, 80%, 100% { transform: scale(0.75); opacity: 0.5; }
-  40% { transform: scale(1); opacity: 1; }
+  border-radius: 999px;
+  background: #6366f1;
+  animation: typingPulse 1.2s infinite ease-in-out;
 }
 
-/* Composer */
+.typing__dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.typing__dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
 .composer {
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 24px;
-  padding: 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 26px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.14);
+}
+
+.composer__input {
   display: grid;
-  gap: 0.9rem;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 25px 45px rgba(15, 23, 42, 0.15);
+  grid-template-columns: 1fr auto;
+  gap: 0.75rem;
+  align-items: flex-end;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 20px;
+  padding: 0.75rem 0.75rem 0.75rem 1rem;
+  background: #f8fafc;
 }
 
 textarea {
-  border-radius: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.45);
-  padding: 0.85rem 1rem;
+  border: none;
+  background: transparent;
+  resize: none;
+  min-height: 80px;
+  max-height: 220px;
   font-size: 1rem;
-  resize: vertical;
-  min-height: 120px;
-  outline: none;
-  background: rgba(248, 250, 252, 0.9);
+  line-height: 1.5;
+  color: #0f172a;
 }
 
 textarea:focus {
-  border-color: rgba(99, 102, 241, 0.6);
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+  outline: none;
+}
+
+.composer__tools {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.icon-button {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: #ffffff;
+  color: #1f2937;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.icon-button:hover {
+  background: #e0e7ff;
+  border-color: rgba(99, 102, 241, 0.45);
+  color: #4338ca;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  display: block;
+  fill: currentColor;
+}
+
+.icon--sm {
+  width: 16px;
+  height: 16px;
 }
 
 .composer__actions {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  align-items: center;
-}
-
-.composer__right {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
+  gap: 1rem;
 }
 
 .composer__clear,
-.composer__send,
-.composer__ghost {
+.composer__send {
   border: none;
   border-radius: 999px;
-  padding: 0.65rem 1.2rem;
-  font-weight: 700;
+  padding: 0.75rem 1.6rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .composer__clear {
-  background: rgba(148, 163, 184, 0.2);
+  background: rgba(148, 163, 184, 0.22);
   color: #0f172a;
 }
 
-.composer__ghost {
-  background: rgba(99, 102, 241, 0.12);
-  color: #3730a3;
+.composer__clear:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(148, 163, 184, 0.25);
 }
 
 .composer__send {
   background: linear-gradient(135deg, #3b82f6, #6366f1);
-  color: white;
+  color: #ffffff;
+  min-width: 110px;
+}
+
+.composer__send:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(79, 70, 229, 0.35);
 }
 
 .composer__send:disabled {
-  opacity: 0.7;
+  opacity: 0.65;
   cursor: progress;
+  transform: none;
+  box-shadow: none;
 }
 
-.error {
-  margin: 0;
-  text-align: left;
-  color: #dc2626;
-  font-weight: 600;
+@keyframes typingPulse {
+  0%,
+  80%,
+  100% {
+    opacity: 0.2;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
 }
 
-/* Utility scrollbars */
-.sidebar__list::-webkit-scrollbar,
-.conversation::-webkit-scrollbar {
-  height: 8px;
-  width: 8px;
-}
-.sidebar__list::-webkit-scrollbar-thumb,
-.conversation::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.5);
-  border-radius: 8px;
+@media (max-width: 960px) {
+  .chat-screen {
+    grid-template-columns: 1fr;
+  }
+
+  .chat-main {
+    height: auto;
+    padding: 1rem;
+  }
+
+  .conversation {
+    max-height: 60vh;
+  }
 }
 </style>

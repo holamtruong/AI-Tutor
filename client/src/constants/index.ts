@@ -43,6 +43,7 @@ export const VISITED_KEYS = {
 };
 
 export const CHAT_HISTORY_KEY = "chat-history";
+export const CHAT_ACTIVE_CONVERSATION_KEY = "chat-active-conversation-id";
 export const RECENT_DICTIONARY_SEARCHES_KEY = "recent-dictionary-searches";
 
 export const SAMPLE_DICTIONARY_KEYWORDS = [
@@ -158,8 +159,8 @@ export const FEATURES = [
     gradient: "linear-gradient(135deg, #3b82f6, #22d3ee)",
   },
   {
-    title: "TƯ VẤN",
-    englishTitle: "Trò chuyện với gia sư ảo",
+    title: "TRÒ CHUYỆN",
+    englishTitle: "Đối thoại cùng gia sư ảo",
     description:
       "Tương tác với gia sư AI để được hướng dẫn và hỗ trợ tự học tiếng Anh.",
     href: "/chat",
