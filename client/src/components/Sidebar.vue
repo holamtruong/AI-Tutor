@@ -4,8 +4,8 @@
       <div class="sidebar__brand">
         <div class="brand__icon">EC</div>
         <div class="brand__text">
-          <strong>EngChat</strong>
-          <span>AI tutor</span>
+          <strong>AI Tutor</strong>
+          <span>Gia sư tiếng Anh</span>
         </div>
       </div>
       <button
@@ -66,23 +66,6 @@
     <section class="sidebar__section">
       <div class="section__header">
         <p class="section__title">Chat history</p>
-        <button
-          class="section__clear"
-          type="button"
-          title="Xoa tat ca"
-          aria-label="Xoa tat ca"
-          :disabled="!conversations.length"
-          @click="onClearAll"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true" class="icon">
-            <path
-              d="M5 7h14M10 11v6M14 11v6M9 7V5h6v2M6 7l1 12h10l1-12"
-              stroke-width="1.6"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </button>
       </div>
 
       <div v-if="!conversations.length" class="history__empty">
@@ -331,19 +314,22 @@ const onClearAll = () => {
 .history {
   display: grid;
   gap: 0.5rem;
-  max-height: 320px;
+  max-height: 520px;
   overflow-y: auto;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 .history__item {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 0.35rem;
   align-items: stretch;
-  padding: 0.6rem;
+  padding: 0.45rem;
   border-radius: 12px;
   background: rgba(241, 245, 249, 0.65);
   transition: background 0.2s ease, transform 0.2s ease;
+  min-width: 0;
 }
 
 .history__item--active {
@@ -369,20 +355,9 @@ const onClearAll = () => {
   white-space: nowrap;
 }
 
-.history__meta {
-  font-size: 0.75rem;
-  color: rgba(15, 23, 42, 0.55);
-}
+.history__meta { display: none; }
 
-.history__preview {
-  font-size: 0.75rem;
-  color: rgba(15, 23, 42, 0.5);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
+.history__preview { display: none; }
 
 .history__delete {
   border: none;
@@ -392,6 +367,29 @@ const onClearAll = () => {
   padding: 0.35rem;
   cursor: pointer;
   align-self: center;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  padding: 0;
+  transition: opacity 0.15s ease, width 0.15s ease, padding 0.15s ease;
+}
+
+.history__item:hover .history__delete {
+  opacity: 1;
+  pointer-events: auto;
+  width: auto;
+  padding: 0.35rem;
+}
+
+.history__delete .icon { width: 18px; height: 18px; }
+
+.history__item:hover {
+  background: rgba(129, 140, 248, 0.18);
+  transform: translateX(1px);
+}
+.history__item--active:hover {
+  background: rgba(129, 140, 248, 0.35);
+  transform: translateX(3px);
 }
 
 .history__empty {
@@ -455,10 +453,16 @@ const onClearAll = () => {
   gap: 0.75rem;
 }
 
+/* Hide chat history section entirely when collapsed on desktop */
+.sidebar--collapsed .sidebar__section {
+  display: none;
+}
+
 .sidebar--collapsed .sidebar__brand,
 .sidebar--collapsed .sidebar__new-label,
 .sidebar--collapsed .sidebar__title,
 .sidebar--collapsed .section__title,
+.sidebar--collapsed .nav__label,
 .sidebar--collapsed .history__title,
 .sidebar--collapsed .history__preview,
 .sidebar--collapsed .history__meta,
@@ -490,9 +494,9 @@ const onClearAll = () => {
     border-bottom: 1px solid rgba(15, 23, 42, 0.08);
   }
 
+  /* On mobile, hide the sidebar entirely when collapsed */
   .sidebar--collapsed {
-    width: 100%;
-    padding: 1rem;
+    display: none;
   }
 }
 </style>
