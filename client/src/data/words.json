@@ -1,0 +1,102 @@
+[
+  {
+    "word": "apple",
+    "choices": ["apple", "pepper", "shrimp", "rice"],
+    "answerIndex": 0
+  },
+  {
+    "word": "banana",
+    "choices": ["banana", "beef", "spinach", "cheese"],
+    "answerIndex": 0
+  },
+  {
+    "word": "carrot",
+    "choices": ["salmon", "carrot", "orange", "bread"],
+    "answerIndex": 1
+  },
+  {
+    "word": "rice",
+    "choices": ["noodles", "garlic", "rice", "tomato"],
+    "answerIndex": 2
+  },
+  {
+    "word": "bread",
+    "choices": ["yogurt", "bread", "onion", "shrimp"],
+    "answerIndex": 1
+  },
+  {
+    "word": "cheese",
+    "choices": ["cheese", "honey", "banana", "spinach"],
+    "answerIndex": 0
+  },
+  {
+    "word": "tomato",
+    "choices": ["tomato", "beef", "carrot", "apple"],
+    "answerIndex": 0
+  },
+  {
+    "word": "pepper",
+    "choices": ["pepper", "rice", "yogurt", "banana"],
+    "answerIndex": 0
+  },
+  {
+    "word": "yogurt",
+    "choices": ["cheese", "shrimp", "yogurt", "lettuce"],
+    "answerIndex": 2
+  },
+  {
+    "word": "salmon",
+    "choices": ["salmon", "garlic", "orange", "mushroom"],
+    "answerIndex": 0
+  },
+  {
+    "word": "lettuce",
+    "choices": ["lettuce", "beef", "noodles", "apple"],
+    "answerIndex": 0
+  },
+  {
+    "word": "noodles",
+    "choices": ["spinach", "noodles", "bread", "pepper"],
+    "answerIndex": 1
+  },
+  {
+    "word": "garlic",
+    "choices": ["garlic", "honey", "shrimp", "rice"],
+    "answerIndex": 0
+  },
+  {
+    "word": "onion",
+    "choices": ["banana", "onion", "cheese", "tomato"],
+    "answerIndex": 1
+  },
+  {
+    "word": "orange",
+    "choices": ["orange", "apple", "spinach", "shrimp"],
+    "answerIndex": 0
+  },
+  {
+    "word": "beef",
+    "choices": ["beef", "lettuce", "rice", "honey"],
+    "answerIndex": 0
+  },
+  {
+    "word": "shrimp",
+    "choices": ["carrot", "shrimp", "yogurt", "garlic"],
+    "answerIndex": 1
+  },
+  {
+    "word": "honey",
+    "choices": ["banana", "pepper", "honey", "apple"],
+    "answerIndex": 2
+  },
+  {
+    "word": "spinach",
+    "choices": ["rice", "spinach", "bread", "tomato"],
+    "answerIndex": 1
+  },
+  {
+    "word": "mushroom",
+    "choices": ["mushroom", "orange", "salmon", "cheese"],
+    "answerIndex": 0
+  }
+]

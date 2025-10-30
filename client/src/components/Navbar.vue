@@ -1,8 +1,8 @@
 <template>
   <header class="navbar">
-    <router-link class="navbar__brand" to="/dashboard">AI-Tutor</router-link>
+    <router-link class="navbar__brand" to="/dashboard">AI Tutor</router-link>
     <nav class="navbar__links">
-      <router-link to="/dashboard">Trang chủ</router-link>
+      <router-link to="/dashboard">Bài tập</router-link>
       <router-link to="/dictionary">Từ điển</router-link>
       <router-link to="/chat">Trò chuyện</router-link>
     </nav>

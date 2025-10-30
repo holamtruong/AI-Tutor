@@ -417,6 +417,9 @@ const isRecording = ref(false);
 const userStoppedRecording = ref(false);
 const sttError = ref("");
 const recognitionRef = ref<any | null>(null);
+// Wait after last speech before auto-send (ms)
+const AUTO_MODE_SILENCE_MS = 5000;
+let silenceTimer: number | null = null;
 const currentRequestController = ref<AbortController | null>(null);
 // Suggestions and TTS state
 const suggestions = ref<string[]>([]);
@@ -438,6 +441,16 @@ let audioPhaseSpeeds: number[] = [0.018, 0.015, 0.020, 0.016, 0.017];
 
 interface DictionaryTranslateResponse {
   translatedText: string;
+}
+
+type TutorHistoryEntry = {
+  role: "user" | "assistant";
+  content: string;
+};
+
+interface ChatResponsePayload {
+  reply: string;
+  followUpQuestions?: string[];
 }
 
 interface VocabularyPopoverState {
@@ -1071,7 +1084,7 @@ const ensureRecognition = () => {
   if (!recognitionRef.value) {
     const rec = new Ctor();
     rec.lang = "en-US";
-    rec.continuous = false;
+    rec.continuous = true;
     rec.interimResults = true;
     rec.onstart = () => {
       isRecording.value = true;
@@ -1087,12 +1100,7 @@ const ensureRecognition = () => {
         return;
       }
       if (autoMode.value && !isSending.value) {
-        const text = draft.value.trim();
-        if (text) {
-          sendMessage();
-        } else {
-          try { startVoiceInput(); } catch {}
-        }
+        try { startVoiceInput(); } catch {}
       }
     };
     rec.onerror = (ev: any) => {
@@ -1105,6 +1113,21 @@ const ensureRecognition = () => {
         transcript += event.results[i][0].transcript;
       }
       draft.value = transcript.trim();
+      // Debounce by silence before auto-sending in auto mode
+      if (autoMode.value) {
+        if (silenceTimer !== null) {
+          try { clearTimeout(silenceTimer); } catch {}
+          silenceTimer = null;
+        }
+        silenceTimer = window.setTimeout(() => {
+          silenceTimer = null;
+          if (!autoMode.value || isSending.value) return;
+          const text = draft.value.trim();
+          if (!text) return;
+          try { stopVoiceInput(); } catch {}
+          sendMessage();
+        }, AUTO_MODE_SILENCE_MS);
+      }
     };
     recognitionRef.value = rec;
   }
@@ -1115,6 +1138,7 @@ const startVoiceInput = () => {
   const rec = ensureRecognition();
   if (!rec) return;
   userStoppedRecording.value = false;
+  if (silenceTimer !== null) { try { clearTimeout(silenceTimer); } catch {} ; silenceTimer = null; }
   try { startAudioMeter(); } catch {}
   try { rec.start(); } catch {}
 };
@@ -1124,6 +1148,7 @@ const stopVoiceInput = (explicit = false) => {
   if (explicit) {
     userStoppedRecording.value = true;
   }
+  if (silenceTimer !== null) { try { clearTimeout(silenceTimer); } catch {} ; silenceTimer = null; }
   if (rec && isRecording.value) {
     try { rec.stop(); } catch {}
   }
@@ -1199,6 +1224,11 @@ const sendMessage = async () => {
   ensureActiveConversation();
   try { stopVoiceInput(); } catch {}
 
+  const historyPayload: TutorHistoryEntry[] = currentMessages.value.map((message) => ({
+    role: message.sender === "user" ? "user" : "assistant",
+    content: message.content,
+  }));
+
   draft.value = "";
   error.value = "";
 
@@ -1221,7 +1251,7 @@ const sendMessage = async () => {
         "Content-Type": "application/json",
         accept: "application/json",
       },
-      body: JSON.stringify({ message: text }),
+      body: JSON.stringify({ message: text, history: historyPayload }),
       signal: controller.signal,
     });
 
@@ -1229,7 +1259,7 @@ const sendMessage = async () => {
       throw new Error(await response.text());
     }
 
-    const data = (await response.json()) as { reply: string; suggestions?: string[] };
+    const data = (await response.json()) as ChatResponsePayload;
 
     const aiMessage: ChatMessage = {
       id: crypto.randomUUID(),
@@ -1254,8 +1284,8 @@ const sendMessage = async () => {
       const uniq = Array.from(new Set(base)).filter(Boolean).slice(0, 4);
       return uniq;
     };
-    suggestions.value = Array.isArray(data.suggestions) && data.suggestions.length
-      ? data.suggestions.slice(0, 4)
+    suggestions.value = Array.isArray(data.followUpQuestions) && data.followUpQuestions.length
+      ? data.followUpQuestions.slice(0, 4)
       : fallbackSuggestions(text);
     // Optionally auto speak AI reply for pronunciation
     try { playMessage(aiMessage); } catch {}

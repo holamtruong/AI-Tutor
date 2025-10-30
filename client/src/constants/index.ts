@@ -40,11 +40,13 @@ export const PROFICIENCY_LEVELS = [
 export const VISITED_KEYS = {
   chat: "has-visited-chat",
   dictionary: "has-visited-dictionary",
+  assignments: "has-visited-assignments",
 };
 
 export const CHAT_HISTORY_KEY = "chat-history";
 export const CHAT_ACTIVE_CONVERSATION_KEY = "chat-active-conversation-id";
 export const RECENT_DICTIONARY_SEARCHES_KEY = "recent-dictionary-searches";
+export const ASSIGNMENTS_HISTORY_KEY = "assignments-history";
 
 export const SAMPLE_DICTIONARY_KEYWORDS = [
   "accomplish",
