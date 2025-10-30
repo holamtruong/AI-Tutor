@@ -254,6 +254,29 @@
               </p>
             </div>
 
+            <div class="account-modal__field">
+              <label class="account-modal__label" for="account-voice">
+                Giọng đọc ưa thích
+                <small class="account-modal__hint">
+                  (nhóm tiếng Anh - giọng mặc định: nữ)
+                </small>
+              </label>
+              <select
+                id="account-voice"
+                class="account-modal__input"
+                v-model="accountForm.voicePreference"
+              >
+                <option value="">Tự động chọn</option>
+                <option value="female">Nữ (giọng Anh-Mỹ)</option>
+                <option value="male">Nam (giọng Anh-Mỹ)</option>
+                <option value="microsoft aria">Microsoft Aria (Female)</option>
+                <option value="microsoft zira">Microsoft Zira (Female)</option>
+                <option value="microsoft jenny">Microsoft Jenny (Female)</option>
+                <option value="microsoft guy">Microsoft Guy (Male)</option>
+                <option value="microsoft david">Microsoft David (Male)</option>
+              </select>
+            </div>
+
             <div class="account-modal__actions">
               <button
                 type="button"
@@ -302,10 +325,16 @@ const error = ref("");
 const isSidebarCollapsed = ref(false);
 const conversationRef = ref<HTMLElement | null>(null);
 const isAccountModalOpen = ref(false);
-const accountForm = reactive<{ fullName: string; age: string; proficiencyLevel: string }>({
+const accountForm = reactive<{
+  fullName: string;
+  age: string;
+  proficiencyLevel: string;
+  voicePreference: string;
+}>({
   fullName: "",
   age: "",
   proficiencyLevel: "",
+  voicePreference: "",
 });
 const accountErrors = reactive<{ fullName: string; age: string; proficiencyLevel: string }>({
   fullName: "",
@@ -313,6 +342,7 @@ const accountErrors = reactive<{ fullName: string; age: string; proficiencyLevel
   proficiencyLevel: "",
 });
 const userDisplayName = ref("");
+const voicePreference = ref("");
 const levels = PROFICIENCY_LEVELS;
 // Auto mode + Speech recognition state
 const autoMode = ref(false);
@@ -503,6 +533,14 @@ watch(activeConversationId, () => {
 const syncUserNameFromPreferences = () => {
   const prefs = getUserPreferences();
   userDisplayName.value = prefs.fullName?.trim() ?? "";
+  const rawVoicePref =
+    typeof prefs.voicePreference === "string" && prefs.voicePreference.trim()
+      ? prefs.voicePreference
+      : typeof prefs.gender === "string"
+        ? prefs.gender
+        : "";
+  voicePreference.value =
+    typeof rawVoicePref === "string" ? rawVoicePref.trim().toLowerCase() : "";
   return prefs;
 };
 
@@ -521,6 +559,7 @@ const loadAccountForm = () => {
     typeof prefs.proficiencyLevel === "number" && !Number.isNaN(prefs.proficiencyLevel)
       ? String(prefs.proficiencyLevel)
       : "";
+  accountForm.voicePreference = prefs.voicePreference ?? "";
   resetAccountErrors();
 };
 
@@ -562,16 +601,25 @@ const submitAccountForm = () => {
     return;
   }
 
+  const trimmedVoice = accountForm.voicePreference.trim();
+  const normalizedVoice = trimmedVoice.toLowerCase();
+
   saveUserPreferences({
     fullName: trimmedName,
     age: ageNumber,
     proficiencyLevel: levelNumber,
+    voicePreference: trimmedVoice || undefined,
   });
 
   userDisplayName.value = trimmedName;
+  voicePreference.value = normalizedVoice;
   accountForm.fullName = trimmedName;
   accountForm.age = String(ageNumber);
   accountForm.proficiencyLevel = String(levelNumber);
+  accountForm.voicePreference = trimmedVoice;
+
+  selectedVoice.value = null;
+  ensureVoice();
 
   closeAccountModal();
 };
@@ -586,9 +634,39 @@ const ensureVoice = () => {
   const pickVoice = () => {
     const voices = synth.getVoices();
     if (!voices || !voices.length) return null;
-    // Prefer en-US female-ish voices if available
-    const preferred = voices.find((v) => /en-US/i.test(v.lang) && /female|zira|aria|salli/i.test(v.name));
-    return preferred ?? voices.find((v) => /en/i.test(v.lang)) ?? voices[0] ?? null;
+    const normalizedPref = voicePreference.value.trim().toLowerCase();
+    const englishVoices = voices.filter((v) => /en/i.test(v.lang));
+    const byExactName = normalizedPref
+      ? englishVoices.find((voice) => voice.name.toLowerCase() === normalizedPref)
+      : null;
+    if (byExactName) {
+      return byExactName;
+    }
+
+    const femalePattern = /female|girl|woman|zira|aria|salli|lisa|jenny|joanna|amy|olivia|emma|victoria|susan|linda|michelle/i;
+    const malePattern = /male|boy|man|david|guy|brian|justin|matthew|adam|arthur|james|john|paul|ryan|michael|stephen|daniel/i;
+
+    const wantsMale =
+      normalizedPref &&
+      (/^male$|^nam$|^man$|^anh$/i.test(normalizedPref) || malePattern.test(normalizedPref));
+    const wantsFemale =
+      normalizedPref &&
+      (/^female$|^nu$|^nữ$|^woman$|^chi$/i.test(normalizedPref) || femalePattern.test(normalizedPref));
+
+    if (wantsMale && !wantsFemale) {
+      const maleVoice = englishVoices.find((voice) => malePattern.test(voice.name));
+      if (maleVoice) return maleVoice;
+    }
+
+    if (wantsFemale && !wantsMale) {
+      const femaleVoice = englishVoices.find((voice) => femalePattern.test(voice.name));
+      if (femaleVoice) return femaleVoice;
+    }
+
+    const defaultFemale = englishVoices.find((voice) => femalePattern.test(voice.name));
+    const defaultMale = englishVoices.find((voice) => malePattern.test(voice.name));
+
+    return defaultFemale ?? defaultMale ?? englishVoices[0] ?? voices[0] ?? null;
   };
   if (!selectedVoice.value) {
     const v = pickVoice();
@@ -1784,6 +1862,23 @@ textarea:focus {
   font-weight: 600;
   color: #0f172a;
   font-size: 0.95rem;
+}
+
+.account-modal__hint {
+  display: block;
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-top: 0.2rem;
+}
+
+.account-modal__hint code {
+  font-family: "Fira Code", "Consolas", "SFMono-Regular", monospace;
+  font-size: 0.78rem;
+  background: rgba(148, 163, 184, 0.2);
+  padding: 0.05rem 0.25rem;
+  border-radius: 6px;
+  color: #0f172a;
 }
 
 .account-modal__input {

@@ -8,6 +8,7 @@ export interface UserPreferences {
   gender?: string;
   age?: number;
   proficiencyLevel?: number;
+  voicePreference?: string;
   hasCompletedOnboarding?: boolean;
 }
 
