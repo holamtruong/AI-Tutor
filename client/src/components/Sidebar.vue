@@ -111,18 +111,19 @@
 
     <div class="sidebar__account">
       <p class="section__title">Account</p>
-      <router-link
-        to="/dashboard"
+      <button
         class="btn btn--primary"
-        title="Mo ho so hoc tap"
+        type="button"
+        title="Cap nhat thong tin tai khoan"
+        @click="onAccountClick"
       >
         <span class="btn__icon">
           <svg viewBox="0 0 24 24" aria-hidden="true" class="icon">
             <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-3.31 0-6 2.13-6 4.76V20h12v-1.24C18 16.13 15.31 14 12 14z" />
           </svg>
         </span>
-        <span class="btn__label">Learning profile</span>
-      </router-link>
+        <span class="btn__label">Cap nhat thong tin</span>
+      </button>
     </div>
   </aside>
 </template>
@@ -147,6 +148,7 @@ const emit = defineEmits<{
   (event: "select", id: string): void;
   (event: "delete", id: string): void;
   (event: "clear-all"): void;
+  (event: "open-account"): void;
 }>();
 
 const formatUpdatedAt = (timestamp: number) => {
@@ -172,6 +174,10 @@ const onClearAll = () => {
   if (confirm("Xac nhan xoa tat ca lich su?")) {
     emit("clear-all");
   }
+};
+
+const onAccountClick = () => {
+  emit("open-account");
 };
 </script>
 

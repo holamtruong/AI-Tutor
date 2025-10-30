@@ -12,6 +12,7 @@
       @select="selectConversation"
       @delete="deleteConversation"
       @clear-all="clearAllConversations"
+      @open-account="openAccountModal"
     />
 
     <!-- Mobile-only navbar shown when sidebar is collapsed -->
@@ -163,20 +164,115 @@
         </div>
       </form>
     </main>
+
+    <transition name="modal-fade">
+      <div
+        v-if="isAccountModalOpen"
+        class="account-modal__backdrop"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="account-modal-title"
+        @click.self="closeAccountModal"
+      >
+        <div class="account-modal">
+          <header class="account-modal__header">
+            <h2 id="account-modal-title">Cap nhat thong tin</h2>
+            <button
+              class="account-modal__close"
+              type="button"
+              aria-label="Dong hop thoai"
+              @click="closeAccountModal"
+            >
+              <span aria-hidden="true">X</span>
+            </button>
+          </header>
+
+          <form class="account-modal__form" @submit.prevent="submitAccountForm">
+            <div class="account-modal__field">
+              <label class="account-modal__label" for="account-full-name">Ten</label>
+              <input
+                id="account-full-name"
+                type="text"
+                class="account-modal__input"
+                v-model="accountForm.fullName"
+                placeholder="Nhap ten cua ban"
+                autocomplete="name"
+              />
+              <p v-if="accountErrors.fullName" class="account-modal__error">
+                {{ accountErrors.fullName }}
+              </p>
+            </div>
+
+            <div class="account-modal__field">
+              <label class="account-modal__label" for="account-age">Tuoi</label>
+              <input
+                id="account-age"
+                type="number"
+                class="account-modal__input"
+                min="7"
+                max="60"
+                v-model="accountForm.age"
+                placeholder="Nhap tuoi"
+              />
+              <p v-if="accountErrors.age" class="account-modal__error">
+                {{ accountErrors.age }}
+              </p>
+            </div>
+
+            <div class="account-modal__field">
+              <label class="account-modal__label" for="account-level">Cap do</label>
+              <select
+                id="account-level"
+                class="account-modal__input"
+                v-model="accountForm.proficiencyLevel"
+              >
+                <option value="">Chon cap do</option>
+                <option
+                  v-for="level in levels"
+                  :key="level.id"
+                  :value="level.id.toString()"
+                >
+                  {{ level.name }}
+                </option>
+              </select>
+              <p v-if="accountErrors.proficiencyLevel" class="account-modal__error">
+                {{ accountErrors.proficiencyLevel }}
+              </p>
+            </div>
+
+            <div class="account-modal__actions">
+              <button
+                type="button"
+                class="account-modal__button account-modal__button--ghost"
+                @click="closeAccountModal"
+              >
+                Huy
+              </button>
+              <button type="submit" class="account-modal__button account-modal__button--primary">
+                Luu thay doi
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from "vue";
+import { computed, nextTick, onMounted, reactive, ref, watch } from "vue";
 import Sidebar from "@/components/Sidebar.vue";
+import { PROFICIENCY_LEVELS } from "@/constants";
 import { API_DOMAIN } from "@/config";
 import {
   clearChatHistory,
   getActiveConversationId,
   getChatConversations,
+  getUserPreferences,
   hasCompletedOnboarding,
   saveActiveConversationId,
   saveChatConversations,
+  saveUserPreferences,
   type ChatConversation,
   type ChatMessage,
 } from "@/utils/localStorage";
@@ -191,6 +287,18 @@ const isSending = ref(false);
 const error = ref("");
 const isSidebarCollapsed = ref(false);
 const conversationRef = ref<HTMLElement | null>(null);
+const isAccountModalOpen = ref(false);
+const accountForm = reactive<{ fullName: string; age: string; proficiencyLevel: string }>({
+  fullName: "",
+  age: "",
+  proficiencyLevel: "",
+});
+const accountErrors = reactive<{ fullName: string; age: string; proficiencyLevel: string }>({
+  fullName: "",
+  age: "",
+  proficiencyLevel: "",
+});
+const levels = PROFICIENCY_LEVELS;
 // Auto mode + Speech recognition state
 const autoMode = ref(false);
 const isRecording = ref(false);
@@ -376,6 +484,75 @@ watch(
 watch(activeConversationId, () => {
   nextTick(() => scrollToBottom());
 });
+
+const resetAccountErrors = () => {
+  accountErrors.fullName = "";
+  accountErrors.age = "";
+  accountErrors.proficiencyLevel = "";
+};
+
+const loadAccountForm = () => {
+  const prefs = getUserPreferences();
+  accountForm.fullName = prefs.fullName ?? "";
+  accountForm.age =
+    typeof prefs.age === "number" && !Number.isNaN(prefs.age) ? String(prefs.age) : "";
+  accountForm.proficiencyLevel =
+    typeof prefs.proficiencyLevel === "number" && !Number.isNaN(prefs.proficiencyLevel)
+      ? String(prefs.proficiencyLevel)
+      : "";
+  resetAccountErrors();
+};
+
+const openAccountModal = () => {
+  loadAccountForm();
+  isAccountModalOpen.value = true;
+};
+
+const closeAccountModal = () => {
+  isAccountModalOpen.value = false;
+  resetAccountErrors();
+};
+
+const submitAccountForm = () => {
+  resetAccountErrors();
+
+  const trimmedName = accountForm.fullName.trim();
+  if (trimmedName.length < 2) {
+    accountErrors.fullName = "Vui long nhap ten hop le";
+  }
+
+  const ageNumber = Number.parseInt(accountForm.age, 10);
+  if (!accountForm.age) {
+    accountErrors.age = "Vui long nhap tuoi";
+  } else if (Number.isNaN(ageNumber)) {
+    accountErrors.age = "Tuoi khong hop le";
+  } else if (ageNumber < 7 || ageNumber > 60) {
+    accountErrors.age = "Tuoi phai nam trong khoang 7 den 60";
+  }
+
+  const levelNumber = Number.parseInt(accountForm.proficiencyLevel, 10);
+  if (!accountForm.proficiencyLevel) {
+    accountErrors.proficiencyLevel = "Vui long chon cap do";
+  } else if (Number.isNaN(levelNumber)) {
+    accountErrors.proficiencyLevel = "Cap do khong hop le";
+  }
+
+  if (accountErrors.fullName || accountErrors.age || accountErrors.proficiencyLevel) {
+    return;
+  }
+
+  saveUserPreferences({
+    fullName: trimmedName,
+    age: ageNumber,
+    proficiencyLevel: levelNumber,
+  });
+
+  accountForm.fullName = trimmedName;
+  accountForm.age = String(ageNumber);
+  accountForm.proficiencyLevel = String(levelNumber);
+
+  closeAccountModal();
+};
 
 const toggleSidebar = () => {
   isSidebarCollapsed.value = !isSidebarCollapsed.value;
@@ -1501,5 +1678,163 @@ textarea:focus {
   box-shadow:
     0 0 0 3px rgba(55, 48, 163, 0.45),
     0 8px 18px rgba(55, 48, 163, 0.35);
+}
+
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+
+.account-modal__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  z-index: 1200;
+}
+
+.account-modal {
+  width: min(100%, 420px);
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 1.75rem;
+  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.account-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.account-modal__header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #0f172a;
+  letter-spacing: 0.01em;
+}
+
+.account-modal__close {
+  border: none;
+  background: rgba(148, 163, 184, 0.2);
+  color: #0f172a;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.account-modal__close:hover {
+  background: rgba(148, 163, 184, 0.35);
+  transform: translateY(-1px);
+}
+
+.account-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.account-modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.account-modal__label {
+  font-weight: 600;
+  color: #0f172a;
+  font-size: 0.95rem;
+}
+
+.account-modal__input {
+  width: 100%;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 12px;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.95rem;
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.95);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.account-modal__input:focus {
+  outline: none;
+  border-color: rgba(99, 102, 241, 0.75);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.account-modal__error {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #dc2626;
+}
+
+.account-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.account-modal__button {
+  border: none;
+  border-radius: 12px;
+  padding: 0.6rem 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.account-modal__button--ghost {
+  background: rgba(148, 163, 184, 0.2);
+  color: #0f172a;
+}
+
+.account-modal__button--ghost:hover {
+  background: rgba(148, 163, 184, 0.35);
+  transform: translateY(-1px);
+}
+
+.account-modal__button--primary {
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  color: #ffffff;
+  box-shadow: 0 12px 24px rgba(99, 102, 241, 0.3);
+}
+
+.account-modal__button--primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 28px rgba(99, 102, 241, 0.4);
+}
+
+@media (max-width: 640px) {
+  .account-modal {
+    width: 100%;
+    padding: 1.25rem;
+  }
+
+  .account-modal__actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .account-modal__button {
+    width: 100%;
+  }
 }
 </style>

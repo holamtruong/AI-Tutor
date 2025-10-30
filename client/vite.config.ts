@@ -9,7 +9,8 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
-  server: {
-    port: 3000,
-  },
+server: {
+  host: "0.0.0.0", // allows access from other machines
+  port: 3000,      // pick any free port you prefer
+},
 });
