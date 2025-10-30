@@ -11,7 +11,7 @@
       <button
         class="sidebar__toggle"
         type="button"
-        :aria-label="collapsed ? 'Mo sidebar' : 'Thu gon sidebar'"
+        :aria-label="collapsed ? 'Mở thanh bên' : 'Thu gọn thanh bên'"
         @click="emit('toggle')"
       >
         <svg viewBox="0 0 24 24" aria-hidden="true" class="icon">
@@ -25,51 +25,51 @@
     <button
       class="sidebar__new"
       type="button"
-      title="Tao doan chat moi"
-      aria-label="Tao doan chat moi"
+      title="Tạo cuộc trò chuyện mới"
+      aria-label="Tạo cuộc trò chuyện mới"
       @click="emit('new-chat')"
     >
       <svg viewBox="0 0 24 24" aria-hidden="true" class="icon">
         <path d="M12 5v14M5 12h14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
       </svg>
-      <span class="sidebar__new-label">New conversation</span>
+      <span class="sidebar__new-label">Cuộc trò chuyện mới</span>
     </button>
 
     <nav class="sidebar__nav">
-      <p class="sidebar__title">Quick links</p>
-      <router-link to="/chat" class="nav__link" title="Chat">
+      <p class="sidebar__title">Liên kết nhanh</p>
+      <router-link to="/chat" class="nav__link" title="Trò chuyện">
         <span class="nav__icon">
           <svg viewBox="0 0 24 24" aria-hidden="true" class="icon">
             <path d="M4 6h16v9H7l-3 3z" stroke-width="1.6" stroke-linejoin="round" />
           </svg>
         </span>
-        <span class="nav__label">Chat</span>
+        <span class="nav__label">Trò chuyện</span>
       </router-link>
-      <router-link to="/dictionary" class="nav__link" title="Dictionary">
+      <router-link to="/dictionary" class="nav__link" title="Từ điển">
         <span class="nav__icon">
           <svg viewBox="0 0 24 24" aria-hidden="true" class="icon">
             <path d="M5 4h12a3 3 0 0 1 3 3v13l-4-3-4 3-4-3-4 3V7a3 3 0 0 1 3-3z" stroke-width="1.6" stroke-linejoin="round" />
           </svg>
         </span>
-        <span class="nav__label">Dictionary</span>
+        <span class="nav__label">Từ điển</span>
       </router-link>
-      <router-link to="/dashboard" class="nav__link" title="Exercises">
+      <router-link to="/dashboard" class="nav__link" title="Bài tập">
         <span class="nav__icon">
           <svg viewBox="0 0 24 24" aria-hidden="true" class="icon">
             <path d="M4 5h16v3H4zM4 11h10v3H4zM4 17h7v3H4z" />
           </svg>
         </span>
-        <span class="nav__label">Exercises</span>
+        <span class="nav__label">Bài tập</span>
       </router-link>
     </nav>
 
     <section class="sidebar__section">
       <div class="section__header">
-        <p class="section__title">Chat history</p>
+        <p class="section__title">Lịch sử trò chuyện</p>
       </div>
 
       <div v-if="!conversations.length" class="history__empty">
-        <p>No saved conversations yet.</p>
+        <p>Chưa có cuộc trò chuyện nào.</p>
       </div>
 
       <div v-else class="history">
@@ -82,7 +82,7 @@
           <button
             class="history__select"
             type="button"
-            :title="`Mo doan chat ${item.title}`"
+            :title="`Mở cuộc trò chuyện ${item.title}`"
             @click="emit('select', item.id)"
           >
             <span class="history__title">{{ item.title }}</span>
@@ -92,8 +92,8 @@
           <button
             class="history__delete"
             type="button"
-            title="Xoa doan chat"
-            aria-label="Xoa doan chat"
+            title="Xóa cuộc trò chuyện"
+            aria-label="Xóa cuộc trò chuyện"
             @click="onDelete(item.id)"
           >
             <svg viewBox="0 0 24 24" aria-hidden="true" class="icon icon--sm">
@@ -110,11 +110,11 @@
     </section>
 
     <div class="sidebar__account">
-      <p class="section__title">Account</p>
+      <p class="section__title">Tài khoản</p>
       <button
-        class="btn btn--primary"
+        class="btn btn--account"
         type="button"
-        title="Cap nhat thong tin tai khoan"
+        title="Cập nhật thông tin tài khoản"
         @click="onAccountClick"
       >
         <span class="btn__icon">
@@ -122,7 +122,7 @@
             <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-3.31 0-6 2.13-6 4.76V20h12v-1.24C18 16.13 15.31 14 12 14z" />
           </svg>
         </span>
-        <span class="btn__label">Cap nhat thong tin</span>
+        <span class="btn__label">{{ userName || "Bạn học" }}</span>
       </button>
     </div>
   </aside>
@@ -140,6 +140,7 @@ const props = defineProps<{
   collapsed: boolean;
   conversations: ConversationSummary[];
   activeId: string;
+  userName?: string;
 }>();
 
 const emit = defineEmits<{
@@ -162,7 +163,7 @@ const formatUpdatedAt = (timestamp: number) => {
 };
 
 const onDelete = (id: string) => {
-  if (confirm("Xac nhan xoa doan chat nay?")) {
+  if (confirm("Xác nhận xoá cuộc trò chuyện này?")) {
     emit("delete", id);
   }
 };
@@ -171,7 +172,7 @@ const onClearAll = () => {
   if (!props.conversations.length) {
     return;
   }
-  if (confirm("Xac nhan xoa tat ca lich su?")) {
+  if (confirm("Xác nhận xoá toàn bộ lịch sử?")) {
     emit("clear-all");
   }
 };
@@ -433,6 +434,25 @@ const onAccountClick = () => {
 .btn--primary {
   background: linear-gradient(135deg, #3b82f6, #6366f1);
   color: #ffffff;
+}
+
+.btn--account {
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.12);
+}
+
+.btn--account:hover {
+  background: #f8fafc;
+  color: #0f172a;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(15, 23, 42, 0.16);
+}
+
+.btn--account:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.28), 0 6px 14px rgba(15, 23, 42, 0.12);
 }
 
 .sidebar__account {

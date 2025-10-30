@@ -7,6 +7,7 @@
       :collapsed="isSidebarCollapsed"
       :conversations="conversationSummaries"
       :active-id="activeConversationId"
+      :user-name="userDisplayName"
       @toggle="toggleSidebar"
       @new-chat="startNewChat"
       @select="selectConversation"
@@ -21,7 +22,12 @@
         <span class="brand__icon">EC</span>
         <strong class="brand__text">AI Tutor</strong>
       </div>
-      <button class="mobile-navbar__toggle" type="button" aria-label="Mo sidebar" @click="toggleSidebar">
+      <button
+        class="mobile-navbar__toggle"
+        type="button"
+        aria-label="Mở thanh bên"
+        @click="toggleSidebar"
+      >
         <svg viewBox="0 0 24 24" aria-hidden="true" class="icon">
           <rect x="3" y="4" width="4" height="16" rx="1" />
           <rect x="9" y="6" width="12" height="4" rx="1" />
@@ -52,14 +58,14 @@
         >
           <div class="bubble__header">
             <span class="bubble__meta">
-              {{ message.sender === "user" ? "Ban" : "AI Tutor" }} -
+              {{ message.sender === "user" ? "Bạn" : "AI Tutor" }} -
               {{ formatTime(message.timestamp) }}
             </span>
             <button
               class="bubble__action"
               type="button"
-              title="Phat lai doan hoi thoai"
-              aria-label="Phat lai doan hoi thoai"
+              title="Phát lại đoạn hội thoại"
+              aria-label="Phát lại đoạn hội thoại"
               @click="playMessage(message)"
             >
               <svg viewBox="0 0 24 24" aria-hidden="true" class="icon icon--sm">
@@ -70,11 +76,11 @@
           <p class="bubble__text">{{ message.content }}</p>
         </article>
 
-        <div v-if="isSending" class="typing">
+        <div v-if="isSending" class="typing" aria-live="polite">
           <span class="typing__dot"></span>
           <span class="typing__dot"></span>
           <span class="typing__dot"></span>
-          AI Tutor dang soan cau tra loi...
+          AI Tutor đang soạn câu trả lời...
         </div>
       </section>
 
@@ -83,7 +89,7 @@
           <textarea
             v-model="draft"
             rows="3"
-            placeholder="Nhap tin nhan cua ban..."
+            placeholder="Nhập tin nhắn của bạn..."
             :disabled="isSending"
             @keydown.enter.exact="onEnterKey"
             @compositionstart="onCompositionStart"
@@ -95,8 +101,8 @@
                class="icon-button"
                :class="{ 'icon-button--recording': isRecording }"
                type="button"
-               :title="isRecording ? 'Dung nghe' : 'Ghi am giong noi'"
-               :aria-label="isRecording ? 'Dung nghe' : 'Ghi am giong noi'"
+               :title="isRecording ? 'Dừng nghe' : 'Ghi âm giọng nói'"
+               :aria-label="isRecording ? 'Dừng nghe' : 'Ghi âm giọng nói'"
                :aria-pressed="isRecording ? 'true' : 'false'"
                @click="isRecording ? stopVoiceInput(true) : startVoiceInput()"
              >
@@ -108,7 +114,15 @@
               </svg>
             </button>
             <!-- Auto mode toggle shown to the right of mic when no typed text -->
-            <button v-if="!hasText && !isRecording" class="icon-button auto-toggle" :class="{ 'icon-button--primary': autoMode }" type="button" title="Auto mode" aria-label="Auto mode" @click="toggleAutoMode">
+            <button
+              v-if="!hasText && !isRecording"
+              class="icon-button auto-toggle"
+              :class="{ 'icon-button--primary': autoMode }"
+              type="button"
+              title="Chế độ tự động"
+              aria-label="Chế độ tự động"
+              @click="toggleAutoMode"
+            >
               <!-- waveform-lines icon -->
               <svg viewBox="0 0 24 24" aria-hidden="true" class="icon">
                 <rect x="3" y="8" width="2" height="8" rx="1" fill="currentColor" />
@@ -132,8 +146,8 @@
             <button
               class="icon-button icon-button--primary"
               type="button"
-              :title="isSending ? 'Dung' : 'Gui'"
-              :aria-label="isSending ? 'Dung' : 'Gui'"
+              :title="isSending ? 'Dừng' : 'Gửi'"
+              :aria-label="isSending ? 'Dừng' : 'Gửi'"
               :disabled="!isSending && !hasText"
               @click="isSending ? stopGeneration() : sendMessage()"
               v-if="!isRecording && (isSending || hasText)"
@@ -176,11 +190,11 @@
       >
         <div class="account-modal">
           <header class="account-modal__header">
-            <h2 id="account-modal-title">Cap nhat thong tin</h2>
+            <h2 id="account-modal-title">Cập nhật thông tin</h2>
             <button
               class="account-modal__close"
               type="button"
-              aria-label="Dong hop thoai"
+              aria-label="Đóng hộp thoại"
               @click="closeAccountModal"
             >
               <span aria-hidden="true">X</span>
@@ -189,13 +203,13 @@
 
           <form class="account-modal__form" @submit.prevent="submitAccountForm">
             <div class="account-modal__field">
-              <label class="account-modal__label" for="account-full-name">Ten</label>
+              <label class="account-modal__label" for="account-full-name">Tên</label>
               <input
                 id="account-full-name"
                 type="text"
                 class="account-modal__input"
                 v-model="accountForm.fullName"
-                placeholder="Nhap ten cua ban"
+                placeholder="Nhập tên của bạn"
                 autocomplete="name"
               />
               <p v-if="accountErrors.fullName" class="account-modal__error">
@@ -204,7 +218,7 @@
             </div>
 
             <div class="account-modal__field">
-              <label class="account-modal__label" for="account-age">Tuoi</label>
+              <label class="account-modal__label" for="account-age">Tuổi</label>
               <input
                 id="account-age"
                 type="number"
@@ -212,7 +226,7 @@
                 min="7"
                 max="60"
                 v-model="accountForm.age"
-                placeholder="Nhap tuoi"
+                placeholder="Nhập tuổi"
               />
               <p v-if="accountErrors.age" class="account-modal__error">
                 {{ accountErrors.age }}
@@ -220,13 +234,13 @@
             </div>
 
             <div class="account-modal__field">
-              <label class="account-modal__label" for="account-level">Cap do</label>
+              <label class="account-modal__label" for="account-level">Cấp độ</label>
               <select
                 id="account-level"
                 class="account-modal__input"
                 v-model="accountForm.proficiencyLevel"
               >
-                <option value="">Chon cap do</option>
+                <option value="">Chọn cấp độ</option>
                 <option
                   v-for="level in levels"
                   :key="level.id"
@@ -246,10 +260,10 @@
                 class="account-modal__button account-modal__button--ghost"
                 @click="closeAccountModal"
               >
-                Huy
+                Huỷ
               </button>
               <button type="submit" class="account-modal__button account-modal__button--primary">
-                Luu thay doi
+                Lưu thay đổi
               </button>
             </div>
           </form>
@@ -298,6 +312,7 @@ const accountErrors = reactive<{ fullName: string; age: string; proficiencyLevel
   age: "",
   proficiencyLevel: "",
 });
+const userDisplayName = ref("");
 const levels = PROFICIENCY_LEVELS;
 // Auto mode + Speech recognition state
 const autoMode = ref(false);
@@ -485,6 +500,12 @@ watch(activeConversationId, () => {
   nextTick(() => scrollToBottom());
 });
 
+const syncUserNameFromPreferences = () => {
+  const prefs = getUserPreferences();
+  userDisplayName.value = prefs.fullName?.trim() ?? "";
+  return prefs;
+};
+
 const resetAccountErrors = () => {
   accountErrors.fullName = "";
   accountErrors.age = "";
@@ -492,7 +513,7 @@ const resetAccountErrors = () => {
 };
 
 const loadAccountForm = () => {
-  const prefs = getUserPreferences();
+  const prefs = syncUserNameFromPreferences();
   accountForm.fullName = prefs.fullName ?? "";
   accountForm.age =
     typeof prefs.age === "number" && !Number.isNaN(prefs.age) ? String(prefs.age) : "";
@@ -518,23 +539,23 @@ const submitAccountForm = () => {
 
   const trimmedName = accountForm.fullName.trim();
   if (trimmedName.length < 2) {
-    accountErrors.fullName = "Vui long nhap ten hop le";
+    accountErrors.fullName = "Vui lòng nhập tên hợp lệ";
   }
 
   const ageNumber = Number.parseInt(accountForm.age, 10);
   if (!accountForm.age) {
-    accountErrors.age = "Vui long nhap tuoi";
+    accountErrors.age = "Vui lòng nhập tuổi";
   } else if (Number.isNaN(ageNumber)) {
-    accountErrors.age = "Tuoi khong hop le";
+    accountErrors.age = "Tuổi không hợp lệ";
   } else if (ageNumber < 7 || ageNumber > 60) {
-    accountErrors.age = "Tuoi phai nam trong khoang 7 den 60";
+    accountErrors.age = "Tuổi phải nằm trong khoảng 7 đến 60";
   }
 
   const levelNumber = Number.parseInt(accountForm.proficiencyLevel, 10);
   if (!accountForm.proficiencyLevel) {
-    accountErrors.proficiencyLevel = "Vui long chon cap do";
+    accountErrors.proficiencyLevel = "Vui lòng chọn cấp độ";
   } else if (Number.isNaN(levelNumber)) {
-    accountErrors.proficiencyLevel = "Cap do khong hop le";
+    accountErrors.proficiencyLevel = "Cấp độ không hợp lệ";
   }
 
   if (accountErrors.fullName || accountErrors.age || accountErrors.proficiencyLevel) {
@@ -547,6 +568,7 @@ const submitAccountForm = () => {
     proficiencyLevel: levelNumber,
   });
 
+  userDisplayName.value = trimmedName;
   accountForm.fullName = trimmedName;
   accountForm.age = String(ageNumber);
   accountForm.proficiencyLevel = String(levelNumber);
@@ -626,7 +648,7 @@ const ensureRecognition = () => {
   const w = window as any;
   const Ctor = w.SpeechRecognition || w.webkitSpeechRecognition;
   if (!Ctor) {
-    sttError.value = "Trinh duyet khong ho tro nhan dang giong noi.";
+    sttError.value = "Trình duyệt không hỗ trợ nhận dạng giọng nói.";
     return null;
   }
   if (!recognitionRef.value) {
@@ -658,7 +680,7 @@ const ensureRecognition = () => {
     };
     rec.onerror = (ev: any) => {
       isRecording.value = false;
-      sttError.value = ev?.error ? String(ev.error) : "Loi ghi am";
+      sttError.value = ev?.error ? String(ev.error) : "Lỗi ghi âm";
     };
     rec.onresult = (event: any) => {
       let transcript = "";
@@ -924,6 +946,8 @@ const formatTime = (timestamp: number) => {
 };
 
 onMounted(() => {
+  syncUserNameFromPreferences();
+
   if (!hasCompletedOnboarding()) {
     router.replace("/");
     return;
