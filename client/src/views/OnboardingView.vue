@@ -170,12 +170,12 @@ const completeOnboarding = () => {
     hasCompletedOnboarding: true,
   });
 
-  router.push("/dashboard");
+  router.push("/assignment");
 };
 
 onMounted(() => {
   if (hasCompletedOnboarding()) {
-    router.replace("/dashboard");
+    router.replace("/assignment");
   } else if (stored.proficiencyLevel) {
     step.value = 2;
   }

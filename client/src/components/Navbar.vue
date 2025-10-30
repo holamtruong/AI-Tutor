@@ -1,28 +1,90 @@
 <template>
   <header class="navbar">
-    <router-link class="navbar__brand" to="/dashboard">AI Tutor</router-link>
-    <nav class="navbar__links">
-      <router-link to="/dashboard">Bài tập</router-link>
-      <router-link to="/dictionary">Từ điển</router-link>
-      <router-link to="/chat">Trò chuyện</router-link>
-    </nav>
+    <div class="navbar__layout navbar__layout--row">
+      <router-link class="navbar__brand" to="/dashboard">AI Tutor</router-link>
+      <nav class="navbar__links">
+        <router-link to="/assignment">Bài tập</router-link>
+        <router-link to="/writing">Viết</router-link>
+        <router-link to="/dictionary">Từ điển</router-link>
+        <router-link to="/chat">Trò chuyện</router-link>
+      </nav>
+      <div class="navbar__user">
+        <span class="navbar__user-name">{{ displayName }}</span>
+      </div>
+    </div>
   </header>
+import { computed } from 'vue';
+import { getUserPreferences } from '@/utils/localStorage';
+
+const prefs = getUserPreferences();
+const displayName = computed(() => prefs.fullName || 'Tài khoản');
 </template>
 
 <script setup lang="ts"></script>
 
 <style scoped>
+
+
+
 .navbar {
   position: sticky;
   top: 0;
   z-index: 10;
+  width: 100%;
+  background: linear-gradient(90deg, #f8fafc 80%, #e0e7ef 100%);
+  box-shadow: 0 4px 24px rgba(79, 70, 229, 0.08);
+  color: #0f172a;
+  background-size: 200% 200%;
+  animation: navbar-gradient-move 12s ease-in-out infinite;
+}
+
+@keyframes navbar-gradient-move {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.navbar__layout {
+  max-width: 1080px;
+  margin: 0 auto;
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem 2rem;
-  max-width: 1080px;
-  margin: 0 auto;
-  color: #0f172a;
+}
+
+.navbar__brand {
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  color: #2563eb;
+  background: linear-gradient(90deg, #3b82f6 40%, #6366f1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  /* text-fill-color: transparent; */
+}
+
+.navbar__links {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.navbar__brand {
+  margin-right: 2.5rem;
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: 0.04em;
+  text-decoration: none;
 }
 
 .navbar__brand {
@@ -34,6 +96,7 @@
 
 .navbar__links {
   display: flex;
+  justify-content: flex-end;
   gap: 1rem;
 }
 

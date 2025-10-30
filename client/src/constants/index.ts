@@ -47,6 +47,7 @@ export const CHAT_HISTORY_KEY = "chat-history";
 export const CHAT_ACTIVE_CONVERSATION_KEY = "chat-active-conversation-id";
 export const RECENT_DICTIONARY_SEARCHES_KEY = "recent-dictionary-searches";
 export const ASSIGNMENTS_HISTORY_KEY = "assignments-history";
+export const WRITING_HISTORY_KEY = "writing-history";
 
 export const SAMPLE_DICTIONARY_KEYWORDS = [
   "accomplish",

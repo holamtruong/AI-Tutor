@@ -10,13 +10,23 @@ const router = createRouter({
     },
     {
       path: "/dashboard",
+      name: "dashboard-home",
+      component: () => import("@/views/Dashboard.vue"),
+    },
+    {
+      path: "/assignment",
       name: "dashboard",
-      component: () => import("@/views/QuizGame.vue"),
+      component: () => import("@/views/AssignmentView.vue"),
     },
     {
       path: "/dictionary",
       name: "dictionary",
       component: () => import("@/views/DictionarySearchView.vue"),
+    },
+    {
+      path: "/writing",
+      name: "writing",
+      component: () => import("@/views/WritingView.vue"),
     },
     {
       path: "/dictionary/result",

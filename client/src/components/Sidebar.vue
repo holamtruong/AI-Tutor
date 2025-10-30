@@ -1,13 +1,13 @@
 <template>
   <aside class="sidebar" :class="{ 'sidebar--collapsed': collapsed }">
     <div class="sidebar__top">
-      <div class="sidebar__brand">
+      <router-link to="/dashboard" class="sidebar__brand" style="text-decoration:none; color:inherit;">
         <div class="brand__icon">EC</div>
         <div class="brand__text">
           <strong>AI Tutor</strong>
           <span>Gia sư tiếng Anh</span>
         </div>
-      </div>
+      </router-link>
       <button
         class="sidebar__toggle"
         type="button"
@@ -53,13 +53,21 @@
         </span>
         <span class="nav__label">Từ điển</span>
       </router-link>
-      <router-link to="/dashboard" class="nav__link" title="Bài tập">
+      <router-link to="/assignment" class="nav__link" title="Bài tập">
         <span class="nav__icon">
           <svg viewBox="0 0 24 24" aria-hidden="true" class="icon">
             <path d="M4 5h16v3H4zM4 11h10v3H4zM4 17h7v3H4z" />
           </svg>
         </span>
         <span class="nav__label">Bài tập</span>
+      </router-link>
+      <router-link to="/writing" class="nav__link" title="Luyện viết">
+        <span class="nav__icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true" class="icon">
+            <path d="M4 20h4l10-10-4-4L4 16zM14 6l4 4" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" />
+          </svg>
+        </span>
+        <span class="nav__label">Luyện viết</span>
       </router-link>
     </nav>
 

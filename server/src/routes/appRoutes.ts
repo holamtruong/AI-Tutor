@@ -2,6 +2,7 @@ import { Application, Request, Response } from 'express'
 import { HTTP_STATUS } from '~/constants/http'
 import chatRoute from '~/features/chat/route/chat.route'
 import dictionaryRoute from '~/features/dictionary/route/dictionary.route'
+import writingRoute from '~/features/writing/route/writing.route'
 
 const appRoutes = (app: Application) => {
   // app.use('/api/v1/users', userRoute)
@@ -10,6 +11,7 @@ const appRoutes = (app: Application) => {
   })
   app.use('/api/chat', chatRoute)
   app.use('/api/dictionary', dictionaryRoute)
+  app.use('/api', writingRoute)
 }
 
 export default appRoutes
