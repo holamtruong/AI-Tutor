@@ -73,7 +73,22 @@
               </svg>
             </button>
           </div>
-          <p class="bubble__text">{{ message.content }}</p>
+          <p class="bubble__text">
+            <template
+              v-for="(token, index) in tokenizeMessageContent(message.content)"
+              :key="`${message.id}-${index}`"
+            >
+              <button
+                v-if="token.type === 'word'"
+                type="button"
+                class="bubble__token bubble__token--word"
+                @click="handleWordLookup(token.lookup ?? token.display, $event)"
+              >
+                {{ token.display }}
+              </button>
+              <span v-else class="bubble__token bubble__token--text">{{ token.display }}</span>
+            </template>
+          </p>
         </article>
 
         <div v-if="isSending" class="typing" aria-live="polite">
@@ -81,6 +96,57 @@
           <span class="typing__dot"></span>
           <span class="typing__dot"></span>
           AI Tutor đang soạn câu trả lời...
+        </div>
+        <div
+          v-if="vocabPopover.visible"
+          class="vocab-popover"
+          ref="vocabPopoverRef"
+          :style="vocabPopoverStyle"
+        >
+          <header class="vocab-popover__header">
+            <div class="vocab-popover__title">
+              <strong>{{ vocabPopover.keyword }}</strong>
+              <button
+                v-if="canSpeakVocab"
+                type="button"
+                class="vocab-popover__audio"
+                :title="isVocabSpeaking ? 'Đang phát...' : 'Phát âm'"
+                :aria-label="isVocabSpeaking ? 'Đang phát' : 'Phát âm'"
+                :disabled="isVocabSpeaking"
+                @click="speakVocabWord"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" class="icon icon--sm">
+                  <path
+                    d="M5 9v6h3l4 4V5L8 9H5Zm11.5 3a2.5 2.5 0 0 0-1.5-2.296v4.592A2.5 2.5 0 0 0 16.5 12Zm-1.5-6.32v2.073A4.5 4.5 0 0 1 18.5 12a4.5 4.5 0 0 1-3.5 4.247v2.073A6.5 6.5 0 0 0 20.5 12 6.5 6.5 0 0 0 15 5.68Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+            </div>
+            <button
+              class="vocab-popover__close"
+              type="button"
+              aria-label="Đóng giải nghĩa"
+              @click="closeVocabPopover"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" class="icon">
+                <path
+                  d="M6.225 4.811a1 1 0 0 0-1.414 1.414L10.586 12l-5.775 5.775a1 1 0 1 0 1.414 1.414L12 13.414l5.775 5.775a1 1 0 0 0 1.414-1.414L13.414 12l5.775-5.775a1 1 0 0 0-1.414-1.414L12 10.586Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </button>
+          </header>
+          <div class="vocab-popover__body">
+            <div v-if="vocabPopover.loading" class="vocab-popover__status">Đang tra cứu...</div>
+            <div
+              v-else-if="vocabPopover.error"
+              class="vocab-popover__status vocab-popover__status--error"
+            >
+              {{ vocabPopover.error }}
+            </div>
+            <div v-else class="vocab-popover__content" v-html="vocabPopoverHtml"></div>
+          </div>
         </div>
       </section>
 
@@ -105,7 +171,7 @@
                :aria-label="isRecording ? 'Dừng nghe' : 'Ghi âm giọng nói'"
                :aria-pressed="isRecording ? 'true' : 'false'"
                @click="isRecording ? stopVoiceInput(true) : startVoiceInput()"
-             >
+            >
               <svg v-if="!isRecording" viewBox="0 0 24 24" aria-hidden="true" class="icon">
                 <path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3zm-5 9a5 5 0 0 0 10 0h2a7 7 0 0 1-6 6.93V21h-2v-3.07A7 7 0 0 1 5 11h2z" fill="currentColor" />
               </svg>
@@ -297,7 +363,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, reactive, ref, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
 import Sidebar from "@/components/Sidebar.vue";
 import { PROFICIENCY_LEVELS } from "@/constants";
 import { API_DOMAIN } from "@/config";
@@ -324,6 +390,7 @@ const isSending = ref(false);
 const error = ref("");
 const isSidebarCollapsed = ref(false);
 const conversationRef = ref<HTMLElement | null>(null);
+const vocabPopoverRef = ref<HTMLDivElement | null>(null);
 const isAccountModalOpen = ref(false);
 const accountForm = reactive<{
   fullName: string;
@@ -369,6 +436,233 @@ const audioPhases = ref<number[]>([0, 0, 0, 0, 0]);
 // Slower, more relaxed phase speeds for gentler "breathing"
 let audioPhaseSpeeds: number[] = [0.018, 0.015, 0.020, 0.016, 0.017];
 
+interface DictionaryTranslateResponse {
+  translatedText: string;
+}
+
+interface VocabularyPopoverState {
+  visible: boolean;
+  keyword: string;
+  loading: boolean;
+  error: string;
+  content: string;
+  top: number;
+  left: number;
+}
+
+const vocabPopover = reactive<VocabularyPopoverState>({
+  visible: false,
+  keyword: "",
+  loading: false,
+  error: "",
+  content: "",
+  top: 0,
+  left: 0,
+});
+
+const canSpeakVocab = ref(false);
+const isVocabSpeaking = ref(false);
+let vocabSpeechUtterance: SpeechSynthesisUtterance | null = null;
+
+const vocabPopoverStyle = computed(() => {
+  if (!vocabPopover.visible) {
+    return {};
+  }
+  return {
+    top: `${vocabPopover.top}px`,
+    left: `${vocabPopover.left}px`,
+  };
+});
+
+const formatTextAsHtml = (text: string) => {
+  const segments = text
+    .split(/\n{2,}/)
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+  if (!segments.length) {
+    return "";
+  }
+  return `<div>${segments
+    .map((segment) => `<p>${segment.replace(/\n/g, "<br />")}</p>`)
+    .join("")}</div>`;
+};
+
+const vocabPopoverHtml = computed(() => {
+  if (!vocabPopover.content) {
+    return "";
+  }
+  return formatTextAsHtml(vocabPopover.content);
+});
+
+const adjustPopoverPosition = () => {
+  if (!vocabPopover.visible) {
+    return;
+  }
+  const container = conversationRef.value;
+  const popover = vocabPopoverRef.value;
+  if (!container || !popover) {
+    return;
+  }
+
+  const scrollLeft = container.scrollLeft;
+  const containerWidth = container.clientWidth;
+  const popoverWidth = popover.offsetWidth;
+  const padding = 12;
+
+  if (containerWidth <= 0) {
+    return;
+  }
+
+  let clampedLeft: number;
+  const minCenter = scrollLeft + padding + popoverWidth / 2;
+  const maxCenter = scrollLeft + containerWidth - padding - popoverWidth / 2;
+
+  if (maxCenter <= minCenter) {
+    clampedLeft = scrollLeft + containerWidth / 2;
+  } else {
+    clampedLeft = Math.min(Math.max(vocabPopover.left, minCenter), maxCenter);
+  }
+
+  if (Math.abs(clampedLeft - vocabPopover.left) > 0.5) {
+    vocabPopover.left = clampedLeft;
+  }
+};
+
+let vocabPopoverAbort: AbortController | null = null;
+
+const stopVocabSpeech = () => {
+  if (!canSpeakVocab.value) {
+    return;
+  }
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+    return;
+  }
+  window.speechSynthesis.cancel();
+  vocabSpeechUtterance = null;
+  isVocabSpeaking.value = false;
+};
+
+const closeVocabPopover = () => {
+  if (vocabPopoverAbort) {
+    vocabPopoverAbort.abort();
+    vocabPopoverAbort = null;
+  }
+  stopVocabSpeech();
+  vocabPopover.visible = false;
+  vocabPopover.loading = false;
+  vocabPopover.error = "";
+  vocabPopover.content = "";
+};
+
+const speakVocabWord = () => {
+  if (!canSpeakVocab.value || !vocabPopover.keyword.trim()) {
+    return;
+  }
+  if (typeof window === "undefined" || !window.speechSynthesis) {
+    return;
+  }
+  stopVocabSpeech();
+  const utterance = new SpeechSynthesisUtterance(vocabPopover.keyword);
+  utterance.lang = "en-US";
+  utterance.rate = 0.95;
+  utterance.pitch = 1;
+  utterance.onstart = () => {
+    isVocabSpeaking.value = true;
+  };
+  utterance.onend = () => {
+    isVocabSpeaking.value = false;
+    vocabSpeechUtterance = null;
+  };
+  utterance.onerror = () => {
+    isVocabSpeaking.value = false;
+    vocabSpeechUtterance = null;
+  };
+  vocabSpeechUtterance = utterance;
+  window.speechSynthesis.speak(utterance);
+};
+
+const handleWordLookup = async (word: string, event: MouseEvent) => {
+  const normalized = word.trim();
+  if (!normalized) {
+    return;
+  }
+
+  const container = conversationRef.value;
+  const target = event.currentTarget as HTMLElement | null;
+  if (!container || !target) {
+    return;
+  }
+
+  const containerRect = container.getBoundingClientRect();
+  const targetRect = target.getBoundingClientRect();
+  const top = targetRect.bottom - containerRect.top + container.scrollTop + 8;
+  const left =
+    targetRect.left - containerRect.left + container.scrollLeft + targetRect.width / 2;
+
+  if (vocabPopoverAbort) {
+    vocabPopoverAbort.abort();
+  }
+  stopVocabSpeech();
+
+  const controller = new AbortController();
+  vocabPopoverAbort = controller;
+
+  vocabPopover.visible = true;
+  vocabPopover.keyword = normalized;
+  vocabPopover.loading = true;
+  vocabPopover.error = "";
+  vocabPopover.content = "";
+  vocabPopover.top = top;
+  vocabPopover.left = left;
+
+  await nextTick();
+  adjustPopoverPosition();
+
+  try {
+    const response = await fetch(`${API_DOMAIN}/api/dictionary/translate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ text: normalized }),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(await response.text());
+    }
+
+    const data = (await response.json()) as DictionaryTranslateResponse;
+    const translated = data.translatedText.trim();
+    if (translated) {
+      vocabPopover.content = translated;
+      vocabPopover.error = "";
+    } else {
+      vocabPopover.content = "";
+      vocabPopover.error = "Không tìm thấy nội dung phù hợp.";
+    }
+    await nextTick();
+    adjustPopoverPosition();
+  } catch (error_) {
+    if ((error_ as Error).name === "AbortError") {
+      return;
+    }
+    console.error("Không thể tra cứu từ", error_);
+    vocabPopover.content = "";
+    vocabPopover.error =
+      error_ instanceof Error ? error_.message : "Không thể tra cứu, vui lòng thử lại.";
+    await nextTick();
+    adjustPopoverPosition();
+  } finally {
+    if (vocabPopoverAbort === controller) {
+      vocabPopover.loading = false;
+      vocabPopoverAbort = null;
+      await nextTick();
+      adjustPopoverPosition();
+    }
+  }
+};
+
 // Random English greetings used as centered, non-persistent prompts
 const GREETINGS = [
   "Hi there! What would you like to learn today",
@@ -385,6 +679,51 @@ const GREETINGS = [
 
 const pickGreeting = () => GREETINGS[Math.floor(Math.random() * GREETINGS.length)];
 const welcomeText = ref<string>(pickGreeting());
+
+type MessageToken = {
+  type: "word" | "text";
+  display: string;
+  lookup?: string;
+};
+
+const WORD_TOKEN_REGEX =
+  /[\p{L}\p{M}\d]+(?:[-'’][\p{L}\p{M}\d]+)*/gu;
+
+const tokenizeMessageContent = (content: string): MessageToken[] => {
+  if (!content) {
+    return [];
+  }
+
+  const tokens: MessageToken[] = [];
+  let lastIndex = 0;
+
+  for (const match of content.matchAll(WORD_TOKEN_REGEX)) {
+    const matchIndex = match.index ?? 0;
+    if (matchIndex > lastIndex) {
+      tokens.push({
+        type: "text",
+        display: content.slice(lastIndex, matchIndex),
+      });
+    }
+
+    const matched = match[0];
+    tokens.push({
+      type: "word",
+      display: matched,
+      lookup: matched.trim().toLowerCase(),
+    });
+    lastIndex = matchIndex + matched.length;
+  }
+
+  if (lastIndex < content.length) {
+    tokens.push({
+      type: "text",
+      display: content.slice(lastIndex),
+    });
+  }
+
+  return tokens;
+};
 
 const createConversation = (initialMessages: ChatMessage[] = []): ChatConversation => {
   const now = Date.now();
@@ -1025,6 +1364,11 @@ const formatTime = (timestamp: number) => {
 
 onMounted(() => {
   syncUserNameFromPreferences();
+  if (typeof window !== "undefined" && "speechSynthesis" in window) {
+    canSpeakVocab.value = true;
+  } else {
+    canSpeakVocab.value = false;
+  }
 
   if (!hasCompletedOnboarding()) {
     router.replace("/");
@@ -1047,6 +1391,14 @@ onMounted(() => {
     const conversation = createConversation();
     commitConversations([conversation]);
     setActiveConversation(conversation.id);
+  }
+});
+
+onBeforeUnmount(() => {
+  stopVocabSpeech();
+  if (vocabPopoverAbort) {
+    vocabPopoverAbort.abort();
+    vocabPopoverAbort = null;
   }
 });
 
@@ -1186,6 +1538,7 @@ const stopAudioMeter = () => {
   padding: 1.5rem;
   background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
   overflow: hidden;
+  position: relative;
 }
 
 /* Centered welcome prompt when a conversation is empty */
@@ -1256,6 +1609,7 @@ const stopAudioMeter = () => {
   gap: 1rem;
   overflow-y: auto;
   box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+  position: relative;
 }
 
 .conversation__banner {
@@ -1315,6 +1669,41 @@ const stopAudioMeter = () => {
   font-size: 1rem;
 }
 
+.bubble__token {
+  display: inline;
+  font: inherit;
+  color: inherit;
+}
+
+.bubble__token--text {
+  white-space: pre-wrap;
+}
+
+.bubble__token--word {
+  border: none;
+  background: transparent;
+  padding: 0 0.08rem;
+  margin: -0.05rem 0;
+  font: inherit;
+  color: inherit;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bubble__token--word:hover,
+.bubble__token--word:focus-visible {
+  outline: none;
+  background: rgba(99, 102, 241, 0.12);
+  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.25);
+}
+
+.bubble--user .bubble__token--word:hover,
+.bubble--user .bubble__token--word:focus-visible {
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+
 .bubble--ai {
   align-self: flex-start;
   background: #ffffff;
@@ -1359,6 +1748,132 @@ const stopAudioMeter = () => {
 
 .typing__dot:nth-child(3) {
   animation-delay: 0.3s;
+}
+
+.vocab-popover {
+  position: absolute;
+  width: min(320px, calc(100% - 24px));
+  min-width: min(220px, calc(100% - 24px));
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 16px;
+  padding: 0.85rem 1rem;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.18);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  transform: translate(-50%, 0);
+  z-index: 30;
+}
+
+.vocab-popover::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  background: inherit;
+  border-left: 1px solid rgba(148, 163, 184, 0.25);
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+  transform: translate(-50%, -50%) rotate(45deg);
+  z-index: -1;
+}
+
+.vocab-popover__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.6rem;
+}
+
+.vocab-popover__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.vocab-popover__title strong {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.vocab-popover__audio {
+  border: none;
+  background: rgba(99, 102, 241, 0.12);
+  border-radius: 8px;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  color: #4338ca;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.vocab-popover__audio:hover {
+  background: rgba(99, 102, 241, 0.22);
+  color: #312e81;
+  transform: translateY(-1px);
+}
+
+.vocab-popover__audio:focus-visible {
+  outline: 2px solid rgba(99, 102, 241, 0.5);
+  outline-offset: 2px;
+}
+
+.vocab-popover__audio:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.vocab-popover__close {
+  border: none;
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 8px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  color: #1f2937;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.vocab-popover__close:hover {
+  background: rgba(148, 163, 184, 0.32);
+  transform: translateY(-1px);
+}
+
+.vocab-popover__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.vocab-popover__status {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.vocab-popover__status--error {
+  color: #dc2626;
+}
+
+.vocab-popover__content {
+  font-size: 0.92rem;
+  color: #0f172a;
+  line-height: 1.6;
+}
+
+.vocab-popover__content :deep(p) {
+  margin: 0 0 0.5rem;
+}
+
+.vocab-popover__content :deep(p:last-child) {
+  margin-bottom: 0;
 }
 
 .composer {
@@ -1957,3 +2472,4 @@ textarea:focus {
   }
 }
 </style>
+
