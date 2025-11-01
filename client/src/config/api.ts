@@ -1,5 +1,5 @@
 const LOCAL_API_DOMAIN = "http://localhost:5050";
-const PRODUCTION_API_DOMAIN = "https://your-render-server.onrender.com";
+const PRODUCTION_API_DOMAIN = "https://ai-tutor-backend-t360.onrender.com";
 // Prefer Vercel/Env configuration if provided
 const ENV_API_DOMAIN = (import.meta as any)?.env?.VITE_API_DOMAIN as
   | string
