@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="writing-screen">
     <Navbar />
 
@@ -6,33 +6,33 @@
       <section class="writing-content">
         <form class="writing-card" @submit.prevent="handleSubmit">
           <header class="writing-card__header">
-            <h1 class="writing-title">BÃ i viáº¿t cá»§a báº¡n</h1>
-            <p class="writing-subtitle">Luyá»‡n táº­p viáº¿t Ä‘oáº¡n vÄƒn vÃ  nháº­n pháº£n há»“i tá»± Ä‘á»™ng.</p>
+            <h1 class="writing-title">Bài viết của bạn</h1>
+            <p class="writing-subtitle">Luyện tập viết đoạn văn và nhận phản hồi tự động.</p>
           </header>
 
           <div class="writing-field">
-            <label class="writing-label" for="writing-title">TiÃªu Ä‘á»</label>
+            <label class="writing-label" for="writing-title">Tiêu đề</label>
             <input
               id="writing-title"
               v-model="title"
               type="text"
               class="writing-input"
-              placeholder="VÃ­ dá»¥: Bá»¯a Äƒn yÃªu thÃ­ch cá»§a tÃ´i"
+              placeholder="Ví dụ: Bữa ăn yêu thích của tôi"
               :disabled="isEvaluating"
             />
           </div>
 
           <div class="writing-field">
             <div class="writing-field__header">
-              <label class="writing-label" for="writing-content">Ná»™i dung</label>
-              <span class="writing-counter">{{ charCount }} kÃ½ tá»±</span>
+              <label class="writing-label" for="writing-content">Nội dung</label>
+              <span class="writing-counter">{{ charCount }} ký tự</span>
             </div>
             <textarea
               id="writing-content"
               ref="textareaRef"
               v-model="content"
               class="writing-textarea"
-              placeholder="HÃ£y viáº¿t Ä‘oáº¡n vÄƒn cá»§a báº¡n..."
+              placeholder="Hãy viết đoạn văn của bạn..."
               rows="6"
               @input="handleTextareaInput"
               :disabled="isEvaluating"
@@ -46,15 +46,15 @@
               @click="resetForm"
               :disabled="isEvaluating && !activeSubmission"
             >
-              Viáº¿t bÃ i má»›i
+              Viết bài mới
             </button>
             <button
               type="submit"
               class="writing-btn"
               :disabled="!canSubmit"
             >
-              <span v-if="isEvaluating">Äang cháº¥m Ä‘iá»ƒm...</span>
-              <span v-else>Gá»­i Ä‘Ã¡nh giÃ¡</span>
+              <span v-if="isEvaluating">Đang chấm điểm...</span>
+              <span v-else>Gửi đánh giá</span>
             </button>
           </div>
 
@@ -62,7 +62,7 @@
             <p v-if="errorMessage" class="writing-error">
               {{ errorMessage }}
               <button type="button" class="writing-error__retry" @click="handleSubmit" :disabled="isEvaluating">
-                Thá»­ láº¡i
+                Thử lại
               </button>
             </p>
           </transition>
@@ -72,21 +72,21 @@
           <section v-if="activeSubmission" class="writing-result">
             <header class="writing-result__header">
               <div>
-                <h2>{{ activeSubmission.title || "ChÆ°a cÃ³ tiÃªu Ä‘á»" }}</h2>
+                <h2>{{ activeSubmission.title || "Chưa có tiêu đề" }}</h2>
                 <p class="writing-result__meta">
-                  {{ formatDate(activeSubmission.createdAt) }} â€¢ {{ activeSubmission.charCount }} kÃ½ tá»±
+                  {{ formatDate(activeSubmission.createdAt) }} • {{ activeSubmission.charCount }} ký tự
                 </p>
               </div>
-              <span class="writing-score">Äiá»ƒm: {{ activeSubmission.score }}/10</span>
+              <span class="writing-score">Điểm: {{ activeSubmission.score }}/10</span>
             </header>
 
             <article class="writing-result__content">
-              <h3>Ná»™i dung</h3>
+              <h3>Nội dung</h3>
               <p class="writing-result__paragraph">{{ activeSubmission.content }}</p>
             </article>
 
             <aside class="writing-feedback">
-              <h3>Pháº£n há»“i</h3>
+              <h3>Phản hồi</h3>
               <p>{{ activeSubmission.feedback }}</p>
             </aside>
           </section>
@@ -95,8 +95,8 @@
 
       <aside class="writing-history">
         <header class="writing-history__header">
-          <h2>Lá»‹ch sá»­ bÃ i viáº¿t</h2>
-          <p>Theo dÃµi tiáº¿n bá»™ cá»§a báº¡n qua tá»«ng láº§n luyá»‡n táº­p.</p>
+          <h2>Lịch sử bài viết</h2>
+          <p>Theo dõi tiến bộ của bạn qua từng lần luyện tập.</p>
         </header>
         <transition-group name="list-fade" tag="ul" class="writing-history__list">
           <li
@@ -110,7 +110,7 @@
               @click="selectSubmission(submission.id)"
             >
               <div>
-                <p class="history-item__title">{{ submission.title || "ChÆ°a cÃ³ tiÃªu Ä‘á»" }}</p>
+                <p class="history-item__title">{{ submission.title || "Chưa có tiêu đề" }}</p>
                 <p class="history-item__date">{{ formatDate(submission.createdAt) }}</p>
               </div>
               <span class="history-item__score">{{ submission.score }}/10</span>
@@ -119,7 +119,7 @@
         </transition-group>
 
         <p v-if="!submissions.length" class="writing-history__empty">
-          ChÆ°a cÃ³ bÃ i viáº¿t nÃ o. HÃ£y báº¯t Ä‘áº§u vá»›i Ä‘oáº¡n vÄƒn Ä‘áº§u tiÃªn!
+          Chưa có bài viết nào. Hãy bắt đầu với đoạn văn đầu tiên!
         </p>
       </aside>
     </main>
@@ -263,7 +263,7 @@ const handleSubmit = async () => {
   } catch (error) {
     console.error("Failed to evaluate writing", error);
     errorMessage.value =
-      "KhÃ´ng thá»ƒ cháº¥m Ä‘iá»ƒm lÃºc nÃ y. Vui lÃ²ng kiá»ƒm tra káº¿t ná»‘i vÃ  thá»­ láº¡i.";
+      "Không thể chấm điểm lúc này. Vui lòng kiểm tra kết nối và thử lại.";
   } finally {
     isEvaluating.value = false;
     reload();

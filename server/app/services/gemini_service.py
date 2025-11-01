@@ -48,17 +48,58 @@ def build_dictionary_prompt(keyword: str, context: str | None = None) -> str:
 
 
 def build_translation_prompt(text: str) -> str:
-    """Lap prompt phuc vu dich"""
+    """Lap prompt phuc vu dich (xuat ngan gon, 1 dong)."""
 
     return textwrap.dedent(
         f"""
-        Translate the following English text into natural Vietnamese that sounds like a modern bilingual dictionary entry.
+        You are a professional translator. Translate the text below into clear, natural Vietnamese.
 
-        Text: "{text}"
+        Requirements:
+        - Output ONLY the translated Vietnamese text, in ONE LINE. No explanation, headings, notes, or examples.
+        - Plain text only: no quotes/backticks, no list markers, no markdown.
+        - Be concise and faithful to the meaning.
+        - If the input is a single word or short phrase (≤ 3 words), return 1–3 common Vietnamese equivalents separated by ", "; do NOT add a trailing period.
+        - Prefer a short phrasing suitable for quick tooltip display.
 
-        Strip any asterisks or markdown bullet markers from the output.
+        Text:
+        {text}
         """
     ).strip()
+
+
+def _clean_translation_output(s: str) -> str:
+    """Lam gon dau ra: bo markdown/ngoac kep, chuan hoa khoang trang, 1 dong, gioi han do dai nho gon."""
+
+    if not s:
+        return ""
+    s = s.strip()
+    # bo code fences/backticks/ast/markdown bullets don gian
+    for token in ("```", "`"):
+        s = s.replace(token, "")
+    # cat ngoac kep/ngoac don o dau/ cuoi neu co
+    if (s.startswith('"') and s.endswith('"')) or (s.startswith("'") and s.endswith("'")):
+        s = s[1:-1].strip()
+    # bo ky tu bullet dau dong
+    lines = []
+    for line in s.splitlines():
+        line = line.lstrip().lstrip("-*•\t ")
+        lines.append(line)
+    # luon dua ve 1 dong
+    s = " ".join(part.strip() for part in lines if part.strip())
+    # chuan hoa nhieu khoang trang thanh 1
+    while "  " in s:
+        s = s.replace("  ", " ")
+    s = s.strip()
+    # gioi han do dai phu hop tooltip (vi du ~160 ky tu)
+    max_len = 160
+    if len(s) > max_len:
+        cut = s[:max_len]
+        # cat den khoang trang gan nhat de tranh cat giua tu
+        last_space = cut.rfind(" ")
+        if last_space >= 80:  # tranh cat qua som neu chuoi ngan
+            cut = cut[:last_space]
+        s = cut.rstrip(" ,.;:！!？?、") + "…"
+    return s
 
 
 async def generate_dictionary_content(keyword: str, context: str | None = None) -> str:
@@ -86,6 +127,6 @@ async def generate_translation(text: str) -> str:
 
         prompt = build_translation_prompt(text)
         result = model.generate_content(prompt)
-        return result.text or ""
+        return _clean_translation_output(result.text or "")
 
     return await run_in_threadpool(_call_model)

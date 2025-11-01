@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div
     class="chat-screen"
     :class="{ 'chat-screen--sidebar-collapsed': isSidebarCollapsed }"
@@ -25,7 +25,7 @@
       <button
         class="mobile-navbar__toggle"
         type="button"
-        aria-label="Má»Ÿ thanh bÃªn"
+        aria-label="Mở menu hội thoại"
         @click="toggleSidebar"
       >
         <svg viewBox="0 0 24 24" aria-hidden="true" class="icon">
@@ -58,14 +58,14 @@
         >
           <div class="bubble__header">
             <span class="bubble__meta">
-              {{ message.sender === "user" ? "Báº¡n" : "AI Tutor" }} -
+              {{ message.sender === "user" ? "Bạn" : "AI Tutor" }} -
               {{ formatTime(message.timestamp) }}
             </span>
             <button
               class="bubble__action"
               type="button"
-              title="PhÃ¡t láº¡i Ä‘oáº¡n há»™i thoáº¡i"
-              aria-label="PhÃ¡t láº¡i Ä‘oáº¡n há»™i thoáº¡i"
+              title="Phát lại đoạn hội thoại"
+              aria-label="Phát lại đoạn hội thoại"
               @click="playMessage(message)"
             >
               <svg viewBox="0 0 24 24" aria-hidden="true" class="icon icon--sm">
@@ -95,7 +95,7 @@
           <span class="typing__dot"></span>
           <span class="typing__dot"></span>
           <span class="typing__dot"></span>
-          AI Tutor Ä‘ang soáº¡n cÃ¢u tráº£ lá»i...
+          AI Tutor đang soạn phản hồi...
         </div>
         <div
           v-if="vocabPopover.visible"
@@ -110,8 +110,8 @@
                 v-if="canSpeakVocab"
                 type="button"
                 class="vocab-popover__audio"
-                :title="isVocabSpeaking ? 'Äang phÃ¡t...' : 'PhÃ¡t Ã¢m'"
-                :aria-label="isVocabSpeaking ? 'Äang phÃ¡t' : 'PhÃ¡t Ã¢m'"
+                :title="isVocabSpeaking ? 'Đang phát...' : 'Phát âm'"
+                :aria-label="isVocabSpeaking ? 'Đang phát' : 'Phát âm'"
                 :disabled="isVocabSpeaking"
                 @click="speakVocabWord"
               >
@@ -126,7 +126,7 @@
             <button
               class="vocab-popover__close"
               type="button"
-              aria-label="ÄÃ³ng giáº£i nghÄ©a"
+              aria-label="Đóng phần giải nghĩa"
               @click="closeVocabPopover"
             >
               <svg viewBox="0 0 24 24" aria-hidden="true" class="icon">
@@ -138,7 +138,7 @@
             </button>
           </header>
           <div class="vocab-popover__body">
-            <div v-if="vocabPopover.loading" class="vocab-popover__status">Äang tra cá»©u...</div>
+            <div v-if="vocabPopover.loading" class="vocab-popover__status">Đang tra cứu...</div>
             <div
               v-else-if="vocabPopover.error"
               class="vocab-popover__status vocab-popover__status--error"
@@ -155,7 +155,7 @@
           <textarea
             v-model="draft"
             rows="3"
-            placeholder="Nháº­p tin nháº¯n cá»§a báº¡n..."
+            placeholder="Nhập tin nhắn của bạn..."
             :disabled="isSending"
             @keydown.enter.exact="onEnterKey"
             @compositionstart="onCompositionStart"
@@ -167,8 +167,8 @@
                class="icon-button"
                :class="{ 'icon-button--recording': isRecording }"
                type="button"
-               :title="isRecording ? 'Dá»«ng nghe' : 'Ghi Ã¢m giá»ng nÃ³i'"
-               :aria-label="isRecording ? 'Dá»«ng nghe' : 'Ghi Ã¢m giá»ng nÃ³i'"
+               :title="isRecording ? 'Dừng nghe' : 'Ghi âm giọng nói'"
+               :aria-label="isRecording ? 'Dừng nghe' : 'Ghi âm giọng nói'"
                :aria-pressed="isRecording ? 'true' : 'false'"
                @click="isRecording ? stopVoiceInput(true) : startVoiceInput()"
             >
@@ -185,8 +185,8 @@
               class="icon-button auto-toggle"
               :class="{ 'icon-button--primary': autoMode }"
               type="button"
-              title="Cháº¿ Ä‘á»™ tá»± Ä‘á»™ng"
-              aria-label="Cháº¿ Ä‘á»™ tá»± Ä‘á»™ng"
+              title="Chế độ trả lời tự động"
+              aria-label="Chế độ trả lời tự động"
               @click="toggleAutoMode"
             >
               <!-- waveform-lines icon -->
@@ -212,8 +212,8 @@
             <button
               class="icon-button icon-button--primary"
               type="button"
-              :title="isSending ? 'Dá»«ng' : 'Gá»­i'"
-              :aria-label="isSending ? 'Dá»«ng' : 'Gá»­i'"
+              :title="isSending ? 'Dừng' : 'Gửi'"
+              :aria-label="isSending ? 'Dừng' : 'Gửi'"
               :disabled="!isSending && !hasText"
               @click="isSending ? stopGeneration() : sendMessage()"
               v-if="!isRecording && (isSending || hasText)"
@@ -256,11 +256,11 @@
       >
         <div class="account-modal">
           <header class="account-modal__header">
-            <h2 id="account-modal-title">Cáº­p nháº­t thÃ´ng tin</h2>
+            <h2 id="account-modal-title">Cập nhật thông tin</h2>
             <button
               class="account-modal__close"
               type="button"
-              aria-label="ÄÃ³ng há»™p thoáº¡i"
+              aria-label="Đóng hộp thoại"
               @click="closeAccountModal"
             >
               <span aria-hidden="true">X</span>
@@ -269,13 +269,13 @@
 
           <form class="account-modal__form" @submit.prevent="submitAccountForm">
             <div class="account-modal__field">
-              <label class="account-modal__label" for="account-full-name">TÃªn</label>
+              <label class="account-modal__label" for="account-full-name">Tên</label>
               <input
                 id="account-full-name"
                 type="text"
                 class="account-modal__input"
                 v-model="accountForm.fullName"
-                placeholder="Nháº­p tÃªn cá»§a báº¡n"
+                placeholder="Nhập tên của bạn"
                 autocomplete="name"
               />
               <p v-if="accountErrors.fullName" class="account-modal__error">
@@ -284,7 +284,7 @@
             </div>
 
             <div class="account-modal__field">
-              <label class="account-modal__label" for="account-age">Tuá»•i</label>
+              <label class="account-modal__label" for="account-age">Tuổi</label>
               <input
                 id="account-age"
                 type="number"
@@ -292,7 +292,7 @@
                 min="7"
                 max="60"
                 v-model="accountForm.age"
-                placeholder="Nháº­p tuá»•i"
+                placeholder="Nhập tuổi"
               />
               <p v-if="accountErrors.age" class="account-modal__error">
                 {{ accountErrors.age }}
@@ -300,13 +300,13 @@
             </div>
 
             <div class="account-modal__field">
-              <label class="account-modal__label" for="account-level">Cáº¥p Ä‘á»™</label>
+              <label class="account-modal__label" for="account-level">Cấp độ</label>
               <select
                 id="account-level"
                 class="account-modal__input"
                 v-model="accountForm.proficiencyLevel"
               >
-                <option value="">Chá»n cáº¥p Ä‘á»™</option>
+                <option value="">Chọn cấp độ</option>
                 <option
                   v-for="level in levels"
                   :key="level.id"
@@ -322,9 +322,9 @@
 
             <div class="account-modal__field">
               <label class="account-modal__label" for="account-voice">
-                Giá»ng Ä‘á»c Æ°a thÃ­ch
+                Giọng đọc ưa thích
                 <small class="account-modal__hint">
-                  (nhÃ³m tiáº¿ng Anh - giá»ng máº·c Ä‘á»‹nh: ná»¯)
+                  (nhóm tiếng Anh - giọng mặc định: nữ)
                 </small>
               </label>
               <select
@@ -332,9 +332,9 @@
                 class="account-modal__input"
                 v-model="accountForm.voicePreference"
               >
-                <option value="">Tá»± Ä‘á»™ng chá»n</option>
-                <option value="female">Ná»¯ (giá»ng Anh-Má»¹)</option>
-                <option value="male">Nam (giá»ng Anh-Má»¹)</option>
+                <option value="">Tự động chọn</option>
+                <option value="female">Nữ (giọng Anh-Mỹ)</option>
+                <option value="male">Nam (giọng Anh-Mỹ)</option>
                 <option value="microsoft aria">Microsoft Aria (Female)</option>
                 <option value="microsoft zira">Microsoft Zira (Female)</option>
                 <option value="microsoft jenny">Microsoft Jenny (Female)</option>
@@ -349,10 +349,10 @@
                 class="account-modal__button account-modal__button--ghost"
                 @click="closeAccountModal"
               >
-                Huá»·
+                Huỷ
               </button>
               <button type="submit" class="account-modal__button account-modal__button--primary">
-                LÆ°u thay Ä‘á»•i
+                Lưu thay đổi
               </button>
             </div>
           </form>
@@ -657,7 +657,7 @@ const handleWordLookup = async (word: string, event: MouseEvent) => {
       vocabPopover.error = "";
     } else {
       vocabPopover.content = "";
-      vocabPopover.error = "KhÃ´ng tÃ¬m tháº¥y ná»™i dung phÃ¹ há»£p.";
+      vocabPopover.error = "Không tìm thấy nội dung phù hợp.";
     }
     await nextTick();
     adjustPopoverPosition();
@@ -665,10 +665,10 @@ const handleWordLookup = async (word: string, event: MouseEvent) => {
     if ((error_ as Error).name === "AbortError") {
       return;
     }
-    console.error("KhÃ´ng thá»ƒ tra cá»©u tá»«", error_);
+    console.error("Không thể tra cứu từ", error_);
     vocabPopover.content = "";
     vocabPopover.error =
-      error_ instanceof Error ? error_.message : "KhÃ´ng thá»ƒ tra cá»©u, vui lÃ²ng thá»­ láº¡i.";
+      error_ instanceof Error ? error_.message : "Không thể tra cứu, vui lòng thử lại.";
     await nextTick();
     adjustPopoverPosition();
   } finally {
@@ -686,12 +686,12 @@ const GREETINGS = [
   "Hi there! What would you like to learn today",
   "Hello! Ask me anything in English",
   "Ready to practice English Start with a question",
-  "Letâ€™s chat in English Whatâ€™s on your mind",
-  "Need help with grammar or vocabulary Iâ€™m here",
+  "Let's chat in English What's on your mind",
+  "Need help with grammar or vocabulary I'm here",
   "Say hi and tell me your goal today",
   "Ask me to explain, translate, or practice",
   "We can role-play a conversation Start anytime",
-  "Tell me a topic you enjoy and weâ€™ll chat",
+  "Tell me a topic you enjoy and we'll chat",
   "Type your first question to begin",
 ];
 
@@ -706,7 +706,7 @@ type MessageToken = {
 };
 
 const WORD_TOKEN_REGEX =
-  /[\p{L}\p{M}\d]+(?:[-'â€™][\p{L}\p{M}\d]+)*/gu;
+  /[\p{L}\p{M}\d]+(?:[-''][\p{L}\p{M}\d]+)*/gu;
 
 // Break the chat message into clickable word tokens and plain text spans.
 const tokenizeMessageContent = (content: string): MessageToken[] => {
@@ -823,31 +823,31 @@ const generateTitle = (text: string): string => {
   if (!s) return "New conversation";
 
   // Split into sentences, preserving end punctuation when possible
-  const sentenceMatches = s.match(/[^.!?ã€‚ï¼Ÿï¼â€¦]+[.!?ã€‚ï¼Ÿï¼â€¦]?/g) || [s];
+const sentenceMatches = s.match(/[^.!?。？！…]+[.!?。？！…]?/g) || [s];
 
-  // Prefer the first question sentence
-  const firstQuestion = sentenceMatches.find((seg) => /[?ï¼Ÿ]$/.test(seg.trim()));
-  let candidateRaw = (firstQuestion || sentenceMatches[0] || s).trim();
+// Prefer the first question sentence
+const firstQuestion = sentenceMatches.find((seg) => /[?？]$/.test(seg.trim()));
+let candidateRaw = (firstQuestion || sentenceMatches[0] || s).trim();
 
-  // Prefer the first clause before comma/colon/dash if it carries meaning
-  const clause = candidateRaw.split(/[,:;\-â€“â€”]/)[0].trim();
-  if (clause && clause.split(" ").length >= 2) {
+// Prefer the first clause before comma/colon/dash if it carries meaning
+const clause = candidateRaw.split(/[,:;\-–—]/)[0].trim();
+if (clause && clause.split(" ").length >= 2) {
     candidateRaw = clause;
   }
 
   // Remove leading fillers for brevity (simple heuristics, VI + EN)
   const cleaned = candidateRaw
-    .replace(/^(cho (mÃ¬nh|em) há»i|mÃ¬nh muá»‘n há»i|hÃ£y|lÃ m Æ¡n|báº¡n cÃ³ thá»ƒ|vui lÃ²ng|could you|can you|would you)\s+/i, "")
+    .replace(/^(cho (mình|em) hỏi|mình muốn hỏi|hãy|làm ơn|bạn có thể|vui lòng|could you|can you|would you)\s+/i, "")
     .replace(/^[:\-\s]+/, "")
     .trim();
 
   // Remove enclosing quotes and trailing punctuation
   const dequoted = cleaned
-    .replace(/^['"â€œâ€â€˜â€™`\(\[]+|['"â€œâ€â€˜â€™`\)\]]+$/g, "")
-    .replace(/[.!?ã€‚ï¼Ÿï¼â€¦]+$/, "");
+    .replace(/^['"“”‘’`\(\[]+|['"“”‘’`\)\]]+$/g, "")
+    .replace(/[.!?。？！…]+$/, "");
 
   // Remove all punctuation for a cleaner, glanceable title
-  const depunct = dequoted.replace(/[\.,!\?;:ã€ã€‚ï¼Œï¼Žï¼ï¼Ÿï¼šï¼›â€¦\-â€“â€”\(\)\[\]\{\}'"â€œâ€â€˜â€™]/g, "");
+  const depunct = dequoted.replace(/[\.,!\?;:、。！？…\-–—\(\)\[\]\{\}'"“”‘’]/g, "");
 
   // Final normalize spaces and crop
   const normalized = depunct.replace(/\s+/g, " ").trim();
@@ -952,23 +952,23 @@ const submitAccountForm = () => {
 
   const trimmedName = accountForm.fullName.trim();
   if (trimmedName.length < 2) {
-    accountErrors.fullName = "Vui lÃ²ng nháº­p tÃªn há»£p lá»‡";
+    accountErrors.fullName = "Vui lòng nhập tên hợp lệ";
   }
 
   const ageNumber = Number.parseInt(accountForm.age, 10);
   if (!accountForm.age) {
-    accountErrors.age = "Vui lÃ²ng nháº­p tuá»•i";
+    accountErrors.age = "Vui lòng nhập tuổi";
   } else if (Number.isNaN(ageNumber)) {
-    accountErrors.age = "Tuá»•i khÃ´ng há»£p lá»‡";
+    accountErrors.age = "Tuổi không hợp lệ";
   } else if (ageNumber < 7 || ageNumber > 60) {
-    accountErrors.age = "Tuá»•i pháº£i náº±m trong khoáº£ng 7 Ä‘áº¿n 60";
+    accountErrors.age = "Tuổi phải nằm trong khoảng 7 đến 60";
   }
 
   const levelNumber = Number.parseInt(accountForm.proficiencyLevel, 10);
   if (!accountForm.proficiencyLevel) {
-    accountErrors.proficiencyLevel = "Vui lÃ²ng chá»n cáº¥p Ä‘á»™";
+    accountErrors.proficiencyLevel = "Vui lòng chọn cấp độ";
   } else if (Number.isNaN(levelNumber)) {
-    accountErrors.proficiencyLevel = "Cáº¥p Ä‘á»™ khÃ´ng há»£p lá»‡";
+    accountErrors.proficiencyLevel = "Cấp độ không hợp lệ";
   }
 
   if (accountErrors.fullName || accountErrors.age || accountErrors.proficiencyLevel) {
@@ -1027,7 +1027,7 @@ const ensureVoice = () => {
       (/^male$|^nam$|^man$|^anh$/i.test(normalizedPref) || malePattern.test(normalizedPref));
     const wantsFemale =
       normalizedPref &&
-      (/^female$|^nu$|^ná»¯$|^woman$|^chi$/i.test(normalizedPref) || femalePattern.test(normalizedPref));
+      (/^female$|^nu$|^nữ$|^woman$|^chi$/i.test(normalizedPref) || femalePattern.test(normalizedPref));
 
     if (wantsMale && !wantsFemale) {
       const maleVoice = englishVoices.find((voice) => malePattern.test(voice.name));
@@ -1105,7 +1105,7 @@ const ensureRecognition = () => {
   const w = window as any;
   const Ctor = w.SpeechRecognition || w.webkitSpeechRecognition;
   if (!Ctor) {
-    sttError.value = "TrÃ¬nh duyá»‡t khÃ´ng há»— trá»£ nháº­n dáº¡ng giá»ng nÃ³i.";
+    sttError.value = "Trình duyệt không hỗ trợ nhận dạng giọng nói.";
     return null;
   }
   if (!recognitionRef.value) {
@@ -1132,7 +1132,7 @@ const ensureRecognition = () => {
     };
     rec.onerror = (ev: any) => {
       isRecording.value = false;
-      sttError.value = ev?.error ? String(ev.error) : "Lá»—i ghi Ã¢m";
+      sttError.value = ev?.error ? String(ev.error) : "Lỗi ghi âm";
     };
     rec.onresult = (event: any) => {
       let transcript = "";

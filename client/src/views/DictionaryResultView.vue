@@ -1,11 +1,11 @@
-﻿<template>
+<template>
   <div class="dictionary-screen">
     <Navbar />
 
     <main class="dictionary-main dictionary-main--result">
       <header class="result-toolbar">
         <button class="toolbar__btn toolbar__btn--ghost" type="button" @click="router.back()">
-          Quay láº¡i
+          Quay lại
         </button>
         <div class="toolbar__spacer"></div>
         <button
@@ -15,22 +15,22 @@
           :disabled="isPlaying"
           @click="playAudio"
         >
-          <span v-if="isPlaying">Äang phÃ¡t...</span>
-          <span v-else>Nghe phÃ¡t Ã¢m</span>
+          <span v-if="isPlaying">Đang phát...</span>
+          <span v-else>Nghe phát âm</span>
         </button>
       </header>
 
       <section class="dictionary-card result-card">
         <header v-if="keyword" class="result-card__header">
           <h1>{{ keyword }}</h1>
-          <p v-if="context">Ngá»¯ cáº£nh: {{ context }}</p>
+          <p v-if="context">Ngữ cảnh: {{ context }}</p>
         </header>
 
         <div class="result-card__body">
-          <div v-if="isLoading" class="status">Äang tra cá»©u...</div>
+          <div v-if="isLoading" class="status">Đang tra cứu...</div>
           <div v-else-if="error" class="status status--error">{{ error }}</div>
           <article v-else-if="result" class="result-content" v-html="renderedContent"></article>
-          <div v-else class="status">KhÃ´ng tÃ¬m tháº¥y ná»™i dung phÃ¹ há»£p.</div>
+          <div v-else class="status">Không tìm thấy nội dung phù hợp.</div>
         </div>
       </section>
     </main>
@@ -145,7 +145,7 @@ const fetchResult = async () => {
     error.value =
       error_ instanceof Error
         ? error_.message
-        : "KhÃ´ng thá»ƒ tra cá»©u tá»« Ä‘iá»ƒn, vui lÃ²ng thá»­ láº¡i.";
+        : "Không thể tra cứu từ điển, vui lòng thử lại.";
   } finally {
     isLoading.value = false;
   }

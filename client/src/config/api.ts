@@ -1,7 +1,16 @@
 const LOCAL_API_DOMAIN = "http://localhost:5050";
 const PRODUCTION_API_DOMAIN = "https://your-render-server.onrender.com";
+// Prefer Vercel/Env configuration if provided
+const ENV_API_DOMAIN = (import.meta as any)?.env?.VITE_API_DOMAIN as
+  | string
+  | undefined;
 
 const resolveApiDomain = () => {
+  // If provided via env (e.g., Vercel), always prefer it
+  if (ENV_API_DOMAIN && typeof ENV_API_DOMAIN === "string" && ENV_API_DOMAIN.trim()) {
+    return ENV_API_DOMAIN.trim();
+  }
+
   if (typeof window === "undefined") {
     return PRODUCTION_API_DOMAIN;
   }
