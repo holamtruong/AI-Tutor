@@ -18,7 +18,7 @@
           class="navbar__user-button"
           type="button"
           @click="toggleMenu"
-          :aria-expanded="isMenuOpen.toString()"
+          :aria-expanded="isMenuOpen ? 'true' : 'false'"
           :aria-controls="menuPanelId"
         >
           <span class="navbar__user-name">{{ displayName }}</span>

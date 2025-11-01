@@ -1496,6 +1496,11 @@ const startAudioMeter = async () => {
     });
 
     audioCtx = new AudioCtx();
+    if (!audioCtx) {
+      // Safety guard for TS and unexpected runtime cases
+      audioMeterOn.value = false;
+      return;
+    }
     try { await audioCtx.resume(); } catch {}
     const source = audioCtx.createMediaStreamSource(audioStream);
     audioAnalyser = audioCtx.createAnalyser();
@@ -1506,8 +1511,9 @@ const startAudioMeter = async () => {
     audioMeterOn.value = true;
 
     const tick = () => {
-      if (!audioAnalyser || !audioDataArray) return;
-      audioAnalyser.getByteTimeDomainData(audioDataArray);
+  if (!audioAnalyser || !audioDataArray) return;
+  // Cast to satisfy TS lib.dom variance between ArrayBuffer and ArrayBufferLike
+  audioAnalyser.getByteTimeDomainData(audioDataArray as any);
       // Compute RMS volume 0..1
       let sum = 0;
       for (let i = 0; i < audioDataArray.length; i++) {
