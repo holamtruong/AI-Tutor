@@ -1,10 +1,10 @@
 {
   "version": 2,
   "framework": "vite",
-  "installCommand": "npm install --prefix client",
-  "buildCommand": "npm run build --prefix client",
-  "outputDirectory": "client/dist",
-  "devCommand": "npm run dev --prefix client",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "devCommand": "npm run dev",
   "env": {
     "VITE_API_DOMAIN": "https://ai-tutor-backend-t360.onrender.com"
   },
