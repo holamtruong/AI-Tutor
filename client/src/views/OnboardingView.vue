@@ -119,6 +119,7 @@ const errors = reactive<{ fullName: string; age: string; level: string }>({
   level: "",
 });
 
+// Basic validation for the personal info form before advancing to level selection.
 const validateFirstStep = () => {
   errors.fullName = "";
   errors.age = "";
@@ -136,6 +137,7 @@ const validateFirstStep = () => {
   return !errors.fullName && !errors.age;
 };
 
+// Persist the first-step answers and advance the wizard when inputs look valid.
 const handleFirstStep = () => {
   if (!validateFirstStep()) {
     return;
@@ -151,11 +153,13 @@ const handleFirstStep = () => {
   step.value = 2;
 };
 
+// Toggle the active level card and clear any previous validation warnings.
 const selectLevel = (levelId: number) => {
   selectedLevel.value = levelId;
   errors.level = "";
 };
 
+// Final submission that saves every preference and navigates to the dashboard.
 const completeOnboarding = () => {
   if (!selectedLevel.value) {
     errors.level = "Vui lòng chọn trình độ của bạn";
@@ -170,12 +174,13 @@ const completeOnboarding = () => {
     hasCompletedOnboarding: true,
   });
 
-  router.push("/assignment");
+  router.push("/dashboard");
 };
 
+// If onboarding was already completed earlier, skip the wizard entirely.
 onMounted(() => {
   if (hasCompletedOnboarding()) {
-    router.replace("/assignment");
+    router.replace("/dashboard");
   } else if (stored.proficiencyLevel) {
     step.value = 2;
   }

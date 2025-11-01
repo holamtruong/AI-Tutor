@@ -31,7 +31,8 @@
         <article class="feature-card" @click="go('/dictionary')">
           <span class="feature-icon feature-icon--dict" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="icon">
-              <path d="M5 4h12a3 3 0 0 1 3 3v13l-4-3-4 3-4-3-4 3V7a3 3 0 0 1 3-3z" stroke-width="1.8" stroke-linejoin="round" />
+              <path d="M5 4h12a3 3 0 0 1 3 3v13l-4-3-4 3-4-3-4 3V7a3 3 0 0 1 3-3z" stroke-width="1.8"
+                stroke-linejoin="round" />
             </svg>
           </span>
           <div class="feature-body">
@@ -55,7 +56,8 @@
         <article class="feature-card" @click="go('/writing')">
           <span class="feature-icon feature-icon--write" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="icon">
-              <path d="M4 20h4l10-10-4-4L4 16zM14 6l4 4" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" />
+              <path d="M4 20h4l10-10-4-4L4 16zM14 6l4 4" stroke-width="1.8" stroke-linejoin="round"
+                stroke-linecap="round" />
             </svg>
           </span>
           <div class="feature-body">
@@ -67,28 +69,39 @@
 
       <section class="promo-section">
         <div class="promo-text">
-          <h3>AI Tutor - Trợ lý học tập thông minh</h3>
-          <p>Ứng dụng giúp bạn luyện nói, viết, tra từ điển và làm bài tập tiếng Anh mọi lúc mọi nơi.</p>
+          <h3>AI Tutor – Gia sư tiếng Anh của bạn</h3>
+          <p>
+            Công cụ hỗ trợ luyện nói, luyện viết, tra cứu từ vựng và làm bài tập tiếng Anh,
+            giúp người học nâng cao kỹ năng một cách hiệu quả và chủ động.
+          </p>
           <ul>
-            <li>Phản hồi tức thì, cá nhân hóa theo trình độ.</li>
-            <li>Giao diện hiện đại, dễ sử dụng trên mọi thiết bị.</li>
-            <li>Tiết kiệm thời gian, nâng cao hiệu quả học tập.</li>
-            <li>Hỗ trợ luyện phát âm chuẩn với AI.</li>
-            <li>Chấm điểm tự động, nhận xét chi tiết từng bài viết.</li>
-            <li>Kho từ vựng phong phú, cập nhật liên tục.</li>
-            <li>Chế độ học tập linh hoạt: tự học, luyện tập, thi thử.</li>
-            <li>Bảo mật thông tin cá nhân tuyệt đối.</li>
+            <li>Phản hồi nhanh và phù hợp với năng lực từng người học.</li>
+            <li>Giao diện trực quan, dễ sử dụng trên nhiều thiết bị.</li>
+            <li>Hỗ trợ luyện phát âm chuẩn theo mô hình AI.</li>
+            <li>Tự động chấm điểm và đưa ra nhận xét chi tiết cho bài viết.</li>
+            <li>Kho từ vựng phong phú, cập nhật thường xuyên.</li>
+            <li>Hỗ trợ nhiều phương thức học: tự học, luyện tập và kiểm tra.</li>
+            <li>Ưu tiên bảo mật và quyền riêng tư của người dùng.</li>
           </ul>
-          <p><strong>Trải nghiệm ngay để chinh phục tiếng Anh cùng AI Tutor!</strong></p>
 
-
+          <p><strong>
+              AI Tutor – Giải pháp hỗ trợ học tiếng Anh hiện đại và đáng tin cậy.
+            </strong></p>
 
           <div class="promo-divider"></div>
 
-          <h4>Đăng ký tài khoản miễn phí</h4>
-          <p>Chỉ với vài bước đơn giản, bạn đã có thể bắt đầu hành trình chinh phục tiếng Anh cùng AI Tutor. Đăng ký ngay để nhận nhiều ưu đãi hấp dẫn!</p>
+          <h4>Ứng dụng miễn phí phục vụ giáo dục</h4>
+          <p>
+            AI Tutor được phát triển trong khuôn khổ môn học
+            <strong>Nhập môn Công nghệ Phần mềm</strong>
+            – Trường Đại học Khoa học Tự nhiên, ĐHQG-HCM.
+            Hãy đăng ký và trải nghiệm để nâng cao năng lực tiếng Anh của bạn một cách khoa học và hiệu quả.
+          </p>
         </div>
       </section>
+
+
+
     </main>
   </div>
 </template>
@@ -101,8 +114,10 @@ import { getUserPreferences } from '@/utils/localStorage';
 
 const router = useRouter();
 const prefs = getUserPreferences();
+// Present the stored name inside the hero greeting.
 const displayName = computed(() => prefs.fullName || 'bạn');
 
+// Utility navigation helper reused across dashboard quick actions.
 const go = (path: string) => {
   router.push(path);
 };
@@ -115,13 +130,15 @@ const go = (path: string) => {
   margin: 1.2rem 0;
   border: none;
 }
+
 .promo-testimonials {
   display: grid;
   gap: 0.8rem;
   margin-bottom: 1rem;
 }
+
 .promo-testimonials blockquote {
-  background: rgba(165,180,252,0.13);
+  background: rgba(165, 180, 252, 0.13);
   border-left: 4px solid #38bdf8;
   margin: 0;
   padding: 0.7rem 1rem;
@@ -129,6 +146,7 @@ const go = (path: string) => {
   color: #0f172a;
   border-radius: 10px;
 }
+
 .promo-testimonials span {
   display: block;
   margin-top: 0.3rem;
@@ -136,42 +154,48 @@ const go = (path: string) => {
   color: #2563eb;
   font-weight: 600;
 }
+
 /* Promo section styles */
 .promo-section {
   margin-top: 2.5rem;
   padding: 1.5rem 1rem;
-  background: rgba(255,255,255,0.85);
+  background: rgba(255, 255, 255, 0.85);
   border-radius: 18px;
-  box-shadow: 0 6px 24px rgba(56,189,248,0.08);
+  box-shadow: 0 6px 24px rgba(56, 189, 248, 0.08);
   max-width: 700px;
   margin-left: auto;
   margin-right: auto;
 }
+
 .promo-text h3 {
   margin: 0 0 0.5rem;
   font-size: 1.35rem;
   color: #2563eb;
   font-weight: 800;
 }
+
 .promo-text p {
   margin: 0.5rem 0;
   color: #0f172a;
   font-size: 1rem;
 }
+
 .promo-text ul {
   margin: 0.5rem 0 0.5rem 1.2rem;
   padding: 0;
   color: #0f172a;
   font-size: 1rem;
 }
+
 .promo-text li {
   margin-bottom: 0.3rem;
 }
+
 .dashboard-screen {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(120deg, rgba(165,180,252,0.7) 0%, rgba(56,189,248,0.7) 40%, rgba(244,114,182,0.7) 80%, rgba(248,250,252,0.7) 100%);
+  background: linear-gradient(120deg, rgba(165, 180, 252, 0.7) 0%, rgba(56, 189, 248, 0.7) 40%, rgba(244, 114, 182, 0.7) 80%, rgba(248, 250, 252, 0.7) 100%);
   background-size: 400% 400%;
   animation: dashboard-gradient-move 32s ease-in-out infinite;
   position: relative;
@@ -186,24 +210,62 @@ const go = (path: string) => {
   background: radial-gradient(circle at 30% 30%, #38bdf8 0%, #a5b4fc 80%, transparent 100%);
   animation: bubble-move 24s linear infinite;
 }
-.bubble.b1 { width: 180px; height: 180px; top: 8%; left: 6%; animation-delay: 0s; }
-.bubble.b2 { width: 120px; height: 120px; top: 60%; left: 12%; animation-delay: 8s; }
-.bubble.b3 { width: 140px; height: 140px; top: 30%; right: 10%; animation-delay: 16s; }
-.bubble.b4 { width: 90px; height: 90px; bottom: 8%; right: 18%; animation-delay: 4s; }
+
+.bubble.b1 {
+  width: 180px;
+  height: 180px;
+  top: 8%;
+  left: 6%;
+  animation-delay: 0s;
+}
+
+.bubble.b2 {
+  width: 120px;
+  height: 120px;
+  top: 60%;
+  left: 12%;
+  animation-delay: 8s;
+}
+
+.bubble.b3 {
+  width: 140px;
+  height: 140px;
+  top: 30%;
+  right: 10%;
+  animation-delay: 16s;
+}
+
+.bubble.b4 {
+  width: 90px;
+  height: 90px;
+  bottom: 8%;
+  right: 18%;
+  animation-delay: 4s;
+}
 
 @keyframes bubble-move {
-  0% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-40px) scale(1.08); }
-  100% { transform: translateY(0) scale(1); }
+  0% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-40px) scale(1.08);
+  }
+
+  100% {
+    transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes dashboard-gradient-move {
   0% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0% 50%;
   }
@@ -213,9 +275,11 @@ const go = (path: string) => {
   0% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0% 50%;
   }
@@ -290,12 +354,28 @@ const go = (path: string) => {
   color: #ffffff;
 }
 
-.feature-icon--chat { background: linear-gradient(135deg, #22c55e, #16a34a); }
-.feature-icon--dict { background: linear-gradient(135deg, #06b6d4, #0ea5e9); }
-.feature-icon--quiz { background: linear-gradient(135deg, #6366f1, #3b82f6); }
-.feature-icon--write { background: linear-gradient(135deg, #f97316, #ef4444); }
+.feature-icon--chat {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+}
 
-.icon { width: 26px; height: 26px; fill: none; stroke: currentColor; }
+.feature-icon--dict {
+  background: linear-gradient(135deg, #06b6d4, #0ea5e9);
+}
+
+.feature-icon--quiz {
+  background: linear-gradient(135deg, #6366f1, #3b82f6);
+}
+
+.feature-icon--write {
+  background: linear-gradient(135deg, #f97316, #ef4444);
+}
+
+.icon {
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: currentColor;
+}
 
 .feature-body h2 {
   margin: 0 0 0.15rem;
@@ -310,6 +390,8 @@ const go = (path: string) => {
 }
 
 @media (max-width: 640px) {
-  .dashboard-main { padding: 2rem 1rem 3rem; }
+  .dashboard-main {
+    padding: 2rem 1rem 3rem;
+  }
 }
 </style>

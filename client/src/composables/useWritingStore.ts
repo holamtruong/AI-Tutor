@@ -3,6 +3,7 @@ import { WRITING_HISTORY_KEY } from "@/constants";
 import { getOrCreateUserId } from "@/utils/localStorage";
 
 export interface WritingSubmission {
+  // Minh gom het thong tin cua mot bai viet vao day cho de kiem soat
   id: string;
   userId: string;
   title: string;
@@ -13,8 +14,10 @@ export interface WritingSubmission {
   createdAt: number;
 }
 
+// De phong truong hop code chay trong moi truong SSR hoac test chua co window
 const isBrowser = () => typeof window !== "undefined";
 
+// Uu tien dung crypto.randomUUID, con thieu thi tu ghep timestamp + random
 const createId = () => {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return crypto.randomUUID();
@@ -22,6 +25,7 @@ const createId = () => {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 };
 
+// Doc localStorage phai kiem tra ky, lo du lieu ban thi UI khoi bi vo
 const normalizeEntries = (value: unknown): WritingSubmission[] | undefined => {
   if (!Array.isArray(value)) {
     return undefined;
@@ -32,6 +36,7 @@ const normalizeEntries = (value: unknown): WritingSubmission[] | undefined => {
       return false;
     }
 
+    // Chi can dung du cac truong co ban la tam tin tuong
     const candidate = entry as Record<string, unknown>;
     return (
       typeof candidate.id === "string" &&
@@ -52,6 +57,7 @@ const normalizeEntries = (value: unknown): WritingSubmission[] | undefined => {
   return undefined;
 };
 
+// Lay danh sach bai viet trong localStorage, neu co loi thi tra ve mang trong cho lanh
 const readAllSubmissions = (): WritingSubmission[] => {
   if (!isBrowser()) {
     return [];
@@ -71,6 +77,7 @@ const readAllSubmissions = (): WritingSubmission[] => {
   }
 };
 
+// Ghi het danh sach vao localStorage, neu loi thi log nhe cho biet
 const writeAllSubmissions = (submissions: WritingSubmission[]) => {
   if (!isBrowser()) {
     return;
@@ -87,6 +94,7 @@ export const useWritingStore = () => {
   const userId = getOrCreateUserId();
   const submissions = ref<WritingSubmission[]>([]);
 
+  // Moi lan load lai thi loc dung user hien tai va sap xep bai moi nhat len dau
   const load = () => {
     if (!userId) {
       submissions.value = [];
@@ -97,6 +105,7 @@ export const useWritingStore = () => {
       .sort((a, b) => b.createdAt - a.createdAt);
   };
 
+  // Ghi de nhe nhang: gom bai cua user khac roi tron chung de khong mat du lieu ai
   const persist = () => {
     if (!userId) {
       return;
@@ -106,6 +115,7 @@ export const useWritingStore = () => {
     writeAllSubmissions([...submissions.value, ...others]);
   };
 
+  // Them bai moi: tu tao id + thoi gian, day vao dau danh sach va luu lai
   const addSubmission = (entry: Omit<WritingSubmission, "id" | "createdAt" | "userId">) => {
     if (!userId) {
       return undefined;
@@ -123,6 +133,7 @@ export const useWritingStore = () => {
     return record;
   };
 
+  // Cap nhat bai viet tai cho de form hien thi lien tay va du lieu duoc giu on dinh
   const updateSubmission = (id: string, update: Partial<WritingSubmission>) => {
     const index = submissions.value.findIndex((item) => item.id === id);
     if (index === -1) {

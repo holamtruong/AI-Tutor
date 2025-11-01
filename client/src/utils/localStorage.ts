@@ -42,6 +42,7 @@ const USER_PREFERENCES_KEY = "user-preferences";
 
 const isBrowser = () => typeof window !== "undefined";
 
+// Read the persisted user preferences from localStorage with a safe fallback.
 export const getUserPreferences = (): UserPreferences => {
   if (!isBrowser()) {
     return {};
@@ -56,6 +57,7 @@ export const getUserPreferences = (): UserPreferences => {
   }
 };
 
+// Merge the incoming preference updates with the current snapshot and persist them.
 export const saveUserPreferences = (
   preferences: UserPreferences
 ): UserPreferences => {
@@ -74,6 +76,20 @@ export const saveUserPreferences = (
   }
 };
 
+// Remove every stored preference key (used on logout or onboarding reset).
+export const clearUserPreferences = () => {
+  if (!isBrowser()) {
+    return;
+  }
+
+  try {
+    localStorage.removeItem(USER_PREFERENCES_KEY);
+  } catch (error) {
+    console.error("Failed to clear user preferences", error);
+  }
+};
+
+// Ensure we always have a user id available by reusing the stored value or generating a new one.
 export const getOrCreateUserId = (): string => {
   if (!isBrowser()) {
     return "";
@@ -89,10 +105,12 @@ export const getOrCreateUserId = (): string => {
   return generated;
 };
 
+// Convenience helper that answers whether the onboarding flow was already finished.
 export const hasCompletedOnboarding = (): boolean => {
   return Boolean(getUserPreferences().hasCompletedOnboarding);
 };
 
+// Guard every read from localStorage so corrupted or legacy data never crashes the app.
 const normalizeConversations = (
   value: unknown
 ): ChatConversation[] | undefined => {
@@ -147,6 +165,7 @@ const normalizeConversations = (
   return undefined;
 };
 
+// Fetch every saved conversation snapshot, shaping legacy data on the fly.
 export const getChatConversations = (): ChatConversation[] => {
   if (!isBrowser()) {
     return [];
@@ -166,6 +185,7 @@ export const getChatConversations = (): ChatConversation[] => {
   }
 };
 
+// Overwrite the chat history cache with the provided conversation list.
 export const saveChatConversations = (conversations: ChatConversation[]) => {
   if (!isBrowser()) {
     return;
@@ -178,6 +198,7 @@ export const saveChatConversations = (conversations: ChatConversation[]) => {
   }
 };
 
+// Return which conversation was marked as active in the sidebar.
 export const getActiveConversationId = (): string => {
   if (!isBrowser()) {
     return "";
@@ -186,6 +207,7 @@ export const getActiveConversationId = (): string => {
   return localStorage.getItem(CHAT_ACTIVE_CONVERSATION_KEY) ?? "";
 };
 
+// Persist the active conversation id so the UI can restore selection after reload.
 export const saveActiveConversationId = (id: string) => {
   if (!isBrowser()) {
     return;
@@ -194,6 +216,7 @@ export const saveActiveConversationId = (id: string) => {
   localStorage.setItem(CHAT_ACTIVE_CONVERSATION_KEY, id);
 };
 
+// Remove both the chat history payload and the pointer to the active conversation.
 export const clearChatHistory = () => {
   if (!isBrowser()) {
     return;
@@ -203,6 +226,7 @@ export const clearChatHistory = () => {
   localStorage.removeItem(CHAT_ACTIVE_CONVERSATION_KEY);
 };
 
+// Verify assignments pulled from storage still resemble the expected schema.
 const normalizeAssignments = (value: unknown): AssignmentRecord[] | undefined => {
   if (!Array.isArray(value)) {
     return undefined;
@@ -231,6 +255,7 @@ const normalizeAssignments = (value: unknown): AssignmentRecord[] | undefined =>
   return undefined;
 };
 
+// Centralised reader that gracefully handles corrupted assignment payloads.
 const readAssignmentsStore = (): AssignmentRecord[] => {
   if (!isBrowser()) {
     return [];
@@ -249,6 +274,7 @@ const readAssignmentsStore = (): AssignmentRecord[] => {
   }
 };
 
+// Persist a full assignment collection, ignoring the call when storage is unavailable.
 const writeAssignmentsStore = (records: AssignmentRecord[]) => {
   if (!isBrowser()) {
     return;
@@ -261,6 +287,7 @@ const writeAssignmentsStore = (records: AssignmentRecord[]) => {
   }
 };
 
+// Collect every assignment for the given user, creating an id when none exists yet.
 export const getAssignments = (userId?: string): AssignmentRecord[] => {
   const targetId = userId ?? getOrCreateUserId();
   if (!targetId) {
@@ -269,6 +296,7 @@ export const getAssignments = (userId?: string): AssignmentRecord[] => {
   return readAssignmentsStore().filter((record) => record.userId === targetId);
 };
 
+// Replace assignments for a user while keeping unrelated users untouched.
 export const saveAssignments = (assignments: AssignmentRecord[], userId?: string) => {
   const targetId = userId ?? getOrCreateUserId();
   if (!targetId) {
@@ -282,6 +310,7 @@ export const saveAssignments = (assignments: AssignmentRecord[], userId?: string
   ]);
 };
 
+// Append a single assignment entry while stamping timestamps and ids automatically.
 export const addAssignmentRecord = (assignment: {
   id?: string;
   type: string;

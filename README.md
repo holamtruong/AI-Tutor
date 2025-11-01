@@ -1,64 +1,101 @@
-# EngChat: AI-powered English Learning Platform
+﻿# AI Tutor – Client
 
-EngChat is a modern web application designed to help Vietnamese learners improve their English skills through interactive AI-powered features. The platform provides smart dictionary lookups, AI chat for speaking practice, writing evaluation, and assignment generation, all tailored to the user's proficiency level.
+Giao diện học tiếng Anh tương tác xây dựng bằng Vue 3. Ứng dụng giúp học viên định hình mục tiêu, ôn luyện hội thoại với gia sư AI, tra cứu từ vựng, làm bài tập nhanh và theo dõi tiến bộ viết. Tất cả dữ liệu cá nhân được lưu cục bộ để trải nghiệm nhất quán trong mỗi lần truy cập.
 
-## Features
-- **Smart Dictionary**: Look up words, idioms, and phrasal verbs with context-aware explanations, IPA, and audio pronunciation.
-- **AI Chat Tutor**: Practice English conversation with an AI tutor (powered by GPT-4), which always responds in English to help improve speaking and reflexes.
-- **Writing Practice**: Submit essays and receive instant feedback and scoring.
-- **Assignment Generator**: Create and solve English assignments based on your level and interests.
-- **Personalized Experience**: Onboarding flow to collect user info and adapt content accordingly.
-- **Modern UI/UX**: Responsive, dark mode, and beautiful design using Tailwind CSS and ShadCN UI.
+## Tính năng chính
+- **Luồng onboarding** thu thập tên, tuổi, cấp độ và giọng nói ưa thích để cá nhân hóa nội dung.
+- **Bảng điều khiển** hiển thị lối tắt tới bài tập, nhật ký viết, từ điển và phòng chat.
+- **Phòng chat với AI** hỗ trợ phản hồi theo thời gian thực, đọc/ghi âm, gợi ý từ vựng và quản lý lịch sử hội thoại.
+- **Từ điển thông minh** cho phép chạm vào từ để xem nghĩa, phát âm và ví dụ trong ngữ cảnh.
+- **Bài tập & trò chơi** tạo mini quiz từ vựng, lưu điểm số vào trình duyệt.
+- **Nhật ký viết** lưu bài nộp, chấm điểm, phản hồi và lịch sử theo từng người dùng.
+- **Giao diện responsive** với sidebar thu gọn và điều hướng thân thiện trên thiết bị di động.
 
-## Technology Stack
-- **Frontend**: Next.js, React, TypeScript, Tailwind CSS, ShadCN UI, Radix UI
-- **Backend**: Node.js, Express.js
-- **AI Models**:
-  - **Chat**: OpenAI GPT-4 (as English tutor)
-  - **Dictionary & Translation**: Google Gemini (Generative AI) for context-aware explanations and translation
-- **Other**: LocalStorage for user preferences, RESTful API, ESLint, Prettier
+## Công nghệ sử dụng
+- [Vue 3](https://vuejs.org/) kết hợp [TypeScript](https://www.typescriptlang.org/)
+- [Vite](https://vitejs.dev/) cho môi trường phát triển và build
+- [Vue Router](https://router.vuejs.org/) điều hướng phía client
+- Web API: Speech Synthesis, Speech Recognition, LocalStorage
+- CSS thuần được tinh chỉnh riêng thay vì dùng UI framework lớn
 
-## Getting Started
+## Cấu trúc thư mục chính
+```
+client/
+  src/
+    components/     # Navbar, sidebar, thành phần chia sẻ
+    views/          # Các màn hình tính năng (chat, dashboard, onboarding,...)
+    composables/    # Store trạng thái tái sử dụng (ví dụ lịch sử viết)
+    utils/          # Hàm trợ giúp cho localStorage và cấu hình chung
+    constants/      # Dữ liệu tĩnh, enum, cấu hình mức độ
+    styles/         # Style toàn cục
+server/
+  src/
+    ...             # API Express phục vụ cho gia sư AI
+```
 
-### Prerequisites
-- Node.js (v18+ recommended)
-- npm (v9+ recommended)
+## Thiết lập môi trường
+Ứng dụng mong đợi biến `VITE_API_DOMAIN`. Nếu không cung cấp, giá trị mặc định là `http://localhost:5283`.
 
-### Setup & Run Locally
-1. **Clone the repository:**
+```
+# client/.env.local
+VITE_API_DOMAIN=https://ten-may-chu-api-cua-ban
+```
+
+Server sử dụng `.env` (tham khảo `server/.env.example`) để thiết lập `PORT`, `OPENAI_API_KEY`, `GEMINI_API_KEY`.
+
+## Bắt đầu phát triển
+1. **Cài đặt phụ thuộc**
    ```bash
-   git clone <your-repo-url>
-   cd english-chatbot
-   ```
-2. **Install dependencies:**
-   ```bash
+   cd client
    npm install
+   cd ../server
+   yarn install
    ```
-3. **Configure environment variables:**
-   - Copy `.env.example` to `.env` and update API keys if needed (e.g., `NEXT_PUBLIC_API_DOMAIN`, Gemini API key, OpenAI API key for backend).
-
-4. **Start the development server:**
+2. **Chạy song song client & server**
    ```bash
+   # tab 1
+   cd client
    npm run dev
+
+   # tab 2
+   cd server
+   yarn dev
    ```
-   The app will be available at [http://localhost:3000](http://localhost:3000)
+   Client lắng trên `http://localhost:5173`, server Express mặc định `http://localhost:5050` (hoặc `PORT` trong `.env`).
+3. **Build sản phẩm**
+   ```bash
+   cd client && npm run build
+   cd ../server && yarn build
+   ```
 
-5. **(Optional) Start the backend server:**
-   - Go to the `server/` directory and follow its README/setup instructions if you want to run the backend locally.
+## Script npm/yarn
+- `npm run dev` – khởi động Vite ở chế độ development (client).
+- `npm run build` – chạy `vue-tsc` và build Vite (client).
+- `npm run preview` – xem thử bản build (client).
+- `yarn dev` – sử dụng nodemon để chạy server TypeScript.
+- `yarn build` – biên dịch TypeScript sang `dist/`.
+- `yarn start` – chạy server từ mã đã build.
 
-## Project Structure
-- `client/` – Frontend source code (Next.js, React, UI components)
-- `server/` – Backend API (Express.js, AI integration)
-- `public/` – Static assets
-- `README.md` – Project documentation
+## Triển khai
+### Client trên Vercel
+- File `vercel.json` định nghĩa build cho thư mục `client`.
+- Tạo secret `vite_api_domain` trên Vercel trỏ tới URL server Render.
+- Quy trình build:
+  - Cài đặt: `npm install --prefix client`
+  - Build: `npm run build --prefix client`
+  - Output: `client/dist`
 
-## Model & AI Integration
-- **Chat**: Uses OpenAI GPT-4 to simulate an English tutor, always responding in English and focusing on speaking practice.
-- **Dictionary & Translation**: Uses Google Gemini (Generative AI) to provide context-aware, Vietnamese explanations, IPA, and audio.
-- **Writing Evaluation**: AI-based feedback and scoring for user-submitted essays.
+### Server trên Render
+- Blueprint `render.yaml` mô tả dịch vụ Node.js cho thư mục `server`.
+- Render tự tạo web service với lệnh:
+  - Build: `yarn install --frozen-lockfile && yarn build`
+  - Start: `yarn start`
+- Cấu hình biến môi trường: `OPENAI_API_KEY`, `GEMINI_API_KEY`, (tùy chọn) `NODE_ENV=production`. Port do Render cung cấp qua biến `PORT`.
 
-## License
-This project is for educational purposes.
+## Ghi chú
+- Dữ liệu học viên được lưu trong `localStorage`; xóa storage sẽ đưa trạng thái về ban đầu.
+- Tính năng giọng nói phụ thuộc vào Web Speech API (khuyến nghị Chrome hoặc Edge).
+- Khi triển khai, đảm bảo server cho phép CORS từ domain Vercel và cập nhật `VITE_API_DOMAIN` tương ứng.
 
----
-Feel free to contribute or raise issues for improvements!
+## Đóng góp
+Dự án phục vụ mục đích học tập. Rất mong nhận được phản hồi, đề xuất hoặc pull request từ bạn.

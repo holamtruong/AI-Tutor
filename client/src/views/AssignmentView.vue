@@ -113,6 +113,7 @@ const score = ref(0);
 const state = ref<"awaiting" | "review" | "finished">("awaiting");
 const funFoodTip = ref("");
 
+// Fisher-Yates shuffle so both question order and answer order stay unpredictable.
 const shuffle = <T,>(source: T[]): T[] => {
   const copied = [...source];
   for (let i = copied.length - 1; i > 0; i -= 1) {
@@ -122,6 +123,7 @@ const shuffle = <T,>(source: T[]): T[] => {
   return copied;
 };
 
+// Build a fresh quiz round from the static word bank.
 const prepareQuestions = () => {
   const rawList = shuffle((wordBank as RawQuestion[]).slice());
   const prepared = rawList.slice(0, TOTAL_QUESTIONS).map((item) => {
@@ -156,6 +158,7 @@ const progressPercent = computed(() => {
   return `${Math.min(progressValue * 100, 100)}%`;
 });
 
+// Handle a choice click, scoring immediately and moving the UI into review mode.
 const selectChoice = (index: number) => {
   if (state.value !== "awaiting") {
     return;
@@ -168,6 +171,7 @@ const selectChoice = (index: number) => {
   state.value = "review";
 };
 
+// Advance to the next question or finish the quiz once the list is exhausted.
 const goToNext = () => {
   if (state.value !== "review") {
     return;
@@ -188,10 +192,12 @@ const goToNext = () => {
   state.value = "awaiting";
 };
 
+// Reset the quiz so the learner can play again right away.
 const restartGame = () => {
   prepareQuestions();
 };
 
+// Derive the CSS modifier for each answer button during the review state.
 const choiceClass = (index: number) => {
   if (!isReviewing.value || !currentQuestion.value) {
     return "";
@@ -219,6 +225,7 @@ const resultMessage = computed(() => {
   return "Đừng bỏ cuộc, chơi lại để thuộc thêm nhiều từ mới!";
 });
 
+// Pull a random meal from the public API to keep the fun fact section fresh.
 const loadRandomMeal = async () => {
   try {
     const response = await fetch("https://www.themealdb.com/api/json/v1/1/random.php");
@@ -236,6 +243,7 @@ const loadRandomMeal = async () => {
   }
 };
 
+// Generate the first round and tip as soon as the component renders.
 onMounted(() => {
   prepareQuestions();
   loadRandomMeal();

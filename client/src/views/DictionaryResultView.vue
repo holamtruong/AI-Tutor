@@ -1,11 +1,11 @@
-<template>
+﻿<template>
   <div class="dictionary-screen">
     <Navbar />
 
     <main class="dictionary-main dictionary-main--result">
       <header class="result-toolbar">
         <button class="toolbar__btn toolbar__btn--ghost" type="button" @click="router.back()">
-          Quay lại
+          Quay láº¡i
         </button>
         <div class="toolbar__spacer"></div>
         <button
@@ -15,22 +15,22 @@
           :disabled="isPlaying"
           @click="playAudio"
         >
-          <span v-if="isPlaying">Đang phát...</span>
-          <span v-else>Nghe phát âm</span>
+          <span v-if="isPlaying">Äang phÃ¡t...</span>
+          <span v-else>Nghe phÃ¡t Ã¢m</span>
         </button>
       </header>
 
       <section class="dictionary-card result-card">
         <header v-if="keyword" class="result-card__header">
           <h1>{{ keyword }}</h1>
-          <p v-if="context">Ngữ cảnh: {{ context }}</p>
+          <p v-if="context">Ngá»¯ cáº£nh: {{ context }}</p>
         </header>
 
         <div class="result-card__body">
-          <div v-if="isLoading" class="status">Đang tra cứu...</div>
+          <div v-if="isLoading" class="status">Äang tra cá»©u...</div>
           <div v-else-if="error" class="status status--error">{{ error }}</div>
           <article v-else-if="result" class="result-content" v-html="renderedContent"></article>
-          <div v-else class="status">Không tìm thấy nội dung phù hợp.</div>
+          <div v-else class="status">KhÃ´ng tÃ¬m tháº¥y ná»™i dung phÃ¹ há»£p.</div>
         </div>
       </section>
     </main>
@@ -41,7 +41,7 @@
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import Navbar from "@/components/Navbar.vue";
-import { API_DOMAIN } from "@/config";
+import { API_DOMAIN } from "@/config/api";
 import { hasCompletedOnboarding } from "@/utils/localStorage";
 
 interface DictionaryResponse {
@@ -65,6 +65,7 @@ const context = computed(() => (route.query.context as string | undefined) ?? ""
 
 const audioSrc = computed(() => result.value?.audioUrls?.us ?? "");
 
+// Recreate the audio element whenever a new pronunciation url is available.
 watch(audioSrc, (src) => {
   if (!src) {
     audioElement.value = null;
@@ -81,6 +82,7 @@ watch(audioSrc, (src) => {
   audioElement.value = audio;
 });
 
+// Transform the AI rendered markdown-ish response into simple HTML paragraphs.
 const renderedContent = computed(() => {
   if (!result.value) {
     return "";
@@ -95,6 +97,7 @@ const renderedContent = computed(() => {
   return `<div>${segments.map((text) => `<p>${text}</p>`).join("")}</div>`;
 });
 
+// Play the American pronunciation recording when the learner taps the button.
 const playAudio = async () => {
   if (!audioElement.value) {
     return;
@@ -109,6 +112,7 @@ const playAudio = async () => {
   }
 };
 
+// POST the lookup request to the API and capture any errors for display.
 const fetchResult = async () => {
   if (!keyword.value) {
     router.replace("/dictionary");
@@ -141,12 +145,13 @@ const fetchResult = async () => {
     error.value =
       error_ instanceof Error
         ? error_.message
-        : "Không thể tra cứu từ điển, vui lòng thử lại.";
+        : "KhÃ´ng thá»ƒ tra cá»©u tá»« Ä‘iá»ƒn, vui lÃ²ng thá»­ láº¡i.";
   } finally {
     isLoading.value = false;
   }
 };
 
+// Redirect users who skipped onboarding and trigger the first lookup.
 onMounted(() => {
   if (!hasCompletedOnboarding()) {
     router.replace("/");
@@ -291,3 +296,4 @@ onMounted(() => {
   }
 }
 </style>
+

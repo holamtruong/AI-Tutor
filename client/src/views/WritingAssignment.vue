@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="writing-screen">
     <Navbar />
 
@@ -6,33 +6,33 @@
       <section class="writing-content">
         <form class="writing-card" @submit.prevent="handleSubmit">
           <header class="writing-card__header">
-            <h1 class="writing-title">Bài viết của bạn</h1>
-            <p class="writing-subtitle">Luyện tập viết đoạn văn và nhận phản hồi tự động.</p>
+            <h1 class="writing-title">BÃ i viáº¿t cá»§a báº¡n</h1>
+            <p class="writing-subtitle">Luyá»‡n táº­p viáº¿t Ä‘oáº¡n vÄƒn vÃ  nháº­n pháº£n há»“i tá»± Ä‘á»™ng.</p>
           </header>
 
           <div class="writing-field">
-            <label class="writing-label" for="writing-title">Tiêu đề</label>
+            <label class="writing-label" for="writing-title">TiÃªu Ä‘á»</label>
             <input
               id="writing-title"
               v-model="title"
               type="text"
               class="writing-input"
-              placeholder="Ví dụ: Bữa ăn yêu thích của tôi"
+              placeholder="VÃ­ dá»¥: Bá»¯a Äƒn yÃªu thÃ­ch cá»§a tÃ´i"
               :disabled="isEvaluating"
             />
           </div>
 
           <div class="writing-field">
             <div class="writing-field__header">
-              <label class="writing-label" for="writing-content">Nội dung</label>
-              <span class="writing-counter">{{ charCount }} ký tự</span>
+              <label class="writing-label" for="writing-content">Ná»™i dung</label>
+              <span class="writing-counter">{{ charCount }} kÃ½ tá»±</span>
             </div>
             <textarea
               id="writing-content"
               ref="textareaRef"
               v-model="content"
               class="writing-textarea"
-              placeholder="Hãy viết đoạn văn của bạn..."
+              placeholder="HÃ£y viáº¿t Ä‘oáº¡n vÄƒn cá»§a báº¡n..."
               rows="6"
               @input="handleTextareaInput"
               :disabled="isEvaluating"
@@ -46,15 +46,15 @@
               @click="resetForm"
               :disabled="isEvaluating && !activeSubmission"
             >
-              Viết bài mới
+              Viáº¿t bÃ i má»›i
             </button>
             <button
               type="submit"
               class="writing-btn"
               :disabled="!canSubmit"
             >
-              <span v-if="isEvaluating">Đang chấm điểm...</span>
-              <span v-else>Gửi đánh giá</span>
+              <span v-if="isEvaluating">Äang cháº¥m Ä‘iá»ƒm...</span>
+              <span v-else>Gá»­i Ä‘Ã¡nh giÃ¡</span>
             </button>
           </div>
 
@@ -62,7 +62,7 @@
             <p v-if="errorMessage" class="writing-error">
               {{ errorMessage }}
               <button type="button" class="writing-error__retry" @click="handleSubmit" :disabled="isEvaluating">
-                Thử lại
+                Thá»­ láº¡i
               </button>
             </p>
           </transition>
@@ -72,21 +72,21 @@
           <section v-if="activeSubmission" class="writing-result">
             <header class="writing-result__header">
               <div>
-                <h2>{{ activeSubmission.title || "Chưa có tiêu đề" }}</h2>
+                <h2>{{ activeSubmission.title || "ChÆ°a cÃ³ tiÃªu Ä‘á»" }}</h2>
                 <p class="writing-result__meta">
-                  {{ formatDate(activeSubmission.createdAt) }} • {{ activeSubmission.charCount }} ký tự
+                  {{ formatDate(activeSubmission.createdAt) }} â€¢ {{ activeSubmission.charCount }} kÃ½ tá»±
                 </p>
               </div>
-              <span class="writing-score">Điểm: {{ activeSubmission.score }}/10</span>
+              <span class="writing-score">Äiá»ƒm: {{ activeSubmission.score }}/10</span>
             </header>
 
             <article class="writing-result__content">
-              <h3>Nội dung</h3>
+              <h3>Ná»™i dung</h3>
               <p class="writing-result__paragraph">{{ activeSubmission.content }}</p>
             </article>
 
             <aside class="writing-feedback">
-              <h3>Phản hồi</h3>
+              <h3>Pháº£n há»“i</h3>
               <p>{{ activeSubmission.feedback }}</p>
             </aside>
           </section>
@@ -95,8 +95,8 @@
 
       <aside class="writing-history">
         <header class="writing-history__header">
-          <h2>Lịch sử bài viết</h2>
-          <p>Theo dõi tiến bộ của bạn qua từng lần luyện tập.</p>
+          <h2>Lá»‹ch sá»­ bÃ i viáº¿t</h2>
+          <p>Theo dÃµi tiáº¿n bá»™ cá»§a báº¡n qua tá»«ng láº§n luyá»‡n táº­p.</p>
         </header>
         <transition-group name="list-fade" tag="ul" class="writing-history__list">
           <li
@@ -110,7 +110,7 @@
               @click="selectSubmission(submission.id)"
             >
               <div>
-                <p class="history-item__title">{{ submission.title || "Chưa có tiêu đề" }}</p>
+                <p class="history-item__title">{{ submission.title || "ChÆ°a cÃ³ tiÃªu Ä‘á»" }}</p>
                 <p class="history-item__date">{{ formatDate(submission.createdAt) }}</p>
               </div>
               <span class="history-item__score">{{ submission.score }}/10</span>
@@ -119,7 +119,7 @@
         </transition-group>
 
         <p v-if="!submissions.length" class="writing-history__empty">
-          Chưa có bài viết nào. Hãy bắt đầu với đoạn văn đầu tiên!
+          ChÆ°a cÃ³ bÃ i viáº¿t nÃ o. HÃ£y báº¯t Ä‘áº§u vá»›i Ä‘oáº¡n vÄƒn Ä‘áº§u tiÃªn!
         </p>
       </aside>
     </main>
@@ -130,7 +130,7 @@
 import { computed, nextTick, onMounted, ref, watch } from "vue";
 import Navbar from "@/components/Navbar.vue";
 import { useWritingStore } from "@/composables/useWritingStore";
-import { createApiUrl } from "@/config";
+import { createApiUrl } from "@/config/api";
 import { addAssignmentRecord } from "@/utils/localStorage";
 
 const MAX_RETRIES = 2;
@@ -151,6 +151,7 @@ const activeSubmission = computed(() =>
   submissions.value.find((submission) => submission.id === activeId.value) ?? null
 );
 
+// Adjust the textarea height to fit its content.
 const autoResize = () => {
   const textarea = textareaRef.value;
   if (!textarea) {
@@ -160,10 +161,12 @@ const autoResize = () => {
   textarea.style.height = `${textarea.scrollHeight}px`;
 };
 
+// Trigger the resize handler whenever the learner types.
 const handleTextareaInput = () => {
   autoResize();
 };
 
+// Render submission timestamps using the viewer's locale.
 const formatDate = (timestamp: number) => {
   const formatter = new Intl.DateTimeFormat(undefined, {
     hour: "2-digit",
@@ -175,6 +178,7 @@ const formatDate = (timestamp: number) => {
   return formatter.format(new Date(timestamp));
 };
 
+// Clear the draft and shrink the textarea after saving.
 const resetForm = () => {
   title.value = "";
   content.value = "";
@@ -182,10 +186,12 @@ const resetForm = () => {
   nextTick(autoResize);
 };
 
+// Highlight a past submission so details appear in the inspector.
 const selectSubmission = (id: string) => {
   activeId.value = id;
 };
 
+// Call the evaluation endpoint with retry logic for transient failures.
 const evaluateWriting = async () => {
   const payload = {
     title: title.value.trim(),
@@ -225,6 +231,7 @@ const evaluateWriting = async () => {
   throw lastError ?? new Error("Unknown error");
 };
 
+// Submit the current draft, store the result, and add it to the assignment history.
 const handleSubmit = async () => {
   if (!canSubmit.value) {
     return;
@@ -256,13 +263,14 @@ const handleSubmit = async () => {
   } catch (error) {
     console.error("Failed to evaluate writing", error);
     errorMessage.value =
-      "Không thể chấm điểm lúc này. Vui lòng kiểm tra kết nối và thử lại.";
+      "KhÃ´ng thá»ƒ cháº¥m Ä‘iá»ƒm lÃºc nÃ y. Vui lÃ²ng kiá»ƒm tra káº¿t ná»‘i vÃ  thá»­ láº¡i.";
   } finally {
     isEvaluating.value = false;
     reload();
   }
 };
 
+// Keep the textarea height in sync with programmatic content changes.
 watch(content, () => nextTick(autoResize));
 
 watch(
@@ -275,6 +283,7 @@ watch(
   { immediate: true }
 );
 
+// Prepare the textarea and preselect the most recent submission on load.
 onMounted(() => {
   nextTick(autoResize);
   if (submissions.value.length) {
@@ -663,3 +672,4 @@ onMounted(() => {
   }
 }
 </style>
+

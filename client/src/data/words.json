@@ -1,102 +1,502 @@
 [
   {
-    "word": "apple",
-    "choices": ["apple", "pepper", "shrimp", "rice"],
+    "word": "bàn",
+    "choices": ["table", "chair", "bed", "shelf"],
     "answerIndex": 0
   },
   {
-    "word": "banana",
-    "choices": ["banana", "beef", "spinach", "cheese"],
-    "answerIndex": 0
-  },
-  {
-    "word": "carrot",
-    "choices": ["salmon", "carrot", "orange", "bread"],
+    "word": "ghế",
+    "choices": ["desk", "chair", "sofa", "stool"],
     "answerIndex": 1
   },
   {
-    "word": "rice",
-    "choices": ["noodles", "garlic", "rice", "tomato"],
+    "word": "giường",
+    "choices": ["couch", "dresser", "bed", "wardrobe"],
     "answerIndex": 2
   },
   {
-    "word": "bread",
-    "choices": ["yogurt", "bread", "onion", "shrimp"],
-    "answerIndex": 1
-  },
-  {
-    "word": "cheese",
-    "choices": ["cheese", "honey", "banana", "spinach"],
-    "answerIndex": 0
-  },
-  {
-    "word": "tomato",
-    "choices": ["tomato", "beef", "carrot", "apple"],
-    "answerIndex": 0
-  },
-  {
-    "word": "pepper",
-    "choices": ["pepper", "rice", "yogurt", "banana"],
-    "answerIndex": 0
-  },
-  {
-    "word": "yogurt",
-    "choices": ["cheese", "shrimp", "yogurt", "lettuce"],
+    "word": "cửa",
+    "choices": ["window", "gate", "door", "fence"],
     "answerIndex": 2
   },
   {
-    "word": "salmon",
-    "choices": ["salmon", "garlic", "orange", "mushroom"],
+    "word": "cửa sổ",
+    "choices": ["window", "roof", "stairs", "floor"],
     "answerIndex": 0
   },
   {
-    "word": "lettuce",
-    "choices": ["lettuce", "beef", "noodles", "apple"],
-    "answerIndex": 0
-  },
-  {
-    "word": "noodles",
-    "choices": ["spinach", "noodles", "bread", "pepper"],
+    "word": "sách",
+    "choices": ["pen", "book", "paper", "bag"],
     "answerIndex": 1
   },
   {
-    "word": "garlic",
-    "choices": ["garlic", "honey", "shrimp", "rice"],
+    "word": "vở",
+    "choices": ["notebook", "eraser", "marker", "folder"],
     "answerIndex": 0
   },
   {
-    "word": "onion",
-    "choices": ["banana", "onion", "cheese", "tomato"],
-    "answerIndex": 1
-  },
-  {
-    "word": "orange",
-    "choices": ["orange", "apple", "spinach", "shrimp"],
-    "answerIndex": 0
-  },
-  {
-    "word": "beef",
-    "choices": ["beef", "lettuce", "rice", "honey"],
-    "answerIndex": 0
-  },
-  {
-    "word": "shrimp",
-    "choices": ["carrot", "shrimp", "yogurt", "garlic"],
-    "answerIndex": 1
-  },
-  {
-    "word": "honey",
-    "choices": ["banana", "pepper", "honey", "apple"],
+    "word": "bút",
+    "choices": ["ruler", "pencil", "pen", "crayon"],
     "answerIndex": 2
   },
   {
-    "word": "spinach",
-    "choices": ["rice", "spinach", "bread", "tomato"],
+    "word": "bút chì",
+    "choices": ["pencil", "pen", "chalk", "marker"],
+    "answerIndex": 0
+  },
+  {
+    "word": "thước",
+    "choices": ["ruler", "calculator", "eraser", "glue"],
+    "answerIndex": 0
+  },
+  {
+    "word": "đèn",
+    "choices": ["lamp", "mirror", "sofa", "clock"],
+    "answerIndex": 0
+  },
+  {
+    "word": "quạt",
+    "choices": ["fan", "heater", "speaker", "radio"],
+    "answerIndex": 0
+  },
+  {
+    "word": "tivi",
+    "choices": ["television", "computer", "projector", "console"],
+    "answerIndex": 0
+  },
+  {
+    "word": "tủ lạnh",
+    "choices": ["washing machine", "refrigerator", "microwave", "oven"],
     "answerIndex": 1
   },
   {
-    "word": "mushroom",
-    "choices": ["mushroom", "orange", "salmon", "cheese"],
+    "word": "máy giặt",
+    "choices": ["refrigerator", "dryer", "washing machine", "dishwasher"],
+    "answerIndex": 2
+  },
+  {
+    "word": "máy tính",
+    "choices": ["printer", "computer", "scanner", "tablet"],
+    "answerIndex": 1
+  },
+  {
+    "word": "điện thoại",
+    "choices": ["telephone", "camera", "radio", "alarm"],
+    "answerIndex": 0
+  },
+  {
+    "word": "tai nghe",
+    "choices": ["headphones", "microphone", "speaker", "charger"],
+    "answerIndex": 0
+  },
+  {
+    "word": "loa",
+    "choices": ["speaker", "keyboard", "headphones", "mouse"],
+    "answerIndex": 0
+  },
+  {
+    "word": "chuột",
+    "choices": ["mouse", "keyboard", "screen", "charger"],
+    "answerIndex": 0
+  },
+  {
+    "word": "bánh mì",
+    "choices": ["bread", "noodles", "rice", "cake"],
+    "answerIndex": 0
+  },
+  {
+    "word": "phở",
+    "choices": ["sandwich", "noodle soup", "fried rice", "dumpling"],
+    "answerIndex": 1
+  },
+  {
+    "word": "cơm",
+    "choices": ["rice", "porridge", "noodle", "bread"],
+    "answerIndex": 0
+  },
+  {
+    "word": "cháo",
+    "choices": ["porridge", "soup", "bread", "rice"],
+    "answerIndex": 0
+  },
+  {
+    "word": "cà phê",
+    "choices": ["coffee", "tea", "milk", "juice"],
+    "answerIndex": 0
+  },
+  {
+    "word": "trà",
+    "choices": ["juice", "tea", "water", "coffee"],
+    "answerIndex": 1
+  },
+  {
+    "word": "nước",
+    "choices": ["water", "juice", "milk", "soda"],
+    "answerIndex": 0
+  },
+  {
+    "word": "sữa",
+    "choices": ["milk", "water", "yogurt", "cream"],
+    "answerIndex": 0
+  },
+  {
+    "word": "đường",
+    "choices": ["salt", "sugar", "flour", "pepper"],
+    "answerIndex": 1
+  },
+  {
+    "word": "muối",
+    "choices": ["sugar", "salt", "pepper", "vinegar"],
+    "answerIndex": 1
+  },
+  {
+    "word": "tiêu",
+    "choices": ["pepper", "salt", "sugar", "spice"],
+    "answerIndex": 0
+  },
+  {
+    "word": "cá",
+    "choices": ["fish", "meat", "shrimp", "crab"],
+    "answerIndex": 0
+  },
+  {
+    "word": "thịt bò",
+    "choices": ["pork", "beef", "chicken", "duck"],
+    "answerIndex": 1
+  },
+  {
+    "word": "thịt gà",
+    "choices": ["beef", "chicken", "pork", "turkey"],
+    "answerIndex": 1
+  },
+  {
+    "word": "trứng",
+    "choices": ["egg", "cheese", "bread", "butter"],
+    "answerIndex": 0
+  },
+  {
+    "word": "rau",
+    "choices": ["vegetable", "fruit", "meat", "grain"],
+    "answerIndex": 0
+  },
+  {
+    "word": "trái cây",
+    "choices": ["fruit", "vegetable", "meat", "seed"],
+    "answerIndex": 0
+  },
+  {
+    "word": "táo",
+    "choices": ["apple", "pear", "grape", "peach"],
+    "answerIndex": 0
+  },
+  {
+    "word": "cam",
+    "choices": ["orange", "lemon", "lime", "grapefruit"],
+    "answerIndex": 0
+  },
+  {
+    "word": "chuối",
+    "choices": ["banana", "mango", "papaya", "peach"],
+    "answerIndex": 0
+  },
+  {
+    "word": "nho",
+    "choices": ["grape", "berry", "plum", "apple"],
+    "answerIndex": 0
+  },
+  {
+    "word": "dâu",
+    "choices": ["strawberry", "banana", "orange", "melon"],
+    "answerIndex": 0
+  },
+  {
+    "word": "xoài",
+    "choices": ["mango", "banana", "pineapple", "guava"],
+    "answerIndex": 0
+  },
+  {
+    "word": "dưa hấu",
+    "choices": ["watermelon", "coconut", "papaya", "apple"],
+    "answerIndex": 0
+  },
+  {
+    "word": "dứa",
+    "choices": ["pineapple", "grapefruit", "lemon", "orange"],
+    "answerIndex": 0
+  },
+  {
+    "word": "bắp",
+    "choices": ["corn", "bean", "rice", "wheat"],
+    "answerIndex": 0
+  },
+  {
+    "word": "khoai tây",
+    "choices": ["potato", "carrot", "turnip", "onion"],
+    "answerIndex": 0
+  },
+  {
+    "word": "cà chua",
+    "choices": ["tomato", "pepper", "pumpkin", "cabbage"],
+    "answerIndex": 0
+  },
+  {
+    "word": "hành",
+    "choices": ["onion", "garlic", "ginger", "pepper"],
+    "answerIndex": 0
+  },
+  {
+    "word": "tỏi",
+    "choices": ["garlic", "onion", "ginger", "pepper"],
+    "answerIndex": 0
+  },
+  {
+    "word": "gừng",
+    "choices": ["ginger", "garlic", "onion", "mint"],
+    "answerIndex": 0
+  },
+  {
+    "word": "lá",
+    "choices": ["leaf", "branch", "root", "flower"],
+    "answerIndex": 0
+  },
+  {
+    "word": "hoa",
+    "choices": ["flower", "leaf", "stem", "seed"],
+    "answerIndex": 0
+  },
+  {
+    "word": "cây",
+    "choices": ["tree", "flower", "grass", "root"],
+    "answerIndex": 0
+  },
+  {
+    "word": "trời",
+    "choices": ["sky", "sun", "moon", "cloud"],
+    "answerIndex": 0
+  },
+  {
+    "word": "mưa",
+    "choices": ["rain", "snow", "fog", "hail"],
+    "answerIndex": 0
+  },
+  {
+    "word": "nắng",
+    "choices": ["sunshine", "rain", "wind", "cloud"],
+    "answerIndex": 0
+  },
+  {
+    "word": "gió",
+    "choices": ["wind", "rain", "snow", "ice"],
+    "answerIndex": 0
+  },
+  {
+    "word": "biển",
+    "choices": ["sea", "river", "lake", "pond"],
+    "answerIndex": 0
+  },
+  {
+    "word": "núi",
+    "choices": ["mountain", "hill", "valley", "desert"],
+    "answerIndex": 0
+  },
+  {
+    "word": "sông",
+    "choices": ["river", "sea", "lake", "stream"],
+    "answerIndex": 0
+  },
+  {
+    "word": "hồ",
+    "choices": ["lake", "river", "pond", "sea"],
+    "answerIndex": 0
+  },
+  {
+    "word": "đồng",
+    "choices": ["field", "forest", "mountain", "desert"],
+    "answerIndex": 0
+  },
+  {
+    "word": "ruộng",
+    "choices": ["rice field", "garden", "pasture", "forest"],
+    "answerIndex": 0
+  },
+  {
+    "word": "xe đạp",
+    "choices": ["bicycle", "car", "motorbike", "bus"],
+    "answerIndex": 0
+  },
+  {
+    "word": "xe máy",
+    "choices": ["motorbike", "bicycle", "car", "truck"],
+    "answerIndex": 0
+  },
+  {
+    "word": "ô tô",
+    "choices": ["bus", "car", "truck", "train"],
+    "answerIndex": 1
+  },
+  {
+    "word": "xe buýt",
+    "choices": ["bus", "train", "car", "plane"],
+    "answerIndex": 0
+  },
+  {
+    "word": "tàu",
+    "choices": ["train", "boat", "plane", "bus"],
+    "answerIndex": 0
+  },
+  {
+    "word": "máy bay",
+    "choices": ["airplane", "helicopter", "glider", "rocket"],
+    "answerIndex": 0
+  },
+  {
+    "word": "thuyền",
+    "choices": ["boat", "ship", "raft", "submarine"],
+    "answerIndex": 0
+  },
+  {
+    "word": "trường",
+    "choices": ["school", "hospital", "library", "office"],
+    "answerIndex": 0
+  },
+  {
+    "word": "lớp",
+    "choices": ["classroom", "hall", "office", "gym"],
+    "answerIndex": 0
+  },
+  {
+    "word": "giáo viên",
+    "choices": ["teacher", "student", "principal", "nurse"],
+    "answerIndex": 0
+  },
+  {
+    "word": "học sinh",
+    "choices": ["student", "teacher", "doctor", "driver"],
+    "answerIndex": 0
+  },
+  {
+    "word": "bài học",
+    "choices": ["lesson", "exam", "homework", "quiz"],
+    "answerIndex": 0
+  },
+  {
+    "word": "bài tập",
+    "choices": ["homework", "lesson", "test", "project"],
+    "answerIndex": 0
+  },
+  {
+    "word": "điểm",
+    "choices": ["score", "lesson", "gradebook", "question"],
+    "answerIndex": 0
+  },
+  {
+    "word": "đề thi",
+    "choices": ["exam paper", "answer sheet", "textbook", "worksheet"],
+    "answerIndex": 0
+  },
+  {
+    "word": "sách giáo khoa",
+    "choices": ["textbook", "notebook", "dictionary", "magazine"],
+    "answerIndex": 0
+  },
+  {
+    "word": "thư viện",
+    "choices": ["library", "bookstore", "classroom", "office"],
+    "answerIndex": 0
+  },
+  {
+    "word": "bệnh viện",
+    "choices": ["hospital", "clinic", "pharmacy", "school"],
+    "answerIndex": 0
+  },
+  {
+    "word": "bác sĩ",
+    "choices": ["doctor", "nurse", "patient", "teacher"],
+    "answerIndex": 0
+  },
+  {
+    "word": "y tá",
+    "choices": ["nurse", "doctor", "patient", "teacher"],
+    "answerIndex": 0
+  },
+  {
+    "word": "bệnh nhân",
+    "choices": ["patient", "doctor", "nurse", "visitor"],
+    "answerIndex": 0
+  },
+  {
+    "word": "thuốc",
+    "choices": ["medicine", "vitamin", "bandage", "ointment"],
+    "answerIndex": 0
+  },
+  {
+    "word": "cửa hàng",
+    "choices": ["store", "bank", "office", "factory"],
+    "answerIndex": 0
+  },
+  {
+    "word": "chợ",
+    "choices": ["market", "mall", "restaurant", "station"],
+    "answerIndex": 0
+  },
+  {
+    "word": "siêu thị",
+    "choices": ["supermarket", "market", "store", "warehouse"],
+    "answerIndex": 0
+  },
+  {
+    "word": "tiền",
+    "choices": ["money", "coin", "card", "bill"],
+    "answerIndex": 0
+  },
+  {
+    "word": "ví",
+    "choices": ["wallet", "bag", "pocket", "purse"],
+    "answerIndex": 0
+  },
+  {
+    "word": "đồng hồ",
+    "choices": ["clock", "watch", "timer", "alarm"],
+    "answerIndex": 0
+  },
+  {
+    "word": "áo",
+    "choices": ["shirt", "pants", "dress", "shoe"],
+    "answerIndex": 0
+  },
+  {
+    "word": "quần",
+    "choices": ["pants", "shirt", "jacket", "sock"],
+    "answerIndex": 0
+  },
+  {
+    "word": "giày",
+    "choices": ["shoe", "hat", "glove", "scarf"],
+    "answerIndex": 0
+  },
+  {
+    "word": "dép",
+    "choices": ["sandals", "boots", "shoes", "socks"],
+    "answerIndex": 0
+  },
+  {
+    "word": "mũ",
+    "choices": ["hat", "scarf", "shoe", "belt"],
+    "answerIndex": 0
+  },
+  {
+    "word": "khăn",
+    "choices": ["scarf", "glove", "hat", "belt"],
+    "answerIndex": 0
+  },
+  {
+    "word": "găng tay",
+    "choices": ["gloves", "socks", "shoes", "scarves"],
+    "answerIndex": 0
+  },
+  {
+    "word": "tất",
+    "choices": ["socks", "gloves", "hat", "belt"],
     "answerIndex": 0
   }
 ]

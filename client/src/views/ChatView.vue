@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div
     class="chat-screen"
     :class="{ 'chat-screen--sidebar-collapsed': isSidebarCollapsed }"
@@ -25,7 +25,7 @@
       <button
         class="mobile-navbar__toggle"
         type="button"
-        aria-label="Mở thanh bên"
+        aria-label="Má»Ÿ thanh bÃªn"
         @click="toggleSidebar"
       >
         <svg viewBox="0 0 24 24" aria-hidden="true" class="icon">
@@ -58,14 +58,14 @@
         >
           <div class="bubble__header">
             <span class="bubble__meta">
-              {{ message.sender === "user" ? "Bạn" : "AI Tutor" }} -
+              {{ message.sender === "user" ? "Báº¡n" : "AI Tutor" }} -
               {{ formatTime(message.timestamp) }}
             </span>
             <button
               class="bubble__action"
               type="button"
-              title="Phát lại đoạn hội thoại"
-              aria-label="Phát lại đoạn hội thoại"
+              title="PhÃ¡t láº¡i Ä‘oáº¡n há»™i thoáº¡i"
+              aria-label="PhÃ¡t láº¡i Ä‘oáº¡n há»™i thoáº¡i"
               @click="playMessage(message)"
             >
               <svg viewBox="0 0 24 24" aria-hidden="true" class="icon icon--sm">
@@ -95,7 +95,7 @@
           <span class="typing__dot"></span>
           <span class="typing__dot"></span>
           <span class="typing__dot"></span>
-          AI Tutor đang soạn câu trả lời...
+          AI Tutor Ä‘ang soáº¡n cÃ¢u tráº£ lá»i...
         </div>
         <div
           v-if="vocabPopover.visible"
@@ -110,8 +110,8 @@
                 v-if="canSpeakVocab"
                 type="button"
                 class="vocab-popover__audio"
-                :title="isVocabSpeaking ? 'Đang phát...' : 'Phát âm'"
-                :aria-label="isVocabSpeaking ? 'Đang phát' : 'Phát âm'"
+                :title="isVocabSpeaking ? 'Äang phÃ¡t...' : 'PhÃ¡t Ã¢m'"
+                :aria-label="isVocabSpeaking ? 'Äang phÃ¡t' : 'PhÃ¡t Ã¢m'"
                 :disabled="isVocabSpeaking"
                 @click="speakVocabWord"
               >
@@ -126,7 +126,7 @@
             <button
               class="vocab-popover__close"
               type="button"
-              aria-label="Đóng giải nghĩa"
+              aria-label="ÄÃ³ng giáº£i nghÄ©a"
               @click="closeVocabPopover"
             >
               <svg viewBox="0 0 24 24" aria-hidden="true" class="icon">
@@ -138,7 +138,7 @@
             </button>
           </header>
           <div class="vocab-popover__body">
-            <div v-if="vocabPopover.loading" class="vocab-popover__status">Đang tra cứu...</div>
+            <div v-if="vocabPopover.loading" class="vocab-popover__status">Äang tra cá»©u...</div>
             <div
               v-else-if="vocabPopover.error"
               class="vocab-popover__status vocab-popover__status--error"
@@ -155,7 +155,7 @@
           <textarea
             v-model="draft"
             rows="3"
-            placeholder="Nhập tin nhắn của bạn..."
+            placeholder="Nháº­p tin nháº¯n cá»§a báº¡n..."
             :disabled="isSending"
             @keydown.enter.exact="onEnterKey"
             @compositionstart="onCompositionStart"
@@ -167,8 +167,8 @@
                class="icon-button"
                :class="{ 'icon-button--recording': isRecording }"
                type="button"
-               :title="isRecording ? 'Dừng nghe' : 'Ghi âm giọng nói'"
-               :aria-label="isRecording ? 'Dừng nghe' : 'Ghi âm giọng nói'"
+               :title="isRecording ? 'Dá»«ng nghe' : 'Ghi Ã¢m giá»ng nÃ³i'"
+               :aria-label="isRecording ? 'Dá»«ng nghe' : 'Ghi Ã¢m giá»ng nÃ³i'"
                :aria-pressed="isRecording ? 'true' : 'false'"
                @click="isRecording ? stopVoiceInput(true) : startVoiceInput()"
             >
@@ -185,8 +185,8 @@
               class="icon-button auto-toggle"
               :class="{ 'icon-button--primary': autoMode }"
               type="button"
-              title="Chế độ tự động"
-              aria-label="Chế độ tự động"
+              title="Cháº¿ Ä‘á»™ tá»± Ä‘á»™ng"
+              aria-label="Cháº¿ Ä‘á»™ tá»± Ä‘á»™ng"
               @click="toggleAutoMode"
             >
               <!-- waveform-lines icon -->
@@ -212,8 +212,8 @@
             <button
               class="icon-button icon-button--primary"
               type="button"
-              :title="isSending ? 'Dừng' : 'Gửi'"
-              :aria-label="isSending ? 'Dừng' : 'Gửi'"
+              :title="isSending ? 'Dá»«ng' : 'Gá»­i'"
+              :aria-label="isSending ? 'Dá»«ng' : 'Gá»­i'"
               :disabled="!isSending && !hasText"
               @click="isSending ? stopGeneration() : sendMessage()"
               v-if="!isRecording && (isSending || hasText)"
@@ -256,11 +256,11 @@
       >
         <div class="account-modal">
           <header class="account-modal__header">
-            <h2 id="account-modal-title">Cập nhật thông tin</h2>
+            <h2 id="account-modal-title">Cáº­p nháº­t thÃ´ng tin</h2>
             <button
               class="account-modal__close"
               type="button"
-              aria-label="Đóng hộp thoại"
+              aria-label="ÄÃ³ng há»™p thoáº¡i"
               @click="closeAccountModal"
             >
               <span aria-hidden="true">X</span>
@@ -269,13 +269,13 @@
 
           <form class="account-modal__form" @submit.prevent="submitAccountForm">
             <div class="account-modal__field">
-              <label class="account-modal__label" for="account-full-name">Tên</label>
+              <label class="account-modal__label" for="account-full-name">TÃªn</label>
               <input
                 id="account-full-name"
                 type="text"
                 class="account-modal__input"
                 v-model="accountForm.fullName"
-                placeholder="Nhập tên của bạn"
+                placeholder="Nháº­p tÃªn cá»§a báº¡n"
                 autocomplete="name"
               />
               <p v-if="accountErrors.fullName" class="account-modal__error">
@@ -284,7 +284,7 @@
             </div>
 
             <div class="account-modal__field">
-              <label class="account-modal__label" for="account-age">Tuổi</label>
+              <label class="account-modal__label" for="account-age">Tuá»•i</label>
               <input
                 id="account-age"
                 type="number"
@@ -292,7 +292,7 @@
                 min="7"
                 max="60"
                 v-model="accountForm.age"
-                placeholder="Nhập tuổi"
+                placeholder="Nháº­p tuá»•i"
               />
               <p v-if="accountErrors.age" class="account-modal__error">
                 {{ accountErrors.age }}
@@ -300,13 +300,13 @@
             </div>
 
             <div class="account-modal__field">
-              <label class="account-modal__label" for="account-level">Cấp độ</label>
+              <label class="account-modal__label" for="account-level">Cáº¥p Ä‘á»™</label>
               <select
                 id="account-level"
                 class="account-modal__input"
                 v-model="accountForm.proficiencyLevel"
               >
-                <option value="">Chọn cấp độ</option>
+                <option value="">Chá»n cáº¥p Ä‘á»™</option>
                 <option
                   v-for="level in levels"
                   :key="level.id"
@@ -322,9 +322,9 @@
 
             <div class="account-modal__field">
               <label class="account-modal__label" for="account-voice">
-                Giọng đọc ưa thích
+                Giá»ng Ä‘á»c Æ°a thÃ­ch
                 <small class="account-modal__hint">
-                  (nhóm tiếng Anh - giọng mặc định: nữ)
+                  (nhÃ³m tiáº¿ng Anh - giá»ng máº·c Ä‘á»‹nh: ná»¯)
                 </small>
               </label>
               <select
@@ -332,9 +332,9 @@
                 class="account-modal__input"
                 v-model="accountForm.voicePreference"
               >
-                <option value="">Tự động chọn</option>
-                <option value="female">Nữ (giọng Anh-Mỹ)</option>
-                <option value="male">Nam (giọng Anh-Mỹ)</option>
+                <option value="">Tá»± Ä‘á»™ng chá»n</option>
+                <option value="female">Ná»¯ (giá»ng Anh-Má»¹)</option>
+                <option value="male">Nam (giá»ng Anh-Má»¹)</option>
                 <option value="microsoft aria">Microsoft Aria (Female)</option>
                 <option value="microsoft zira">Microsoft Zira (Female)</option>
                 <option value="microsoft jenny">Microsoft Jenny (Female)</option>
@@ -349,10 +349,10 @@
                 class="account-modal__button account-modal__button--ghost"
                 @click="closeAccountModal"
               >
-                Huỷ
+                Huá»·
               </button>
               <button type="submit" class="account-modal__button account-modal__button--primary">
-                Lưu thay đổi
+                LÆ°u thay Ä‘á»•i
               </button>
             </div>
           </form>
@@ -366,7 +366,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
 import Sidebar from "@/components/Sidebar.vue";
 import { PROFICIENCY_LEVELS } from "@/constants";
-import { API_DOMAIN } from "@/config";
+import { API_DOMAIN } from "@/config/api";
 import {
   clearChatHistory,
   getActiveConversationId,
@@ -487,6 +487,7 @@ const vocabPopoverStyle = computed(() => {
   };
 });
 
+// Split the AI response into paragraphs while preserving inline emphasis markup.
 const formatTextAsHtml = (text: string) => {
   const segments = text
     .split(/\n{2,}/)
@@ -507,6 +508,7 @@ const vocabPopoverHtml = computed(() => {
   return formatTextAsHtml(vocabPopover.content);
 });
 
+// Recalculate the dictionary popover position so it never escapes the viewport.
 const adjustPopoverPosition = () => {
   if (!vocabPopover.visible) {
     return;
@@ -543,6 +545,7 @@ const adjustPopoverPosition = () => {
 
 let vocabPopoverAbort: AbortController | null = null;
 
+// Immediately stop any ongoing speech synthesis for vocabulary playback.
 const stopVocabSpeech = () => {
   if (!canSpeakVocab.value) {
     return;
@@ -555,6 +558,7 @@ const stopVocabSpeech = () => {
   isVocabSpeaking.value = false;
 };
 
+// Hide the vocabulary popover and tear down any pending requests.
 const closeVocabPopover = () => {
   if (vocabPopoverAbort) {
     vocabPopoverAbort.abort();
@@ -567,6 +571,7 @@ const closeVocabPopover = () => {
   vocabPopover.content = "";
 };
 
+// Pronounce the selected vocabulary word via speech synthesis when available.
 const speakVocabWord = () => {
   if (!canSpeakVocab.value || !vocabPopover.keyword.trim()) {
     return;
@@ -652,7 +657,7 @@ const handleWordLookup = async (word: string, event: MouseEvent) => {
       vocabPopover.error = "";
     } else {
       vocabPopover.content = "";
-      vocabPopover.error = "Không tìm thấy nội dung phù hợp.";
+      vocabPopover.error = "KhÃ´ng tÃ¬m tháº¥y ná»™i dung phÃ¹ há»£p.";
     }
     await nextTick();
     adjustPopoverPosition();
@@ -660,10 +665,10 @@ const handleWordLookup = async (word: string, event: MouseEvent) => {
     if ((error_ as Error).name === "AbortError") {
       return;
     }
-    console.error("Không thể tra cứu từ", error_);
+    console.error("KhÃ´ng thá»ƒ tra cá»©u tá»«", error_);
     vocabPopover.content = "";
     vocabPopover.error =
-      error_ instanceof Error ? error_.message : "Không thể tra cứu, vui lòng thử lại.";
+      error_ instanceof Error ? error_.message : "KhÃ´ng thá»ƒ tra cá»©u, vui lÃ²ng thá»­ láº¡i.";
     await nextTick();
     adjustPopoverPosition();
   } finally {
@@ -681,15 +686,16 @@ const GREETINGS = [
   "Hi there! What would you like to learn today",
   "Hello! Ask me anything in English",
   "Ready to practice English Start with a question",
-  "Let’s chat in English What’s on your mind",
-  "Need help with grammar or vocabulary I’m here",
+  "Letâ€™s chat in English Whatâ€™s on your mind",
+  "Need help with grammar or vocabulary Iâ€™m here",
   "Say hi and tell me your goal today",
   "Ask me to explain, translate, or practice",
   "We can role-play a conversation Start anytime",
-  "Tell me a topic you enjoy and we’ll chat",
+  "Tell me a topic you enjoy and weâ€™ll chat",
   "Type your first question to begin",
 ];
 
+// Surface a random greeting so the welcome panel feels lively on every visit.
 const pickGreeting = () => GREETINGS[Math.floor(Math.random() * GREETINGS.length)];
 const welcomeText = ref<string>(pickGreeting());
 
@@ -700,8 +706,9 @@ type MessageToken = {
 };
 
 const WORD_TOKEN_REGEX =
-  /[\p{L}\p{M}\d]+(?:[-'’][\p{L}\p{M}\d]+)*/gu;
+  /[\p{L}\p{M}\d]+(?:[-'â€™][\p{L}\p{M}\d]+)*/gu;
 
+// Break the chat message into clickable word tokens and plain text spans.
 const tokenizeMessageContent = (content: string): MessageToken[] => {
   if (!content) {
     return [];
@@ -738,6 +745,7 @@ const tokenizeMessageContent = (content: string): MessageToken[] => {
   return tokens;
 };
 
+// Bundle a conversation with metadata so it can be stored and rendered consistently.
 const createConversation = (initialMessages: ChatMessage[] = []): ChatConversation => {
   const now = Date.now();
   return {
@@ -749,6 +757,7 @@ const createConversation = (initialMessages: ChatMessage[] = []): ChatConversati
   };
 };
 
+// Build the short preview shown in the sidebar using the last non-empty message.
 const generatePreview = (conversation: ChatConversation): string => {
   const last = [...conversation.messages].reverse().find((message) => message.content.trim().length);
   if (!last) {
@@ -769,8 +778,10 @@ const currentMessages = computed(() => currentConversation.value?.messages ?? []
 
 const hasText = computed(() => draft.value.trim().length > 0);
 const isComposing = ref(false);
+// Keep track of IME composition so Enter does not prematurely submit drafts.
 const onCompositionStart = () => { isComposing.value = true; };
 const onCompositionEnd = () => { isComposing.value = false; };
+// Submit the message when Enter is pressed outside of composition mode.
 const onEnterKey = (e: KeyboardEvent) => {
   if (isComposing.value) return;
   // Only send when not currently sending and there is text
@@ -789,6 +800,7 @@ const conversationSummaries = computed(() =>
   }))
 );
 
+// Create a short, human friendly conversation title from the latest user input.
 const generateTitle = (text: string): string => {
   const maxLen = 32; // shorter for quick scan
   if (!text) return "New conversation";
@@ -811,31 +823,31 @@ const generateTitle = (text: string): string => {
   if (!s) return "New conversation";
 
   // Split into sentences, preserving end punctuation when possible
-  const sentenceMatches = s.match(/[^.!?。？！…]+[.!?。？！…]?/g) || [s];
+  const sentenceMatches = s.match(/[^.!?ã€‚ï¼Ÿï¼â€¦]+[.!?ã€‚ï¼Ÿï¼â€¦]?/g) || [s];
 
   // Prefer the first question sentence
-  const firstQuestion = sentenceMatches.find((seg) => /[?？]$/.test(seg.trim()));
+  const firstQuestion = sentenceMatches.find((seg) => /[?ï¼Ÿ]$/.test(seg.trim()));
   let candidateRaw = (firstQuestion || sentenceMatches[0] || s).trim();
 
   // Prefer the first clause before comma/colon/dash if it carries meaning
-  const clause = candidateRaw.split(/[,:;\-–—]/)[0].trim();
+  const clause = candidateRaw.split(/[,:;\-â€“â€”]/)[0].trim();
   if (clause && clause.split(" ").length >= 2) {
     candidateRaw = clause;
   }
 
   // Remove leading fillers for brevity (simple heuristics, VI + EN)
   const cleaned = candidateRaw
-    .replace(/^(cho (mình|em) hỏi|mình muốn hỏi|hãy|làm ơn|bạn có thể|vui lòng|could you|can you|would you)\s+/i, "")
+    .replace(/^(cho (mÃ¬nh|em) há»i|mÃ¬nh muá»‘n há»i|hÃ£y|lÃ m Æ¡n|báº¡n cÃ³ thá»ƒ|vui lÃ²ng|could you|can you|would you)\s+/i, "")
     .replace(/^[:\-\s]+/, "")
     .trim();
 
   // Remove enclosing quotes and trailing punctuation
   const dequoted = cleaned
-    .replace(/^['"“”‘’`\(\[]+|['"“”‘’`\)\]]+$/g, "")
-    .replace(/[.!?。？！…]+$/, "");
+    .replace(/^['"â€œâ€â€˜â€™`\(\[]+|['"â€œâ€â€˜â€™`\)\]]+$/g, "")
+    .replace(/[.!?ã€‚ï¼Ÿï¼â€¦]+$/, "");
 
   // Remove all punctuation for a cleaner, glanceable title
-  const depunct = dequoted.replace(/[\.,!\?;:、。，．！？：；…\-–—\(\)\[\]\{\}'"“”‘’]/g, "");
+  const depunct = dequoted.replace(/[\.,!\?;:ã€ã€‚ï¼Œï¼Žï¼ï¼Ÿï¼šï¼›â€¦\-â€“â€”\(\)\[\]\{\}'"â€œâ€â€˜â€™]/g, "");
 
   // Final normalize spaces and crop
   const normalized = depunct.replace(/\s+/g, " ").trim();
@@ -844,9 +856,11 @@ const generateTitle = (text: string): string => {
   return normalized.length > maxLen ? `${normalized.slice(0, maxLen)}...` : normalized;
 };
 
+// Stable helper for ordering conversations with the freshest at the top.
 const sortByUpdatedAt = (items: ChatConversation[]): ChatConversation[] =>
   [...items].sort((a, b) => b.updatedAt - a.updatedAt);
 
+// Single place to update the reactive array and mirror the change into localStorage.
 const commitConversations = (next: ChatConversation[]) => {
   const sorted = sortByUpdatedAt(next);
   conversations.value = sorted;
@@ -854,12 +868,14 @@ const commitConversations = (next: ChatConversation[]) => {
   saveActiveConversationId(activeConversationId.value);
 };
 
+// Remember which conversation the user is looking at and ensure the view scrolls.
 const setActiveConversation = (id: string) => {
   activeConversationId.value = id;
   saveActiveConversationId(id);
   nextTick(() => scrollToBottom());
 };
 
+// Keep the latest assistant reply and user input in view inside the message panel.
 const scrollToBottom = () => {
   window.requestAnimationFrame(() => {
     const element = conversationRef.value;
@@ -882,6 +898,7 @@ watch(activeConversationId, () => {
   nextTick(() => scrollToBottom());
 });
 
+// Refresh the visible name and preferred voice from whatever is stored on disk.
 const syncUserNameFromPreferences = () => {
   const prefs = getUserPreferences();
   userDisplayName.value = prefs.fullName?.trim() ?? "";
@@ -896,12 +913,14 @@ const syncUserNameFromPreferences = () => {
   return prefs;
 };
 
+// Shared reset so every submission attempt starts with a clean validation state.
 const resetAccountErrors = () => {
   accountErrors.fullName = "";
   accountErrors.age = "";
   accountErrors.proficiencyLevel = "";
 };
 
+// Populate the account modal form before showing it to the learner.
 const loadAccountForm = () => {
   const prefs = syncUserNameFromPreferences();
   accountForm.fullName = prefs.fullName ?? "";
@@ -915,38 +934,41 @@ const loadAccountForm = () => {
   resetAccountErrors();
 };
 
+// Entry point triggered by sidebar/topbar buttons to reveal the account modal.
 const openAccountModal = () => {
   loadAccountForm();
   isAccountModalOpen.value = true;
 };
 
+// Hide the account modal and clear any lingering error messages.
 const closeAccountModal = () => {
   isAccountModalOpen.value = false;
   resetAccountErrors();
 };
 
+// Validate, persist, and surface errors for the account details form.
 const submitAccountForm = () => {
   resetAccountErrors();
 
   const trimmedName = accountForm.fullName.trim();
   if (trimmedName.length < 2) {
-    accountErrors.fullName = "Vui lòng nhập tên hợp lệ";
+    accountErrors.fullName = "Vui lÃ²ng nháº­p tÃªn há»£p lá»‡";
   }
 
   const ageNumber = Number.parseInt(accountForm.age, 10);
   if (!accountForm.age) {
-    accountErrors.age = "Vui lòng nhập tuổi";
+    accountErrors.age = "Vui lÃ²ng nháº­p tuá»•i";
   } else if (Number.isNaN(ageNumber)) {
-    accountErrors.age = "Tuổi không hợp lệ";
+    accountErrors.age = "Tuá»•i khÃ´ng há»£p lá»‡";
   } else if (ageNumber < 7 || ageNumber > 60) {
-    accountErrors.age = "Tuổi phải nằm trong khoảng 7 đến 60";
+    accountErrors.age = "Tuá»•i pháº£i náº±m trong khoáº£ng 7 Ä‘áº¿n 60";
   }
 
   const levelNumber = Number.parseInt(accountForm.proficiencyLevel, 10);
   if (!accountForm.proficiencyLevel) {
-    accountErrors.proficiencyLevel = "Vui lòng chọn cấp độ";
+    accountErrors.proficiencyLevel = "Vui lÃ²ng chá»n cáº¥p Ä‘á»™";
   } else if (Number.isNaN(levelNumber)) {
-    accountErrors.proficiencyLevel = "Cấp độ không hợp lệ";
+    accountErrors.proficiencyLevel = "Cáº¥p Ä‘á»™ khÃ´ng há»£p lá»‡";
   }
 
   if (accountErrors.fullName || accountErrors.age || accountErrors.proficiencyLevel) {
@@ -976,10 +998,12 @@ const submitAccountForm = () => {
   closeAccountModal();
 };
 
+// Collapse or expand the sidebar depending on the current viewport state.
 const toggleSidebar = () => {
   isSidebarCollapsed.value = !isSidebarCollapsed.value;
 };
 
+// Lazily pick the most suitable speech synthesis voice based on stored preferences.
 const ensureVoice = () => {
   if (typeof window === "undefined") return null;
   const synth = window.speechSynthesis;
@@ -1003,7 +1027,7 @@ const ensureVoice = () => {
       (/^male$|^nam$|^man$|^anh$/i.test(normalizedPref) || malePattern.test(normalizedPref));
     const wantsFemale =
       normalizedPref &&
-      (/^female$|^nu$|^nữ$|^woman$|^chi$/i.test(normalizedPref) || femalePattern.test(normalizedPref));
+      (/^female$|^nu$|^ná»¯$|^woman$|^chi$/i.test(normalizedPref) || femalePattern.test(normalizedPref));
 
     if (wantsMale && !wantsFemale) {
       const maleVoice = englishVoices.find((voice) => malePattern.test(voice.name));
@@ -1034,6 +1058,7 @@ const ensureVoice = () => {
   return selectedVoice.value;
 };
 
+// Cancel any ongoing speech synthesis playback.
 const stopSpeech = () => {
   try {
     window.speechSynthesis.cancel();
@@ -1041,6 +1066,7 @@ const stopSpeech = () => {
   speaking.value = false;
 };
 
+// Speak a chat bubble aloud using the configured voice.
 const playMessage = (message: ChatMessage) => {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) {
     console.info("[TTS] speechSynthesis not supported");
@@ -1073,12 +1099,13 @@ const playMessage = (message: ChatMessage) => {
   }
 };
 
+// Obtain a SpeechRecognition instance when supported by the runtime.
 const ensureRecognition = () => {
   if (typeof window === "undefined") return null;
   const w = window as any;
   const Ctor = w.SpeechRecognition || w.webkitSpeechRecognition;
   if (!Ctor) {
-    sttError.value = "Trình duyệt không hỗ trợ nhận dạng giọng nói.";
+    sttError.value = "TrÃ¬nh duyá»‡t khÃ´ng há»— trá»£ nháº­n dáº¡ng giá»ng nÃ³i.";
     return null;
   }
   if (!recognitionRef.value) {
@@ -1105,7 +1132,7 @@ const ensureRecognition = () => {
     };
     rec.onerror = (ev: any) => {
       isRecording.value = false;
-      sttError.value = ev?.error ? String(ev.error) : "Lỗi ghi âm";
+      sttError.value = ev?.error ? String(ev.error) : "Lá»—i ghi Ã¢m";
     };
     rec.onresult = (event: any) => {
       let transcript = "";
@@ -1134,6 +1161,7 @@ const ensureRecognition = () => {
   return recognitionRef.value;
 };
 
+// Begin listening for the learner's voice and handle silence detection.
 const startVoiceInput = () => {
   const rec = ensureRecognition();
   if (!rec) return;
@@ -1143,6 +1171,7 @@ const startVoiceInput = () => {
   try { rec.start(); } catch {}
 };
 
+// Stop listening, optionally flagging the stop as user initiated.
 const stopVoiceInput = (explicit = false) => {
   const rec = recognitionRef.value;
   if (explicit) {
@@ -1155,6 +1184,7 @@ const stopVoiceInput = (explicit = false) => {
   try { stopAudioMeter(); } catch {}
 };
 
+// Switch the auto mode flag and bootstrap voice capture when newly enabled.
 const toggleAutoMode = () => {
   autoMode.value = !autoMode.value;
   if (autoMode.value) {
@@ -1166,12 +1196,14 @@ const toggleAutoMode = () => {
   }
 };
 
+// Drop a suggestion into the draft input and immediately send it.
 const useSuggestion = (text: string) => {
   if (isSending.value) return;
   draft.value = text;
   sendMessage();
 };
 
+// Spawn a brand-new empty conversation and make it the active thread.
 const startNewChat = () => {
   error.value = "";
   draft.value = "";
@@ -1180,6 +1212,7 @@ const startNewChat = () => {
   setActiveConversation(conversation.id);
 };
 
+// Append a message to whichever conversation is selected and persist the change.
 const appendMessageToActive = (message: ChatMessage) => {
   const id = activeConversationId.value;
   if (!id) {
@@ -1208,6 +1241,7 @@ const appendMessageToActive = (message: ChatMessage) => {
   commitConversations(next);
 };
 
+// Guarantee there is always at least one conversation to receive messages.
 const ensureActiveConversation = () => {
   if (currentConversation.value) {
     return;
@@ -1305,6 +1339,7 @@ const sendMessage = async () => {
   }
 };
 
+// Abort the current streaming response and reset the sending indicator.
 const stopGeneration = () => {
   // Abort in-flight request
   const ctl = currentRequestController.value;
@@ -1320,6 +1355,7 @@ const stopGeneration = () => {
   }
 };
 
+// Wipe the current conversation thread while keeping the chat session alive.
 const resetConversation = () => {
   const conversation = currentConversation.value;
   if (!conversation) {
@@ -1343,6 +1379,7 @@ const resetConversation = () => {
   nextTick(() => scrollToBottom());
 };
 
+// Remove a conversation from the list and fall back to a new one when empty.
 const deleteConversation = (id: string) => {
   const filtered = conversations.value.filter((conversation) => conversation.id !== id);
 
@@ -1362,6 +1399,7 @@ const deleteConversation = (id: string) => {
   error.value = "";
 };
 
+// Remove every conversation and start the user off with a blank slate.
 const clearAllConversations = () => {
   clearChatHistory();
   const conversation = createConversation();
@@ -1371,6 +1409,7 @@ const clearAllConversations = () => {
   error.value = "";
 };
 
+// Change the active conversation via the sidebar selection.
 const selectConversation = (id: string) => {
   if (id === activeConversationId.value) {
     return;
@@ -1382,6 +1421,7 @@ const selectConversation = (id: string) => {
   error.value = "";
 };
 
+// Format message timestamps so they respect the user's locale.
 const formatTime = (timestamp: number) => {
   const formatter = new Intl.DateTimeFormat(undefined, {
     hour: "2-digit",
@@ -1528,6 +1568,7 @@ const startAudioMeter = async () => {
   }
 };
 
+// Tear down the waveform animation loop when recording stops.
 const stopAudioMeter = () => {
   audioMeterOn.value = false;
   if (audioRafId != null) {
@@ -2502,4 +2543,6 @@ textarea:focus {
   }
 }
 </style>
+
+
 

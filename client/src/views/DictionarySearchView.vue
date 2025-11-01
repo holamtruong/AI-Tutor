@@ -132,18 +132,22 @@ const showRecent = ref(true);
 const suggestions = ref<string[]>([]);
 const recentSearches = reactive<RecentSearch[]>([]);
 
+// Reveal or hide the optional context textarea.
 const toggleContext = () => {
   showContext.value = !showContext.value;
 };
 
+// Collapse the recent-search list to keep the UI compact.
 const toggleRecent = () => {
   showRecent.value = !showRecent.value;
 };
 
+// Dismiss the onboarding tip for the dictionary feature.
 const closeGuide = () => {
   showGuide.value = false;
 };
 
+// Persist the most recent search queries for quick reuse.
 const persistRecent = () => {
   if (typeof window === "undefined") {
     return;
@@ -155,12 +159,14 @@ const persistRecent = () => {
   );
 };
 
+// Pick a handful of sample keywords whenever the page loads.
 const shuffleSuggestions = () => {
   const pool = [...SAMPLE_DICTIONARY_KEYWORDS];
   pool.sort(() => Math.random() - 0.5);
   suggestions.value = pool.slice(0, 6);
 };
 
+// Navigate directly to the dictionary result view with query parameters.
 const searchWord = (word: string, customContext?: string) => {
   const params = new URLSearchParams({ keyword: word });
   if (customContext) {
@@ -174,6 +180,7 @@ const searchWord = (word: string, customContext?: string) => {
     });
 };
 
+// Validate the search form, update history, and route to the results screen.
 const handleSubmit = () => {
   if (!keyword.value.trim()) {
     return;
@@ -215,6 +222,7 @@ const handleSubmit = () => {
   router.push(`/dictionary/result?${params.toString()}`);
 };
 
+// Load persisted preferences, show the guide if needed, and seed the suggestions.
 onMounted(() => {
   if (!hasCompletedOnboarding()) {
     router.replace("/");

@@ -42,10 +42,12 @@ const router = useRouter();
 const preferences = reactive(getUserPreferences());
 const features = FEATURES;
 
+// Convenience helper used by the feature cards to trigger navigation.
 const goTo = (href: string) => {
   router.push(href);
 };
 
+// Redirect users who skipped onboarding back to the information flow.
 onMounted(() => {
   if (!hasCompletedOnboarding()) {
     router.replace("/");
@@ -57,7 +59,16 @@ onMounted(() => {
 .screen {
   min-height: 100vh;
   backdrop-filter: blur(14px);
-  background: rgba(255, 255, 255, 0.2);
+  background:
+    radial-gradient(circle at 18% 22%, rgba(255, 255, 255, 0.85), transparent 55%),
+    radial-gradient(circle at 82% 12%, rgba(94, 234, 212, 0.32), transparent 60%),
+    radial-gradient(circle at 12% 82%, rgba(244, 114, 182, 0.28), transparent 58%),
+    linear-gradient(
+      135deg,
+      rgba(248, 251, 255, 0.96) 0%,
+      rgba(230, 240, 255, 0.88) 45%,
+      rgba(210, 226, 255, 0.82) 100%
+    );
 }
 
 .content {

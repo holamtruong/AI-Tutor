@@ -43,6 +43,7 @@ const router = createRouter({
       redirect: "/",
     },
   ],
+  // Reset page scroll on navigation so views always start at the top.
   scrollBehavior() {
     return { top: 0 };
   },

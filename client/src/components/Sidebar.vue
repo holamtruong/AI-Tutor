@@ -2,7 +2,7 @@
   <aside class="sidebar" :class="{ 'sidebar--collapsed': collapsed }">
     <div class="sidebar__top">
       <router-link to="/dashboard" class="sidebar__brand" style="text-decoration:none; color:inherit;">
-        <div class="brand__icon">EC</div>
+        <div class="brand__icon">AI</div>
         <div class="brand__text">
           <strong>AI Tutor</strong>
           <span>Gia sư tiếng Anh</span>
@@ -160,6 +160,7 @@ const emit = defineEmits<{
   (event: "open-account"): void;
 }>();
 
+// Format the updated time inside history items using the user's locale.
 const formatUpdatedAt = (timestamp: number) => {
   const formatter = new Intl.DateTimeFormat(undefined, {
     hour: "2-digit",
@@ -170,12 +171,14 @@ const formatUpdatedAt = (timestamp: number) => {
   return formatter.format(new Date(timestamp));
 };
 
+// Ask for confirmation before deleting a single conversation from history.
 const onDelete = (id: string) => {
   if (confirm("Xác nhận xoá cuộc trò chuyện này?")) {
     emit("delete", id);
   }
 };
 
+// Entry point for the "clear all" CTA with short-circuiting on empty history.
 const onClearAll = () => {
   if (!props.conversations.length) {
     return;
@@ -185,6 +188,7 @@ const onClearAll = () => {
   }
 };
 
+// Bubble the account button click up so the parent view can open the modal.
 const onAccountClick = () => {
   emit("open-account");
 };
