@@ -135,23 +135,24 @@ import { addAssignmentRecord } from "@/utils/localStorage";
 
 const MAX_RETRIES = 2;
 
-const title = ref("");
-const content = ref("");
-const textareaRef = ref<HTMLTextAreaElement | null>(null);
-const isEvaluating = ref(false);
-const errorMessage = ref("");
-const activeId = ref<string | null>(null);
+const title = ref(""); // Tieu de bai viet
+const content = ref(""); // Noi dung bai viet
+const textareaRef = ref<HTMLTextAreaElement | null>(null); // Ref den the textarea de tu dong dieu chinh chieu cao
+const isEvaluating = ref(false); // Trang thai dang cham diem
+const errorMessage = ref(""); // Thong bao loi neu co
+const activeId = ref<string | null>(null); // ID bai viet dang duoc chon hien thi chi tiet
 
-const { submissions, addSubmission, reload } = useWritingStore();
+const { submissions, addSubmission, reload } = useWritingStore(); // Store quan ly cac bai viet
 
-const charCount = computed(() => content.value.trim().length);
-const canSubmit = computed(() => charCount.value > 0 && !isEvaluating.value);
+const charCount = computed(() => content.value.trim().length); // Dem so ky tu trong noi dung bai viet
+const canSubmit = computed(() => charCount.value > 0 && !isEvaluating.value); // Kiem tra neu co noi dung de gui va khong dang cham diem
 
+// Tim bai viet dang duoc chon hien thi chi tiet
 const activeSubmission = computed(() =>
   submissions.value.find((submission) => submission.id === activeId.value) ?? null
 );
 
-// Keep the textarea height in sync with its content so typing stays comfortable.
+// Tu dong dieu chinh chieu cao cua textarea dua tren noi dung
 const autoResize = () => {
   const textarea = textareaRef.value;
   if (!textarea) {
@@ -161,12 +162,12 @@ const autoResize = () => {
   textarea.style.height = `${textarea.scrollHeight}px`;
 };
 
-// Proxy input events to trigger the auto-resize behaviour above.
+// Xu ly su kien nhap noi dung trong textarea
 const handleTextareaInput = () => {
   autoResize();
 };
 
-// Display submission timestamps using the reader's locale.
+// Dinh dang ngay thang de hien thi
 const formatDate = (timestamp: number) => {
   const formatter = new Intl.DateTimeFormat(undefined, {
     hour: "2-digit",
@@ -178,7 +179,7 @@ const formatDate = (timestamp: number) => {
   return formatter.format(new Date(timestamp));
 };
 
-// Clear the composition form after a successful submission.
+// Dat lai form ve trang thai ban dau
 const resetForm = () => {
   title.value = "";
   content.value = "";
@@ -186,12 +187,12 @@ const resetForm = () => {
   nextTick(autoResize);
 };
 
-// Activate a submission so its details show on the right-hand pane.
+// Chon mot bai viet trong lich su de hien thi chi tiet
 const selectSubmission = (id: string) => {
   activeId.value = id;
 };
 
-// Call the backend scoring endpoint with a few retry attempts.
+// Ham gui noi dung bai viet den API de cham diem va nhan phan hoi
 const evaluateWriting = async () => {
   const payload = {
     title: title.value.trim(),
@@ -231,7 +232,7 @@ const evaluateWriting = async () => {
   throw lastError ?? new Error("Unknown error");
 };
 
-// Main submit handler that saves the attempt and records the assignment score.
+// Xu ly khi nguoi dung gui bai viet de cham diem
 const handleSubmit = async () => {
   if (!canSubmit.value) {
     return;
@@ -270,7 +271,7 @@ const handleSubmit = async () => {
   }
 };
 
-// Adjust the textarea every time the draft content changes programmatically.
+// Theo doi thay doi noi dung de tu dong dieu chinh chieu cao textarea
 watch(content, () => nextTick(autoResize));
 
 watch(
@@ -283,7 +284,7 @@ watch(
   { immediate: true }
 );
 
-// Prepare the textarea and highlight the most recent submission on first render.
+// Khi component duoc tai, kiem tra neu nguoi dung da hoan thanh onboarding thi dieu huong den dashboard
 onMounted(() => {
   nextTick(autoResize);
   if (submissions.value.length) {

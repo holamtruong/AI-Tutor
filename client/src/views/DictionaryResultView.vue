@@ -54,24 +54,25 @@ interface DictionaryResponse {
 const router = useRouter();
 const route = useRoute();
 
-const result = ref<DictionaryResponse | null>(null);
-const isLoading = ref(true);
-const error = ref("");
-const isPlaying = ref(false);
-const audioElement = ref<HTMLAudioElement | null>(null);
+const result = ref<DictionaryResponse | null>(null); // Ket qua tra cuu
+const isLoading = ref(true); // Trang thai dang tai
+const error = ref(""); // Loi khi tra cuu
+const isPlaying = ref(false); // Trang thai phat am
+const audioElement = ref<HTMLAudioElement | null>(null); // Phan tu audio
 
-const keyword = computed(() => (route.query.keyword as string | undefined) ?? "");
-const context = computed(() => (route.query.context as string | undefined) ?? "");
+const keyword = computed(() => (route.query.keyword as string | undefined) ?? ""); // Tu khoa tra cuu
+const context = computed(() => (route.query.context as string | undefined) ?? ""); // Ngu canh tra cuu
 
 const audioSrc = computed(() => result.value?.audioUrls?.us ?? "");
 
-// Recreate the audio element whenever a new pronunciation url is available.
+// Tao lai phan tu audio moi khi co url phat am moi
 watch(audioSrc, (src) => {
   if (!src) {
     audioElement.value = null;
     return;
   }
 
+  // Tao doi tuong Audio moi
   const audio = new Audio(src);
   audio.addEventListener("ended", () => {
     isPlaying.value = false;
@@ -82,7 +83,7 @@ watch(audioSrc, (src) => {
   audioElement.value = audio;
 });
 
-// Transform the AI rendered markdown-ish response into simple HTML paragraphs.
+// Xu ly noi dung ket qua tra cuu de hien thi
 const renderedContent = computed(() => {
   if (!result.value) {
     return "";
@@ -97,7 +98,7 @@ const renderedContent = computed(() => {
   return `<div>${segments.map((text) => `<p>${text}</p>`).join("")}</div>`;
 });
 
-// Play the American pronunciation recording when the learner taps the button.
+// Phat am bang tieng Anh khi nguoi hoc bam vao nut
 const playAudio = async () => {
   if (!audioElement.value) {
     return;
@@ -112,7 +113,7 @@ const playAudio = async () => {
   }
 };
 
-// POST the lookup request to the API and capture any errors for display.
+// POST yeu cau tra cuu tu dien
 const fetchResult = async () => {
   if (!keyword.value) {
     router.replace("/dictionary");
@@ -151,7 +152,7 @@ const fetchResult = async () => {
   }
 };
 
-// Redirect users who skipped onboarding and trigger the first lookup.
+// Chuyen huong nguoi dung neu chua hoan thanh onboarding va kich hoat lan tra cuu dau tien
 onMounted(() => {
   if (!hasCompletedOnboarding()) {
     router.replace("/");

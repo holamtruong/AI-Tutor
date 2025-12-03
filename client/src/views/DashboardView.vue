@@ -42,12 +42,12 @@ const router = useRouter();
 const preferences = reactive(getUserPreferences());
 const features = FEATURES;
 
-// Convenience helper used by the feature cards to trigger navigation.
+// Ham dieu huong den trang chi tiet tinh nang
 const goTo = (href: string) => {
   router.push(href);
 };
 
-// Redirect users who skipped onboarding back to the information flow.
+// Chuyen huong nguoi dung neu chua hoan thanh onboarding
 onMounted(() => {
   if (!hasCompletedOnboarding()) {
     router.replace("/");

@@ -112,12 +112,13 @@ import { useRouter } from 'vue-router';
 import Navbar from '@/components/Navbar.vue';
 import { getUserPreferences } from '@/utils/localStorage';
 
-const router = useRouter();
-const prefs = getUserPreferences();
-// Present the stored name inside the hero greeting.
+const router = useRouter(); // Su dung router de dieu huong
+const prefs = getUserPreferences(); // Lay thong tin nguoi dung tu localStorage
+
+// Ten hien thi tren dashboard
 const displayName = computed(() => prefs.fullName || 'bạn');
 
-// Utility navigation helper reused across dashboard quick actions.
+// Ham dieu huong den duong dan mong muon (ultilize router)
 const go = (path: string) => {
   router.push(path);
 };

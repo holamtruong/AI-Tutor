@@ -100,26 +100,30 @@ import {
 } from "@/utils/localStorage";
 
 const router = useRouter();
-const step = ref(1);
-const levels = computed(() => PROFICIENCY_LEVELS);
+const step = ref(1); // Buoc hien tai trong quy trinh onboarding
+const levels = computed(() => PROFICIENCY_LEVELS); // Danh sach cac trinh do tieng Anh
 
-const stored = getUserPreferences();
+// Lay thoi thong tin nguoi dung da luu tru
+const stored = getUserPreferences(); 
 
+// Trang thai va loi cho buoc dau tien: thong tin ca nhan
 const firstStep = reactive({
   fullName: stored.fullName ?? "",
   gender: stored.gender ?? "male",
   age: stored.age ?? ("" as number | ""),
 });
 
+// Trang thai va loi cho buoc thu hai: chon trinh do tieng Anh
 const selectedLevel = ref<number | null>(stored.proficiencyLevel ?? null);
 
+// Loi xay ra trong qua trinh xac thuc tung buoc
 const errors = reactive<{ fullName: string; age: string; level: string }>({
   fullName: "",
   age: "",
   level: "",
 });
 
-// Basic validation for the personal info form before advancing to level selection.
+// Ham xac thuc cac truong nhap o buoc dau tien
 const validateFirstStep = () => {
   errors.fullName = "";
   errors.age = "";
@@ -137,7 +141,7 @@ const validateFirstStep = () => {
   return !errors.fullName && !errors.age;
 };
 
-// Persist the first-step answers and advance the wizard when inputs look valid.
+// Xu ly khi nguoi dung hoan thanh buoc dau tien
 const handleFirstStep = () => {
   if (!validateFirstStep()) {
     return;
@@ -153,19 +157,19 @@ const handleFirstStep = () => {
   step.value = 2;
 };
 
-// Toggle the active level card and clear any previous validation warnings.
+// Xu ly khi nguoi dung chon mot trinh do tieng Anh
 const selectLevel = (levelId: number) => {
   selectedLevel.value = levelId;
   errors.level = "";
 };
 
-// Final submission that saves every preference and navigates to the dashboard.
+// Xu ly khi nguoi dung hoan thanh quy trinh onboarding
 const completeOnboarding = () => {
   if (!selectedLevel.value) {
     errors.level = "Vui lòng chọn trình độ của bạn";
     return;
   }
-
+  // Luu tru thiet lap nguoi dung
   saveUserPreferences({
     fullName: firstStep.fullName,
     gender: firstStep.gender,
@@ -177,7 +181,7 @@ const completeOnboarding = () => {
   router.push("/dashboard");
 };
 
-// If onboarding was already completed earlier, skip the wizard entirely.
+// Khi component duoc tai, kiem tra neu nguoi dung da hoan thanh onboarding thi dieu huong den dashboard
 onMounted(() => {
   if (hasCompletedOnboarding()) {
     router.replace("/dashboard");

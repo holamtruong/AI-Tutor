@@ -4,6 +4,7 @@ import {
   ASSIGNMENTS_HISTORY_KEY,
 } from "@/constants";
 
+// Dinh nghia thong tin nguoi dung luu tren localStorage
 export interface UserPreferences {
   fullName?: string;
   gender?: string;
@@ -14,6 +15,7 @@ export interface UserPreferences {
   userId?: string;
 }
 
+// Cau truc cuoc tro chuyen va tin nhan
 export interface ChatMessage {
   id: string;
   content: string;
@@ -21,6 +23,7 @@ export interface ChatMessage {
   timestamp: number;
 }
 
+// Cau truc toan bo cuoc tro chuyen
 export interface ChatConversation {
   id: string;
   title: string;
@@ -29,6 +32,7 @@ export interface ChatConversation {
   updatedAt: number;
 }
 
+// Cau truc ban ghi bai tap
 export interface AssignmentRecord {
   id: string;
   type: string;
@@ -38,11 +42,13 @@ export interface AssignmentRecord {
   userId: string;
 }
 
+// Khoa luu tru thoi quen nguoi dung
 const USER_PREFERENCES_KEY = "user-preferences";
 
+// Kiem tra xem ma nguon co chay tren trinh duyet khong
 const isBrowser = () => typeof window !== "undefined";
 
-// Read the persisted user preferences from localStorage with a safe fallback.
+// Doc toan bo thoi quen nguoi dung tu localStorage
 export const getUserPreferences = (): UserPreferences => {
   if (!isBrowser()) {
     return {};
@@ -57,7 +63,7 @@ export const getUserPreferences = (): UserPreferences => {
   }
 };
 
-// Merge the incoming preference updates with the current snapshot and persist them.
+// Gop nhung cap nhat thoi quen nguoi dung vao ban ghi hien tai va luu lai.
 export const saveUserPreferences = (
   preferences: UserPreferences
 ): UserPreferences => {
@@ -76,7 +82,7 @@ export const saveUserPreferences = (
   }
 };
 
-// Remove every stored preference key (used on logout or onboarding reset).
+// Xoa toan bo thoi quen nguoi dung khoi localStorage
 export const clearUserPreferences = () => {
   if (!isBrowser()) {
     return;
@@ -89,7 +95,7 @@ export const clearUserPreferences = () => {
   }
 };
 
-// Ensure we always have a user id available by reusing the stored value or generating a new one.
+// Dam bao luon co mot user id bang cach su dung lai gia tri da luu hoac tao moi
 export const getOrCreateUserId = (): string => {
   if (!isBrowser()) {
     return "";
@@ -105,12 +111,12 @@ export const getOrCreateUserId = (): string => {
   return generated;
 };
 
-// Convenience helper that answers whether the onboarding flow was already finished.
+// Kiem tra xem nguoi dung da hoan thanh huong dan ban dau chua
 export const hasCompletedOnboarding = (): boolean => {
   return Boolean(getUserPreferences().hasCompletedOnboarding);
 };
 
-// Guard every read from localStorage so corrupted or legacy data never crashes the app.
+// Xac thuc va chuan hoa cac cuoc tro chuyen duoc luu tru de tuong thich nguoi dung cu
 const normalizeConversations = (
   value: unknown
 ): ChatConversation[] | undefined => {
@@ -165,7 +171,7 @@ const normalizeConversations = (
   return undefined;
 };
 
-// Fetch every saved conversation snapshot, shaping legacy data on the fly.
+// Ham doc toan bo lich su cuoc tro chuyen tu localStorage
 export const getChatConversations = (): ChatConversation[] => {
   if (!isBrowser()) {
     return [];
@@ -185,7 +191,7 @@ export const getChatConversations = (): ChatConversation[] => {
   }
 };
 
-// Overwrite the chat history cache with the provided conversation list.
+// Ghi de toan bo lich su cuoc tro chuyen, bo qua neu khong co localStorage
 export const saveChatConversations = (conversations: ChatConversation[]) => {
   if (!isBrowser()) {
     return;
@@ -198,7 +204,7 @@ export const saveChatConversations = (conversations: ChatConversation[]) => {
   }
 };
 
-// Return which conversation was marked as active in the sidebar.
+// Ham lay id cua cuoc tro chuyen dang hoat dong
 export const getActiveConversationId = (): string => {
   if (!isBrowser()) {
     return "";
@@ -207,7 +213,7 @@ export const getActiveConversationId = (): string => {
   return localStorage.getItem(CHAT_ACTIVE_CONVERSATION_KEY) ?? "";
 };
 
-// Persist the active conversation id so the UI can restore selection after reload.
+// Luu id cua cuoc tro chuyen dang hoat dong de UI co the khoi phuc sau khi tai lai trang
 export const saveActiveConversationId = (id: string) => {
   if (!isBrowser()) {
     return;
@@ -216,7 +222,7 @@ export const saveActiveConversationId = (id: string) => {
   localStorage.setItem(CHAT_ACTIVE_CONVERSATION_KEY, id);
 };
 
-// Remove both the chat history payload and the pointer to the active conversation.
+// Xoa toan bo lich su cuoc tro chuyen va chi so cuoc tro chuyen dang hoat dong
 export const clearChatHistory = () => {
   if (!isBrowser()) {
     return;
@@ -226,7 +232,7 @@ export const clearChatHistory = () => {
   localStorage.removeItem(CHAT_ACTIVE_CONVERSATION_KEY);
 };
 
-// Verify assignments pulled from storage still resemble the expected schema.
+// Xac thuc va chuan hoa cac ban ghi bai tap duoc luu tru de tuong thich voi nguoi dung cu
 const normalizeAssignments = (value: unknown): AssignmentRecord[] | undefined => {
   if (!Array.isArray(value)) {
     return undefined;
@@ -255,7 +261,7 @@ const normalizeAssignments = (value: unknown): AssignmentRecord[] | undefined =>
   return undefined;
 };
 
-// Centralised reader that gracefully handles corrupted assignment payloads.
+// Ham doc toan bo lich su bai tap tu localStorage
 const readAssignmentsStore = (): AssignmentRecord[] => {
   if (!isBrowser()) {
     return [];
@@ -274,7 +280,7 @@ const readAssignmentsStore = (): AssignmentRecord[] => {
   }
 };
 
-// Persist a full assignment collection, ignoring the call when storage is unavailable.
+// Ham ghi de toan bo lich su bai tap, bo qua neu khong co localStorage
 const writeAssignmentsStore = (records: AssignmentRecord[]) => {
   if (!isBrowser()) {
     return;
@@ -287,7 +293,7 @@ const writeAssignmentsStore = (records: AssignmentRecord[]) => {
   }
 };
 
-// Collect every assignment for the given user, creating an id when none exists yet.
+// Ham lay lich su bai tap cho mot nguoi dung, mac dinh la nguoi dung hien tai
 export const getAssignments = (userId?: string): AssignmentRecord[] => {
   const targetId = userId ?? getOrCreateUserId();
   if (!targetId) {
@@ -296,7 +302,7 @@ export const getAssignments = (userId?: string): AssignmentRecord[] => {
   return readAssignmentsStore().filter((record) => record.userId === targetId);
 };
 
-// Replace assignments for a user while keeping unrelated users untouched.
+// Ham luu toan bo lich su bai tap cho mot nguoi dung, mac dinh la nguoi dung hien tai
 export const saveAssignments = (assignments: AssignmentRecord[], userId?: string) => {
   const targetId = userId ?? getOrCreateUserId();
   if (!targetId) {
@@ -310,7 +316,7 @@ export const saveAssignments = (assignments: AssignmentRecord[], userId?: string
   ]);
 };
 
-// Append a single assignment entry while stamping timestamps and ids automatically.
+// Ham them mot ban ghi bai tap moi cho nguoi dung hien tai
 export const addAssignmentRecord = (assignment: {
   id?: string;
   type: string;
@@ -321,7 +327,7 @@ export const addAssignmentRecord = (assignment: {
   if (!userId) {
     return undefined;
   }
-
+  // Lay lich su hien tai de them vao
   const history = getAssignments(userId);
   const record: AssignmentRecord = {
     id: assignment.id ?? crypto.randomUUID(),
@@ -331,7 +337,7 @@ export const addAssignmentRecord = (assignment: {
     createdAt: Date.now(),
     userId,
   };
-
+  // Them ban ghi moi vao dau danh sach
   const next = [record, ...history];
   saveAssignments(next, userId);
   return record;

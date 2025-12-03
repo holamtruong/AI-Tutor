@@ -17,6 +17,9 @@ class ChatRequest(BaseModel):
 
     message: str = Field(..., min_length=1)
     history: list[ChatMessage] | None = None
+    proficiencyLevel: int | None = Field(
+        default=None, ge=1, le=4, description="Muc do trinh do cua nguoi hoc (1-4)"
+    )
 
 
 class ChatResponse(BaseModel):

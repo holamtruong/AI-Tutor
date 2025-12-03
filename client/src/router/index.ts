@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 
+// Cau hinh cac duong dan cho ung dung
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -43,7 +44,7 @@ const router = createRouter({
       redirect: "/",
     },
   ],
-  // Reset page scroll on navigation so views always start at the top.
+  // Dat lai vi tri cuon trang khi dieu huong de cac view luon bat dau o dau trang
   scrollBehavior() {
     return { top: 0 };
   },

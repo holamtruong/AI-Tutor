@@ -1,33 +1,16 @@
 <template>
-  <div
-    class="chat-screen"
-    :class="{ 'chat-screen--sidebar-collapsed': isSidebarCollapsed }"
-  >
-    <Sidebar
-      :collapsed="isSidebarCollapsed"
-      :conversations="conversationSummaries"
-      :active-id="activeConversationId"
-      :user-name="userDisplayName"
-      @toggle="toggleSidebar"
-      @new-chat="startNewChat"
-      @select="selectConversation"
-      @delete="deleteConversation"
-      @clear-all="clearAllConversations"
-      @open-account="openAccountModal"
-    />
+  <div class="chat-screen" :class="{ 'chat-screen--sidebar-collapsed': isSidebarCollapsed }">
+    <Sidebar :collapsed="isSidebarCollapsed" :conversations="conversationSummaries" :active-id="activeConversationId"
+      :user-name="userDisplayName" @toggle="toggleSidebar" @new-chat="startNewChat" @select="selectConversation"
+      @delete="deleteConversation" @clear-all="clearAllConversations" @open-account="openAccountModal" />
 
-    <!-- Mobile-only navbar shown when sidebar is collapsed -->
+    <!-- Mobile-only navbar -->
     <header class="mobile-navbar" v-if="isSidebarCollapsed">
       <div class="mobile-navbar__brand">
         <span class="brand__icon">EC</span>
         <strong class="brand__text">AI Tutor</strong>
       </div>
-      <button
-        class="mobile-navbar__toggle"
-        type="button"
-        aria-label="Mở menu hội thoại"
-        @click="toggleSidebar"
-      >
+      <button class="mobile-navbar__toggle" type="button" aria-label="Mở menu hội thoại" @click="toggleSidebar">
         <svg viewBox="0 0 24 24" aria-hidden="true" class="icon">
           <rect x="3" y="4" width="4" height="16" rx="1" />
           <rect x="9" y="6" width="12" height="4" rx="1" />
@@ -50,40 +33,24 @@
           </div>
         </div>
 
-        <article
-          v-for="message in currentMessages"
-          :key="message.id"
-          class="bubble"
-          :class="`bubble--${message.sender}`"
-        >
+        <article v-for="message in currentMessages" :key="message.id" class="bubble"
+          :class="`bubble--${message.sender}`">
           <div class="bubble__header">
             <span class="bubble__meta">
               {{ message.sender === "user" ? "Bạn" : "AI Tutor" }} -
               {{ formatTime(message.timestamp) }}
             </span>
-            <button
-              class="bubble__action"
-              type="button"
-              title="Phát lại đoạn hội thoại"
-              aria-label="Phát lại đoạn hội thoại"
-              @click="playMessage(message)"
-            >
+            <button class="bubble__action" type="button" title="Phát lại đoạn hội thoại"
+              aria-label="Phát lại đoạn hội thoại" @click="playMessage(message)">
               <svg viewBox="0 0 24 24" aria-hidden="true" class="icon icon--sm">
                 <path d="M8 5v14l11-7z" fill="currentColor" />
               </svg>
             </button>
           </div>
           <p class="bubble__text">
-            <template
-              v-for="(token, index) in tokenizeMessageContent(message.content)"
-              :key="`${message.id}-${index}`"
-            >
-              <button
-                v-if="token.type === 'word'"
-                type="button"
-                class="bubble__token bubble__token--word"
-                @click="handleWordLookup(token.lookup ?? token.display, $event)"
-              >
+            <template v-for="(token, index) in tokenizeMessageContent(message.content)" :key="`${message.id}-${index}`">
+              <button v-if="token.type === 'word'" type="button" class="bubble__token bubble__token--word"
+                @click="handleWordLookup(token.lookup ?? token.display, $event)">
                 {{ token.display }}
               </button>
               <span v-else class="bubble__token bubble__token--text">{{ token.display }}</span>
@@ -97,52 +64,33 @@
           <span class="typing__dot"></span>
           AI Tutor đang soạn phản hồi...
         </div>
-        <div
-          v-if="vocabPopover.visible"
-          class="vocab-popover"
-          ref="vocabPopoverRef"
-          :style="vocabPopoverStyle"
-        >
+        <div v-if="vocabPopover.visible" class="vocab-popover" ref="vocabPopoverRef" :style="vocabPopoverStyle">
           <header class="vocab-popover__header">
             <div class="vocab-popover__title">
               <strong>{{ vocabPopover.keyword }}</strong>
-              <button
-                v-if="canSpeakVocab"
-                type="button"
-                class="vocab-popover__audio"
+              <button v-if="canSpeakVocab" type="button" class="vocab-popover__audio"
                 :title="isVocabSpeaking ? 'Đang phát...' : 'Phát âm'"
-                :aria-label="isVocabSpeaking ? 'Đang phát' : 'Phát âm'"
-                :disabled="isVocabSpeaking"
-                @click="speakVocabWord"
-              >
+                :aria-label="isVocabSpeaking ? 'Đang phát' : 'Phát âm'" :disabled="isVocabSpeaking"
+                @click="speakVocabWord">
                 <svg viewBox="0 0 24 24" aria-hidden="true" class="icon icon--sm">
                   <path
                     d="M5 9v6h3l4 4V5L8 9H5Zm11.5 3a2.5 2.5 0 0 0-1.5-2.296v4.592A2.5 2.5 0 0 0 16.5 12Zm-1.5-6.32v2.073A4.5 4.5 0 0 1 18.5 12a4.5 4.5 0 0 1-3.5 4.247v2.073A6.5 6.5 0 0 0 20.5 12 6.5 6.5 0 0 0 15 5.68Z"
-                    fill="currentColor"
-                  />
+                    fill="currentColor" />
                 </svg>
               </button>
             </div>
-            <button
-              class="vocab-popover__close"
-              type="button"
-              aria-label="Đóng phần giải nghĩa"
-              @click="closeVocabPopover"
-            >
+            <button class="vocab-popover__close" type="button" aria-label="Đóng phần giải nghĩa"
+              @click="closeVocabPopover">
               <svg viewBox="0 0 24 24" aria-hidden="true" class="icon">
                 <path
                   d="M6.225 4.811a1 1 0 0 0-1.414 1.414L10.586 12l-5.775 5.775a1 1 0 1 0 1.414 1.414L12 13.414l5.775 5.775a1 1 0 0 0 1.414-1.414L13.414 12l5.775-5.775a1 1 0 0 0-1.414-1.414L12 10.586Z"
-                  fill="currentColor"
-                />
+                  fill="currentColor" />
               </svg>
             </button>
           </header>
           <div class="vocab-popover__body">
             <div v-if="vocabPopover.loading" class="vocab-popover__status">Đang tra cứu...</div>
-            <div
-              v-else-if="vocabPopover.error"
-              class="vocab-popover__status vocab-popover__status--error"
-            >
+            <div v-else-if="vocabPopover.error" class="vocab-popover__status vocab-popover__status--error">
               {{ vocabPopover.error }}
             </div>
             <div v-else class="vocab-popover__content" v-html="vocabPopoverHtml"></div>
@@ -152,43 +100,28 @@
 
       <form class="composer" @submit.prevent="sendMessage">
         <div class="composer__input" :class="{ 'composer__input--listening': isRecording }">
-          <textarea
-            v-model="draft"
-            rows="3"
-            placeholder="Nhập tin nhắn của bạn..."
-            :disabled="isSending"
-            @keydown.enter.exact="onEnterKey"
-            @compositionstart="onCompositionStart"
-            @compositionend="onCompositionEnd"
-            required
-          ></textarea>
+          <textarea v-model="draft" rows="3" placeholder="Nhập tin nhắn của bạn..." :disabled="isSending"
+            @keydown.enter.exact="onEnterKey" @compositionstart="onCompositionStart" @compositionend="onCompositionEnd"
+            required></textarea>
           <div class="composer__tools">
-            <button
-               class="icon-button"
-               :class="{ 'icon-button--recording': isRecording }"
-               type="button"
-               :title="isRecording ? 'Dừng nghe' : 'Ghi âm giọng nói'"
-               :aria-label="isRecording ? 'Dừng nghe' : 'Ghi âm giọng nói'"
-               :aria-pressed="isRecording ? 'true' : 'false'"
-               @click="isRecording ? stopVoiceInput(true) : startVoiceInput()"
-            >
+            <button class="icon-button" :class="{ 'icon-button--recording': isRecording }" type="button"
+              :title="isRecording ? 'Dừng nghe' : 'Ghi âm giọng nói'"
+              :aria-label="isRecording ? 'Dừng nghe' : 'Ghi âm giọng nói'"
+              :aria-pressed="isRecording ? 'true' : 'false'"
+              @click="isRecording ? stopVoiceInput(true) : startVoiceInput()">
               <svg v-if="!isRecording" viewBox="0 0 24 24" aria-hidden="true" class="icon">
-                <path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3zm-5 9a5 5 0 0 0 10 0h2a7 7 0 0 1-6 6.93V21h-2v-3.07A7 7 0 0 1 5 11h2z" fill="currentColor" />
+                <path
+                  d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3zm-5 9a5 5 0 0 0 10 0h2a7 7 0 0 1-6 6.93V21h-2v-3.07A7 7 0 0 1 5 11h2z"
+                  fill="currentColor" />
               </svg>
               <svg v-else viewBox="0 0 24 24" aria-hidden="true" class="icon">
                 <rect x="6" y="6" width="12" height="12" rx="2" fill="#ffffff" />
               </svg>
             </button>
             <!-- Auto mode toggle shown to the right of mic when no typed text -->
-            <button
-              v-if="!hasText && !isRecording"
-              class="icon-button auto-toggle"
-              :class="{ 'icon-button--primary': autoMode }"
-              type="button"
-              title="Chế độ trả lời tự động"
-              aria-label="Chế độ trả lời tự động"
-              @click="toggleAutoMode"
-            >
+            <button v-if="!hasText && !isRecording" class="icon-button auto-toggle"
+              :class="{ 'icon-button--primary': autoMode }" type="button" title="Chế độ trả lời tự động"
+              aria-label="Chế độ trả lời tự động" @click="toggleAutoMode">
               <!-- waveform-lines icon -->
               <svg viewBox="0 0 24 24" aria-hidden="true" class="icon">
                 <rect x="3" y="8" width="2" height="8" rx="1" fill="currentColor" />
@@ -199,25 +132,14 @@
               </svg>
             </button>
             <div v-if="isRecording" class="audio-wave" aria-hidden="true">
-              <span
-                v-for="n in 5"
-                :key="n"
-                class="audio-wave__bar"
-                :style="audioMeterOn
-                  ? { animation: 'none', height: (6 + Math.round(audioLevels[n-1] * 12)) + 'px', opacity: (0.5 + audioLevels[n-1] * 0.5) }
-                  : { animationDelay: (n * 0.12) + 's' }"
-              ></span>
+              <span v-for="n in 5" :key="n" class="audio-wave__bar" :style="audioMeterOn
+                ? { animation: 'none', height: (6 + Math.round(audioLevels[n - 1] * 12)) + 'px', opacity: (0.5 + audioLevels[n - 1] * 0.5) }
+                : { animationDelay: (n * 0.12) + 's' }"></span>
             </div>
             <!-- Show Send button only when there is typed text (or while sending to allow Stop) -->
-            <button
-              class="icon-button icon-button--primary"
-              type="button"
-              :title="isSending ? 'Dừng' : 'Gửi'"
-              :aria-label="isSending ? 'Dừng' : 'Gửi'"
-              :disabled="!isSending && !hasText"
-              @click="isSending ? stopGeneration() : sendMessage()"
-              v-if="!isRecording && (isSending || hasText)"
-            >
+            <button class="icon-button icon-button--primary" type="button" :title="isSending ? 'Dừng' : 'Gửi'"
+              :aria-label="isSending ? 'Dừng' : 'Gửi'" :disabled="!isSending && !hasText"
+              @click="isSending ? stopGeneration() : sendMessage()" v-if="!isRecording && (isSending || hasText)">
               <svg v-if="isSending" viewBox="0 0 24 24" aria-hidden="true" class="icon">
                 <rect x="6" y="6" width="12" height="12" rx="2" fill="#ffffff" />
               </svg>
@@ -227,18 +149,9 @@
             </button>
           </div>
         </div>
-        <div
-          v-if="suggestions.length && !isSending"
-          class="suggestions"
-          aria-live="polite"
-        >
-          <button
-            v-for="(s, i) in suggestions"
-            :key="i"
-            type="button"
-            class="suggestion-chip"
-            @click="useSuggestion(s)"
-          >
+        <div v-if="suggestions.length && !isSending" class="suggestions" aria-live="polite">
+          <button v-for="(s, i) in suggestions" :key="i" type="button" class="suggestion-chip"
+            @click="useSuggestion(s)">
             {{ s }}
           </button>
         </div>
@@ -246,23 +159,12 @@
     </main>
 
     <transition name="modal-fade">
-      <div
-        v-if="isAccountModalOpen"
-        class="account-modal__backdrop"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="account-modal-title"
-        @click.self="closeAccountModal"
-      >
+      <div v-if="isAccountModalOpen" class="account-modal__backdrop" role="dialog" aria-modal="true"
+        aria-labelledby="account-modal-title" @click.self="closeAccountModal">
         <div class="account-modal">
           <header class="account-modal__header">
             <h2 id="account-modal-title">Cập nhật thông tin</h2>
-            <button
-              class="account-modal__close"
-              type="button"
-              aria-label="Đóng hộp thoại"
-              @click="closeAccountModal"
-            >
+            <button class="account-modal__close" type="button" aria-label="Đóng hộp thoại" @click="closeAccountModal">
               <span aria-hidden="true">X</span>
             </button>
           </header>
@@ -270,14 +172,8 @@
           <form class="account-modal__form" @submit.prevent="submitAccountForm">
             <div class="account-modal__field">
               <label class="account-modal__label" for="account-full-name">Tên</label>
-              <input
-                id="account-full-name"
-                type="text"
-                class="account-modal__input"
-                v-model="accountForm.fullName"
-                placeholder="Nhập tên của bạn"
-                autocomplete="name"
-              />
+              <input id="account-full-name" type="text" class="account-modal__input" v-model="accountForm.fullName"
+                placeholder="Nhập tên của bạn" autocomplete="name" />
               <p v-if="accountErrors.fullName" class="account-modal__error">
                 {{ accountErrors.fullName }}
               </p>
@@ -285,15 +181,8 @@
 
             <div class="account-modal__field">
               <label class="account-modal__label" for="account-age">Tuổi</label>
-              <input
-                id="account-age"
-                type="number"
-                class="account-modal__input"
-                min="7"
-                max="60"
-                v-model="accountForm.age"
-                placeholder="Nhập tuổi"
-              />
+              <input id="account-age" type="number" class="account-modal__input" min="7" max="60"
+                v-model="accountForm.age" placeholder="Nhập tuổi" />
               <p v-if="accountErrors.age" class="account-modal__error">
                 {{ accountErrors.age }}
               </p>
@@ -301,17 +190,9 @@
 
             <div class="account-modal__field">
               <label class="account-modal__label" for="account-level">Cấp độ</label>
-              <select
-                id="account-level"
-                class="account-modal__input"
-                v-model="accountForm.proficiencyLevel"
-              >
+              <select id="account-level" class="account-modal__input" v-model="accountForm.proficiencyLevel">
                 <option value="">Chọn cấp độ</option>
-                <option
-                  v-for="level in levels"
-                  :key="level.id"
-                  :value="level.id.toString()"
-                >
+                <option v-for="level in levels" :key="level.id" :value="level.id.toString()">
                   {{ level.name }}
                 </option>
               </select>
@@ -327,11 +208,7 @@
                   (nhóm tiếng Anh - giọng mặc định: nữ)
                 </small>
               </label>
-              <select
-                id="account-voice"
-                class="account-modal__input"
-                v-model="accountForm.voicePreference"
-              >
+              <select id="account-voice" class="account-modal__input" v-model="accountForm.voicePreference">
                 <option value="">Tự động chọn</option>
                 <option value="female">Nữ (giọng Anh-Mỹ)</option>
                 <option value="male">Nam (giọng Anh-Mỹ)</option>
@@ -344,11 +221,8 @@
             </div>
 
             <div class="account-modal__actions">
-              <button
-                type="button"
-                class="account-modal__button account-modal__button--ghost"
-                @click="closeAccountModal"
-              >
+              <button type="button" class="account-modal__button account-modal__button--ghost"
+                @click="closeAccountModal">
                 Huỷ
               </button>
               <button type="submit" class="account-modal__button account-modal__button--primary">
@@ -381,17 +255,20 @@ import {
 } from "@/utils/localStorage";
 import { useRouter } from "vue-router";
 
+// Router de dieu huong
 const router = useRouter();
 
-const conversations = ref<ChatConversation[]>([]);
-const activeConversationId = ref("");
-const draft = ref("");
-const isSending = ref(false);
-const error = ref("");
-const isSidebarCollapsed = ref(false);
-const conversationRef = ref<HTMLElement | null>(null);
-const vocabPopoverRef = ref<HTMLDivElement | null>(null);
-const isAccountModalOpen = ref(false);
+const conversations = ref<ChatConversation[]>([]); // Danh sach cuoc tro chuyen
+const activeConversationId = ref(""); // ID cuoc tro chuyen dang hoat dong
+const draft = ref(""); // Noi dung tin nhan dang soan
+const isSending = ref(false); // Trang thai dang gui/nhan phan hoi
+const error = ref(""); // Loi toan cuc hien thi tren dau khu vuc tro chuyen
+const isSidebarCollapsed = ref(false); // Trang thai sidebar an/hien
+const conversationRef = ref<HTMLElement | null>(null); // Ref den khu vuc tro chuyen de cuon
+const vocabPopoverRef = ref<HTMLDivElement | null>(null); // Ref den popover tu dien
+const isAccountModalOpen = ref(false); // Trang thai modal tai khoan
+
+// Form tai khoan nguoi dung va gia tri mac dinh
 const accountForm = reactive<{
   fullName: string;
   age: string;
@@ -403,56 +280,70 @@ const accountForm = reactive<{
   proficiencyLevel: "",
   voicePreference: "",
 });
+
+// Loi xac minh tren form tai khoan
 const accountErrors = reactive<{ fullName: string; age: string; proficiencyLevel: string }>({
   fullName: "",
   age: "",
   proficiencyLevel: "",
 });
-const userDisplayName = ref("");
-const voicePreference = ref("");
-const levels = PROFICIENCY_LEVELS;
-// Auto mode + Speech recognition state
-const autoMode = ref(false);
-const isRecording = ref(false);
-const userStoppedRecording = ref(false);
-const sttError = ref("");
+
+
+const userDisplayName = ref(""); // Ten hien thi nguoi dung
+const userProficiencyLevel = ref<number | null>(null); // Cap do nguoi dung
+const voicePreference = ref(""); // Lua chon giong noi
+const levels = PROFICIENCY_LEVELS; // Cap do tieng anh co san
+
+// Trang thai tu dong va nhan dien giong noi
+const autoMode = ref(false); // Trang thai che do tu dong
+const isRecording = ref(false); // Trang thai dang ghi am
+const userStoppedRecording = ref(false); // Trang thai nguoi dung da dung ghi am
+const sttError = ref(""); // Loi nhan dien giong noi
 const recognitionRef = ref<any | null>(null);
-// Wait after last speech before auto-send (ms)
-const AUTO_MODE_SILENCE_MS = 5000;
-let silenceTimer: number | null = null;
-const currentRequestController = ref<AbortController | null>(null);
-// Suggestions and TTS state
-const suggestions = ref<string[]>([]);
-const speaking = ref(false);
-const selectedVoice = ref<SpeechSynthesisVoice | null>(null);
-// Audio metering for reactive wave
-const audioMeterOn = ref(false);
-const audioLevels = ref<number[]>([0, 0, 0, 0, 0]);
-let audioCtx: (AudioContext | null) = null;
-let audioAnalyser: (AnalyserNode | null) = null;
-let audioDataArray: Uint8Array | null = null;
-let audioRafId: number | null = null;
-let audioStream: MediaStream | null = null;
-let audioGain = 1; // adaptive gain for soft speech
-// Per-bar phase to create gentle, out-of-sync motion
+
+
+
+const AUTO_MODE_SILENCE_MS = 3000; // Thoi gian im lang de tu dong dung ghi am
+let silenceTimer: number | null = null; // Timer de theo doi im lang
+const currentRequestController = ref<AbortController | null>(null); // Dieu khien request hien tai
+
+// Trang thai goi y va doc to
+const suggestions = ref<string[]>([]); // Mang goi y hien thi
+const speaking = ref(false); // Trang thai dang doc phan hoi
+const selectedVoice = ref<SpeechSynthesisVoice | null>(null); // Giong noi duoc chon
+
+// Do am thanh de ve song dong
+const audioMeterOn = ref(false); // Trang thai hien thi dong do am
+const audioLevels = ref<number[]>([0, 0, 0, 0, 0]); // Muc do am thanh hien tai
+let audioCtx: (AudioContext | null) = null; // Audio context de xu ly am thanh
+let audioAnalyser: (AnalyserNode | null) = null; // Analyser node de lay du lieu am thanh
+let audioDataArray: Uint8Array | null = null; // Mang du lieu am thanh
+let audioRafId: number | null = null; // ID cua requestAnimationFrame
+let audioStream: MediaStream | null = null; // Luong am thanh tu micro
+let audioGain = 1; // he so thich ung cho giong nho
+
+// Song dong hieu ung am thanh khi ghi am
 const audioPhases = ref<number[]>([0, 0, 0, 0, 0]);
-// Slower, more relaxed phase speeds for gentler "breathing"
 let audioPhaseSpeeds: number[] = [0.018, 0.015, 0.020, 0.016, 0.017];
 
+// Cau tra loi tu dien
 interface DictionaryTranslateResponse {
   translatedText: string;
 }
 
+// Lich su giao tiep voi gia su AI
 type TutorHistoryEntry = {
   role: "user" | "assistant";
   content: string;
 };
 
+// Dinh dang phan hoi chat tu API
 interface ChatResponsePayload {
   reply: string;
   followUpQuestions?: string[];
 }
 
+// Trang thai popover tu dien
 interface VocabularyPopoverState {
   visible: boolean;
   keyword: string;
@@ -463,6 +354,7 @@ interface VocabularyPopoverState {
   left: number;
 }
 
+// Trang thai popover tu dien
 const vocabPopover = reactive<VocabularyPopoverState>({
   visible: false,
   keyword: "",
@@ -473,10 +365,12 @@ const vocabPopover = reactive<VocabularyPopoverState>({
   left: 0,
 });
 
+// Trang thai phat am tu dien
 const canSpeakVocab = ref(false);
-const isVocabSpeaking = ref(false);
-let vocabSpeechUtterance: SpeechSynthesisUtterance | null = null;
+const isVocabSpeaking = ref(false); // Trang thai dang phat am tu dien
+let vocabSpeechUtterance: SpeechSynthesisUtterance | null = null; // Utterance dang phat am
 
+// Tinh toan style cho popover tu dien
 const vocabPopoverStyle = computed(() => {
   if (!vocabPopover.visible) {
     return {};
@@ -487,7 +381,7 @@ const vocabPopoverStyle = computed(() => {
   };
 });
 
-// Split the AI response into paragraphs while preserving inline emphasis markup.
+// Tach phan hoi AI thanh doan va giu cac dinh dang nhan manh.
 const formatTextAsHtml = (text: string) => {
   const segments = text
     .split(/\n{2,}/)
@@ -501,6 +395,7 @@ const formatTextAsHtml = (text: string) => {
     .join("")}</div>`;
 };
 
+// Tinh toan style cho popover tu dien
 const vocabPopoverHtml = computed(() => {
   if (!vocabPopover.content) {
     return "";
@@ -508,7 +403,7 @@ const vocabPopoverHtml = computed(() => {
   return formatTextAsHtml(vocabPopover.content);
 });
 
-// Recalculate the dictionary popover position so it never escapes the viewport.
+// Tinh lai vi tri popover tu dien de khong vuot khung nhin.
 const adjustPopoverPosition = () => {
   if (!vocabPopover.visible) {
     return;
@@ -543,9 +438,10 @@ const adjustPopoverPosition = () => {
   }
 };
 
+// Dung phat am tu dien neu dang phat
 let vocabPopoverAbort: AbortController | null = null;
 
-// Immediately stop any ongoing speech synthesis for vocabulary playback.
+// Dung ngay speech synthesis dang phat tu vung
 const stopVocabSpeech = () => {
   if (!canSpeakVocab.value) {
     return;
@@ -558,7 +454,7 @@ const stopVocabSpeech = () => {
   isVocabSpeaking.value = false;
 };
 
-// Hide the vocabulary popover and tear down any pending requests.
+// An popover tu vung va huy cac request dang doi
 const closeVocabPopover = () => {
   if (vocabPopoverAbort) {
     vocabPopoverAbort.abort();
@@ -571,7 +467,7 @@ const closeVocabPopover = () => {
   vocabPopover.content = "";
 };
 
-// Pronounce the selected vocabulary word via speech synthesis when available.
+// Doc tu vung duoc chon bang speech synthesis neu co
 const speakVocabWord = () => {
   if (!canSpeakVocab.value || !vocabPopover.keyword.trim()) {
     return;
@@ -681,7 +577,7 @@ const handleWordLookup = async (word: string, event: MouseEvent) => {
   }
 };
 
-// Random English greetings used as centered, non-persistent prompts
+// Loi chao tieng Anh ngau nhien hien giua, khong luu
 const GREETINGS = [
   "Hi there! What would you like to learn today",
   "Hello! Ask me anything in English",
@@ -695,7 +591,7 @@ const GREETINGS = [
   "Type your first question to begin",
 ];
 
-// Surface a random greeting so the welcome panel feels lively on every visit.
+// Lay loi chao ngau nhien de man chao mung sinh dong moi lan vao.
 const pickGreeting = () => GREETINGS[Math.floor(Math.random() * GREETINGS.length)];
 const welcomeText = ref<string>(pickGreeting());
 
@@ -708,7 +604,7 @@ type MessageToken = {
 const WORD_TOKEN_REGEX =
   /[\p{L}\p{M}\d]+(?:[-''][\p{L}\p{M}\d]+)*/gu;
 
-// Break the chat message into clickable word tokens and plain text spans.
+// Tach tin nhan thanh tu bam duoc va phan text thuong.
 const tokenizeMessageContent = (content: string): MessageToken[] => {
   if (!content) {
     return [];
@@ -745,7 +641,7 @@ const tokenizeMessageContent = (content: string): MessageToken[] => {
   return tokens;
 };
 
-// Bundle a conversation with metadata so it can be stored and rendered consistently.
+// Dong goi cuoc tro chuyen kem metadata de luu va render dong nhat.
 const createConversation = (initialMessages: ChatMessage[] = []): ChatConversation => {
   const now = Date.now();
   return {
@@ -757,7 +653,7 @@ const createConversation = (initialMessages: ChatMessage[] = []): ChatConversati
   };
 };
 
-// Build the short preview shown in the sidebar using the last non-empty message.
+// Tao preview ngan o sidebar tu tin nhan cuoi co noi dung.
 const generatePreview = (conversation: ChatConversation): string => {
   const last = [...conversation.messages].reverse().find((message) => message.content.trim().length);
   if (!last) {
@@ -778,13 +674,13 @@ const currentMessages = computed(() => currentConversation.value?.messages ?? []
 
 const hasText = computed(() => draft.value.trim().length > 0);
 const isComposing = ref(false);
-// Keep track of IME composition so Enter does not prematurely submit drafts.
+// Theo doi trang thai go IME de Enter khong gui som.
 const onCompositionStart = () => { isComposing.value = true; };
 const onCompositionEnd = () => { isComposing.value = false; };
-// Submit the message when Enter is pressed outside of composition mode.
+// Gui tin khi nhan Enter ma khong trong che do go IME.
 const onEnterKey = (e: KeyboardEvent) => {
   if (isComposing.value) return;
-  // Only send when not currently sending and there is text
+  // Chi gui khi khong trong trang thai sending va co noi dung
   if (isSending.value) return;
   if (!draft.value.trim()) return;
   e.preventDefault();
@@ -800,67 +696,67 @@ const conversationSummaries = computed(() =>
   }))
 );
 
-// Create a short, human friendly conversation title from the latest user input.
+// Tao tieu de ngan, de doc tu tin nhan nguoi dung moi nhat.
 const generateTitle = (text: string): string => {
-  const maxLen = 32; // shorter for quick scan
+  const maxLen = 32; // ngan de nhin nhanh
   if (!text) return "New conversation";
 
-  // Normalize whitespace
+  // Chuan hoa khoang trang
   let s = text.replace(/\s+/g, " ").trim();
 
-  // Strip URLs
+  // Loai bo URL
   s = s.replace(/https?:\/\/\S+/gi, "").trim();
 
-  // Strip basic markdown and link syntax
+  // Loai bo markdown co ban va cu phap link
   s = s
     .replace(/\[(.*?)\]\((.*?)\)/g, "$1")
     .replace(/[`*_>#]/g, "")
     .trim();
 
-  // Remove most emoji/pictographs (astral plane)
+  // Loai bo da so emoji/ky tu hinh
   s = s.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, "").trim();
 
   if (!s) return "New conversation";
 
-  // Split into sentences, preserving end punctuation when possible
-const sentenceMatches = s.match(/[^.!?。？！…]+[.!?。？！…]?/g) || [s];
+  // Tach thanh cau, co gang giu dau cau khi co the
+  const sentenceMatches = s.match(/[^.!?。？！…]+[.!?。？！…]?/g) || [s];
 
-// Prefer the first question sentence
-const firstQuestion = sentenceMatches.find((seg) => /[?？]$/.test(seg.trim()));
-let candidateRaw = (firstQuestion || sentenceMatches[0] || s).trim();
+  // Uu tien cau hoi dau tien
+  const firstQuestion = sentenceMatches.find((seg) => /[?？]$/.test(seg.trim()));
+  let candidateRaw = (firstQuestion || sentenceMatches[0] || s).trim();
 
-// Prefer the first clause before comma/colon/dash if it carries meaning
-const clause = candidateRaw.split(/[,:;\-–—]/)[0].trim();
-if (clause && clause.split(" ").length >= 2) {
+  // Uu tien menh de truoc dau phay/2 cham/gach neu co nghia
+  const clause = candidateRaw.split(/[,:;\-–—]/)[0].trim();
+  if (clause && clause.split(" ").length >= 2) {
     candidateRaw = clause;
   }
 
-  // Remove leading fillers for brevity (simple heuristics, VI + EN)
+  // Bo tu dem dau cau cho gon (heuristic VI + EN)
   const cleaned = candidateRaw
     .replace(/^(cho (mình|em) hỏi|mình muốn hỏi|hãy|làm ơn|bạn có thể|vui lòng|could you|can you|would you)\s+/i, "")
     .replace(/^[:\-\s]+/, "")
     .trim();
 
-  // Remove enclosing quotes and trailing punctuation
+  // Bo ngoac kep va dau cau cuoi
   const dequoted = cleaned
     .replace(/^['"“”‘’`\(\[]+|['"“”‘’`\)\]]+$/g, "")
     .replace(/[.!?。？！…]+$/, "");
 
-  // Remove all punctuation for a cleaner, glanceable title
+  // Bo het dau cau de tieu de de doc
   const depunct = dequoted.replace(/[\.,!\?;:、。！？…\-–—\(\)\[\]\{\}'"“”‘’]/g, "");
 
-  // Final normalize spaces and crop
+  // Chuan hoa khoang trang lan cuoi va cat bot
   const normalized = depunct.replace(/\s+/g, " ").trim();
   if (!normalized) return "New conversation";
 
   return normalized.length > maxLen ? `${normalized.slice(0, maxLen)}...` : normalized;
 };
 
-// Stable helper for ordering conversations with the freshest at the top.
+// Ham sap xep cuoc tro chuyen moi nhat len tren.
 const sortByUpdatedAt = (items: ChatConversation[]): ChatConversation[] =>
   [...items].sort((a, b) => b.updatedAt - a.updatedAt);
 
-// Single place to update the reactive array and mirror the change into localStorage.
+// Cap nhat mang reactive va luu xuong localStorage tai mot cho.
 const commitConversations = (next: ChatConversation[]) => {
   const sorted = sortByUpdatedAt(next);
   conversations.value = sorted;
@@ -868,14 +764,14 @@ const commitConversations = (next: ChatConversation[]) => {
   saveActiveConversationId(activeConversationId.value);
 };
 
-// Remember which conversation the user is looking at and ensure the view scrolls.
+// Ghi nho cuoc tro chuyen dang xem va cuon dung vi tri.
 const setActiveConversation = (id: string) => {
   activeConversationId.value = id;
   saveActiveConversationId(id);
   nextTick(() => scrollToBottom());
 };
 
-// Keep the latest assistant reply and user input in view inside the message panel.
+// Giu tin tro ly va tin nguoi dung moi nhat trong tam nhin.
 const scrollToBottom = () => {
   window.requestAnimationFrame(() => {
     const element = conversationRef.value;
@@ -898,10 +794,16 @@ watch(activeConversationId, () => {
   nextTick(() => scrollToBottom());
 });
 
-// Refresh the visible name and preferred voice from whatever is stored on disk.
+// Cap nhat ten hien thi va giong ua thich tu du lieu da luu.
 const syncUserNameFromPreferences = () => {
   const prefs = getUserPreferences();
   userDisplayName.value = prefs.fullName?.trim() ?? "";
+  const levelValue =
+    typeof prefs.proficiencyLevel === "number" && !Number.isNaN(prefs.proficiencyLevel)
+      ? prefs.proficiencyLevel
+      : null;
+  userProficiencyLevel.value =
+    levelValue && levelValue >= 1 && levelValue <= 4 ? levelValue : null;
   const rawVoicePref =
     typeof prefs.voicePreference === "string" && prefs.voicePreference.trim()
       ? prefs.voicePreference
@@ -913,14 +815,14 @@ const syncUserNameFromPreferences = () => {
   return prefs;
 };
 
-// Shared reset so every submission attempt starts with a clean validation state.
+// Reset loi form truoc moi lan submit.
 const resetAccountErrors = () => {
   accountErrors.fullName = "";
   accountErrors.age = "";
   accountErrors.proficiencyLevel = "";
 };
 
-// Populate the account modal form before showing it to the learner.
+// Nap form tai khoan truoc khi hien modal cho nguoi dung.
 const loadAccountForm = () => {
   const prefs = syncUserNameFromPreferences();
   accountForm.fullName = prefs.fullName ?? "";
@@ -934,19 +836,19 @@ const loadAccountForm = () => {
   resetAccountErrors();
 };
 
-// Entry point triggered by sidebar/topbar buttons to reveal the account modal.
+// Mo modal tai khoan khi bam nut o sidebar/topbar.
 const openAccountModal = () => {
   loadAccountForm();
   isAccountModalOpen.value = true;
 };
 
-// Hide the account modal and clear any lingering error messages.
+// Dong modal tai khoan va xoa thong bao loi ton dong.
 const closeAccountModal = () => {
   isAccountModalOpen.value = false;
   resetAccountErrors();
 };
 
-// Validate, persist, and surface errors for the account details form.
+// Validate, luu va hien loi cho form thong tin tai khoan.
 const submitAccountForm = () => {
   resetAccountErrors();
 
@@ -986,6 +888,7 @@ const submitAccountForm = () => {
   });
 
   userDisplayName.value = trimmedName;
+  userProficiencyLevel.value = levelNumber;
   voicePreference.value = normalizedVoice;
   accountForm.fullName = trimmedName;
   accountForm.age = String(ageNumber);
@@ -998,12 +901,12 @@ const submitAccountForm = () => {
   closeAccountModal();
 };
 
-// Collapse or expand the sidebar depending on the current viewport state.
+// Thu gon hoac mo rong sidebar tuy theo trang thai hien tai.
 const toggleSidebar = () => {
   isSidebarCollapsed.value = !isSidebarCollapsed.value;
 };
 
-// Lazily pick the most suitable speech synthesis voice based on stored preferences.
+// Chon giong speech synthesis phu hop nhat dua tren uu tien da luu.
 const ensureVoice = () => {
   if (typeof window === "undefined") return null;
   const synth = window.speechSynthesis;
@@ -1048,7 +951,7 @@ const ensureVoice = () => {
     const v = pickVoice();
     if (v) selectedVoice.value = v;
     else {
-      // Some browsers populate voices asynchronously
+      // Mot so trinh duyet nap danh sach giong noi cham
       window.speechSynthesis.onvoiceschanged = () => {
         const vv = pickVoice();
         if (vv) selectedVoice.value = vv;
@@ -1058,15 +961,15 @@ const ensureVoice = () => {
   return selectedVoice.value;
 };
 
-// Cancel any ongoing speech synthesis playback.
+// Huy phat speech synthesis neu dang chay.
 const stopSpeech = () => {
   try {
     window.speechSynthesis.cancel();
-  } catch {}
+  } catch { }
   speaking.value = false;
 };
 
-// Speak a chat bubble aloud using the configured voice.
+// Doc noi bubble chat bang giong da chon.
 const playMessage = (message: ChatMessage) => {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) {
     console.info("[TTS] speechSynthesis not supported");
@@ -1082,13 +985,13 @@ const playMessage = (message: ChatMessage) => {
   utter.onstart = () => {
     speaking.value = true;
     if (autoMode.value) {
-      try { stopVoiceInput(); } catch {}
+      try { stopVoiceInput(); } catch { }
     }
   };
   utter.onend = () => {
     speaking.value = false;
     if (autoMode.value && !isSending.value && !isRecording.value) {
-      try { startVoiceInput(); } catch {}
+      try { startVoiceInput(); } catch { }
     }
   };
   utter.onerror = () => (speaking.value = false);
@@ -1099,7 +1002,7 @@ const playMessage = (message: ChatMessage) => {
   }
 };
 
-// Obtain a SpeechRecognition instance when supported by the runtime.
+// Lay instance SpeechRecognition neu runtime ho tro.
 const ensureRecognition = () => {
   if (typeof window === "undefined") return null;
   const w = window as any;
@@ -1116,18 +1019,18 @@ const ensureRecognition = () => {
     rec.onstart = () => {
       isRecording.value = true;
       sttError.value = "";
-      try { startAudioMeter(); } catch {}
+      try { startAudioMeter(); } catch { }
     };
     rec.onend = () => {
       isRecording.value = false;
-      try { stopAudioMeter(); } catch {}
+      try { stopAudioMeter(); } catch { }
       if (userStoppedRecording.value) {
-        // Don't auto-restart if user explicitly stopped
+        // Khong tu khoi dong lai neu nguoi dung da dung tay
         userStoppedRecording.value = false;
         return;
       }
       if (autoMode.value && !isSending.value) {
-        try { startVoiceInput(); } catch {}
+        try { startVoiceInput(); } catch { }
       }
     };
     rec.onerror = (ev: any) => {
@@ -1140,10 +1043,10 @@ const ensureRecognition = () => {
         transcript += event.results[i][0].transcript;
       }
       draft.value = transcript.trim();
-      // Debounce by silence before auto-sending in auto mode
+      // Giu do bang khoang lang truoc khi tu gui o che do auto
       if (autoMode.value) {
         if (silenceTimer !== null) {
-          try { clearTimeout(silenceTimer); } catch {}
+          try { clearTimeout(silenceTimer); } catch { }
           silenceTimer = null;
         }
         silenceTimer = window.setTimeout(() => {
@@ -1151,7 +1054,7 @@ const ensureRecognition = () => {
           if (!autoMode.value || isSending.value) return;
           const text = draft.value.trim();
           if (!text) return;
-          try { stopVoiceInput(); } catch {}
+          try { stopVoiceInput(); } catch { }
           sendMessage();
         }, AUTO_MODE_SILENCE_MS);
       }
@@ -1161,49 +1064,49 @@ const ensureRecognition = () => {
   return recognitionRef.value;
 };
 
-// Begin listening for the learner's voice and handle silence detection.
+// Bat nghe giong noi va xu ly phat hien im lang.
 const startVoiceInput = () => {
   const rec = ensureRecognition();
   if (!rec) return;
   userStoppedRecording.value = false;
-  if (silenceTimer !== null) { try { clearTimeout(silenceTimer); } catch {} ; silenceTimer = null; }
-  try { startAudioMeter(); } catch {}
-  try { rec.start(); } catch {}
+  if (silenceTimer !== null) { try { clearTimeout(silenceTimer); } catch { }; silenceTimer = null; }
+  try { startAudioMeter(); } catch { }
+  try { rec.start(); } catch { }
 };
 
-// Stop listening, optionally flagging the stop as user initiated.
+// Dung nghe va co the danh dau do nguoi dung chu dong dung.
 const stopVoiceInput = (explicit = false) => {
   const rec = recognitionRef.value;
   if (explicit) {
     userStoppedRecording.value = true;
   }
-  if (silenceTimer !== null) { try { clearTimeout(silenceTimer); } catch {} ; silenceTimer = null; }
+  if (silenceTimer !== null) { try { clearTimeout(silenceTimer); } catch { }; silenceTimer = null; }
   if (rec && isRecording.value) {
-    try { rec.stop(); } catch {}
+    try { rec.stop(); } catch { }
   }
-  try { stopAudioMeter(); } catch {}
+  try { stopAudioMeter(); } catch { }
 };
 
-// Switch the auto mode flag and bootstrap voice capture when newly enabled.
+// Chuyen che do tu dong va khoi dong nghe khi vua bat.
 const toggleAutoMode = () => {
   autoMode.value = !autoMode.value;
   if (autoMode.value) {
     if (!isSending.value && !isRecording.value) {
-      try { startVoiceInput(); } catch {}
+      try { startVoiceInput(); } catch { }
     }
   } else {
-    try { stopVoiceInput(); } catch {}
+    try { stopVoiceInput(); } catch { }
   }
 };
 
-// Drop a suggestion into the draft input and immediately send it.
+// Chen goi y vao khung nhap va gui ngay.
 const useSuggestion = (text: string) => {
   if (isSending.value) return;
   draft.value = text;
   sendMessage();
 };
 
-// Spawn a brand-new empty conversation and make it the active thread.
+// Tao cuoc tro chuyen moi tinh va chon lam thread hien tai.
 const startNewChat = () => {
   error.value = "";
   draft.value = "";
@@ -1212,7 +1115,7 @@ const startNewChat = () => {
   setActiveConversation(conversation.id);
 };
 
-// Append a message to whichever conversation is selected and persist the change.
+// Them tin nhan vao conversation dang chon va luu lai.
 const appendMessageToActive = (message: ChatMessage) => {
   const id = activeConversationId.value;
   if (!id) {
@@ -1241,7 +1144,7 @@ const appendMessageToActive = (message: ChatMessage) => {
   commitConversations(next);
 };
 
-// Guarantee there is always at least one conversation to receive messages.
+// Dam bao luon co it nhat mot conversation de nhan tin nhan.
 const ensureActiveConversation = () => {
   if (currentConversation.value) {
     return;
@@ -1256,7 +1159,7 @@ const sendMessage = async () => {
   }
 
   ensureActiveConversation();
-  try { stopVoiceInput(); } catch {}
+  try { stopVoiceInput(); } catch { }
 
   const historyPayload: TutorHistoryEntry[] = currentMessages.value.map((message) => ({
     role: message.sender === "user" ? "user" : "assistant",
@@ -1279,13 +1182,20 @@ const sendMessage = async () => {
   try {
     const controller = new AbortController();
     currentRequestController.value = controller;
+    const requestBody: Record<string, unknown> = {
+      message: text,
+      history: historyPayload,
+    };
+    if (userProficiencyLevel.value) {
+      requestBody.proficiencyLevel = userProficiencyLevel.value;
+    }
     const response = await fetch(`${API_DOMAIN}/api/chat`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         accept: "application/json",
       },
-      body: JSON.stringify({ message: text, history: historyPayload }),
+      body: JSON.stringify(requestBody),
       signal: controller.signal,
     });
 
@@ -1303,7 +1213,7 @@ const sendMessage = async () => {
     };
 
     appendMessageToActive(aiMessage);
-    // Handle suggestions if provided by API; otherwise fallback
+    // Neu API tra ve goi y thi dung, neu khong thi dung fallback
     const fallbackSuggestions = (lastUser: string): string[] => {
       const base = [
         "Could you give me an example?",
@@ -1314,16 +1224,16 @@ const sendMessage = async () => {
       if (trimmed) {
         base.unshift(`Can we discuss more about "${trimmed.split(" ").slice(-3).join(" ")}"?`);
       }
-      // Ensure unique and max 4
+      // Dam bao khong trung va toi da 4 goi y
       const uniq = Array.from(new Set(base)).filter(Boolean).slice(0, 4);
       return uniq;
     };
     suggestions.value = Array.isArray(data.followUpQuestions) && data.followUpQuestions.length
       ? data.followUpQuestions.slice(0, 4)
       : fallbackSuggestions(text);
-    // Optionally auto speak AI reply for pronunciation
-    try { playMessage(aiMessage); } catch {}
-    // In auto mode, listening will resume after TTS ends (see utter.onend)
+    // Tuy chon doc to phan hoi AI de luyen phat am
+    try { playMessage(aiMessage); } catch { }
+    // Che do tu dong se nghe lai sau khi TTS ket thuc (utter.onend)
   } catch (error_) {
     console.error("Cannot send message", error_);
     const name = (error_ as any)?.name ?? "";
@@ -1339,23 +1249,23 @@ const sendMessage = async () => {
   }
 };
 
-// Abort the current streaming response and reset the sending indicator.
+// Huy phan hoi dang stream va dat lai trang thai dang gui.
 const stopGeneration = () => {
-  // Abort in-flight request
+  // Huy request dang thuc thi
   const ctl = currentRequestController.value;
   if (ctl) {
-    try { ctl.abort(); } catch {}
+    try { ctl.abort(); } catch { }
   }
-  // Stop any ongoing speech
-  try { stopSpeech(); } catch {}
+  // Dung speech neu dang phat
+  try { stopSpeech(); } catch { }
   isSending.value = false;
   currentRequestController.value = null;
   if (autoMode.value && !isRecording.value) {
-    try { startVoiceInput(); } catch {}
+    try { startVoiceInput(); } catch { }
   }
 };
 
-// Wipe the current conversation thread while keeping the chat session alive.
+// Xoa noi dung cuoc tro chuyen hien tai nhung giu session.
 const resetConversation = () => {
   const conversation = currentConversation.value;
   if (!conversation) {
@@ -1367,10 +1277,10 @@ const resetConversation = () => {
   const next = conversations.value.map((item) =>
     item.id === conversation.id
       ? {
-          ...item,
-          messages: [],
-          updatedAt: now,
-        }
+        ...item,
+        messages: [],
+        updatedAt: now,
+      }
       : item
   );
 
@@ -1379,7 +1289,7 @@ const resetConversation = () => {
   nextTick(() => scrollToBottom());
 };
 
-// Remove a conversation from the list and fall back to a new one when empty.
+// Xoa mot cuoc tro chuyen va tao moi khi danh sach rong.
 const deleteConversation = (id: string) => {
   const filtered = conversations.value.filter((conversation) => conversation.id !== id);
 
@@ -1399,7 +1309,7 @@ const deleteConversation = (id: string) => {
   error.value = "";
 };
 
-// Remove every conversation and start the user off with a blank slate.
+// Xoa tat ca cuoc tro chuyen va tao moi cho nguoi dung bat dau lai.
 const clearAllConversations = () => {
   clearChatHistory();
   const conversation = createConversation();
@@ -1409,7 +1319,7 @@ const clearAllConversations = () => {
   error.value = "";
 };
 
-// Change the active conversation via the sidebar selection.
+// Chuyen cuoc tro chuyen dang hoat dong khi chon o sidebar.
 const selectConversation = (id: string) => {
   if (id === activeConversationId.value) {
     return;
@@ -1421,7 +1331,7 @@ const selectConversation = (id: string) => {
   error.value = "";
 };
 
-// Format message timestamps so they respect the user's locale.
+// Dinh dang thoi gian tin nhan theo locale nguoi dung.
 const formatTime = (timestamp: number) => {
   const formatter = new Intl.DateTimeFormat(undefined, {
     hour: "2-digit",
@@ -1472,7 +1382,7 @@ onBeforeUnmount(() => {
   }
 });
 
-// Refresh greeting when switching to an empty conversation
+// Cap nhat loi chao khi chuyen sang cuoc tro chuyen trong
 watch(
   () => [activeConversationId.value, currentMessages.value.length],
   ([, len]) => {
@@ -1482,14 +1392,14 @@ watch(
   }
 );
 
-// Web Audio API based mic level meter (best effort; falls back if unavailable)
+// Do muc mic bang Web Audio API (co fallback neu khong ho tro)
 const startAudioMeter = async () => {
   try {
     if (typeof window === "undefined") return;
     const AudioCtx: any = (window as any).AudioContext || (window as any).webkitAudioContext;
     if (!AudioCtx || !navigator.mediaDevices?.getUserMedia) return;
 
-    // Request mic stream (separate from SpeechRecognition; may fail on some browsers)
+    // Xin quyen mic (khong phu thuoc SpeechRecognition; co the that bai tren mot so trinh duyet)
     audioStream = await navigator.mediaDevices.getUserMedia({
       audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
       video: false,
@@ -1497,11 +1407,11 @@ const startAudioMeter = async () => {
 
     audioCtx = new AudioCtx();
     if (!audioCtx) {
-      // Safety guard for TS and unexpected runtime cases
+      // Chan bao an toan cho TS va cac truong hop bat ngo
       audioMeterOn.value = false;
       return;
     }
-    try { await audioCtx.resume(); } catch {}
+    try { await audioCtx.resume(); } catch { }
     const source = audioCtx.createMediaStreamSource(audioStream);
     audioAnalyser = audioCtx.createAnalyser();
     audioAnalyser.fftSize = 512;
@@ -1511,19 +1421,19 @@ const startAudioMeter = async () => {
     audioMeterOn.value = true;
 
     const tick = () => {
-  if (!audioAnalyser || !audioDataArray) return;
-  // Cast to satisfy TS lib.dom variance between ArrayBuffer and ArrayBufferLike
-  audioAnalyser.getByteTimeDomainData(audioDataArray as any);
-      // Compute RMS volume 0..1
+      if (!audioAnalyser || !audioDataArray) return;
+      // Ep kieu de thoa man TS giua ArrayBuffer va ArrayBufferLike
+      audioAnalyser.getByteTimeDomainData(audioDataArray as any);
+      // Tinh am luong RMS 0..1
       let sum = 0;
       for (let i = 0; i < audioDataArray.length; i++) {
         const v = audioDataArray[i] - 128;
         sum += v * v;
       }
-      // Boost sensitivity further for clearer motion
+      // Tang do nhay de song dong de nhin hon
       let rms = Math.min(1, Math.sqrt(sum / audioDataArray.length) / 18);
-      // Adaptive gain: boost when too quiet, decay when loud
-      const target = 0.45; // target normalized level
+      // Gain thich ung: tang khi qua nho, giam khi qua lon
+      const target = 0.45; // muc chuan hoa muc tieu
       const eff = rms * audioGain;
       if (eff < target) {
         audioGain = Math.min(4.0, audioGain * 1.02);
@@ -1532,10 +1442,10 @@ const startAudioMeter = async () => {
       } else {
         audioGain = Math.max(1.0, audioGain * 0.999);
       }
-      // Gentle non-linear gain to lift quieter speech
+      // Gain phi tuyen de nang am thanh nho
       rms = Math.min(1, Math.pow(rms * audioGain, 0.65) * 1.2);
 
-      // Update bar phases for desynchronized, breathing motion
+      // Cap nhat pha tung cot de chuyen dong lech nhip giong tho
       const phases = audioPhases.value.slice();
       for (let i = 0; i < phases.length; i++) {
         phases[i] += audioPhaseSpeeds[i];
@@ -1543,17 +1453,17 @@ const startAudioMeter = async () => {
       }
       audioPhases.value = phases;
 
-      // Base per-bar gains (center slightly amplified)
+      // Gain co so cho tung cot (cot giua khuyech dai hon chut)
       const baseGains = [1.0, 1.35, 1.75, 1.35, 1.1];
       const targets = baseGains.map((g, i) => {
         const wave = 0.85 + 0.15 * Math.sin(phases[i]);
         return Math.max(0, Math.min(1, rms * g * wave));
       });
 
-      // Per-bar smoothing: faster attack, slower (softer) release; varied per bar
-      const attack = [0.5, 0.52, 0.48, 0.52, 0.5]; // a bit slower attack
-      const release = [0.93, 0.92, 0.94, 0.92, 0.93]; // slower decay for softer motion
-      const maxDelta = 0.05; // tighter per-frame cap for smoothness
+      // Lam min tung cot: attack nhanh hon, release cham hon; khac nhau theo cot
+      const attack = [0.5, 0.52, 0.48, 0.52, 0.5]; // attack cham hon mot chut
+      const release = [0.93, 0.92, 0.94, 0.92, 0.93]; // giam cham de chuyen dong mem
+      const maxDelta = 0.05; // gioi han thay doi moi frame de min hon
 
       const nextLevels = audioLevels.value.map((prev, i) => {
         const target = targets[i];
@@ -1569,24 +1479,24 @@ const startAudioMeter = async () => {
     };
     audioRafId = window.requestAnimationFrame(tick);
   } catch (e) {
-    // If metering fails (permissions or device busy), keep fallback animation
+    // Neu do am thanh that bai (khong quyen hoac thiet bi ban), giu animation fallback
     audioMeterOn.value = false;
   }
 };
 
-// Tear down the waveform animation loop when recording stops.
+// Huy vong lap wave khi dung ghi am.
 const stopAudioMeter = () => {
   audioMeterOn.value = false;
   if (audioRafId != null) {
-    try { cancelAnimationFrame(audioRafId); } catch {}
+    try { cancelAnimationFrame(audioRafId); } catch { }
     audioRafId = null;
   }
   if (audioCtx) {
-    try { audioCtx.close(); } catch {}
+    try { audioCtx.close(); } catch { }
     audioCtx = null;
   }
   if (audioStream) {
-    try { audioStream.getTracks().forEach((t) => t.stop()); } catch {}
+    try { audioStream.getTracks().forEach((t) => t.stop()); } catch { }
     audioStream = null;
   }
   audioAnalyser = null;
@@ -1624,6 +1534,7 @@ const stopAudioMeter = () => {
   display: grid;
   place-items: center;
 }
+
 .welcome__card {
   text-align: center;
   max-width: 560px;
@@ -1633,11 +1544,13 @@ const stopAudioMeter = () => {
   background: rgba(255, 255, 255, 0.9);
   box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
 }
+
 .welcome__title {
   margin: 0 0 0.35rem 0;
   font-weight: 800;
   letter-spacing: 0.02em;
 }
+
 .welcome__text {
   margin: 0;
   font-size: 1.05rem;
@@ -1649,7 +1562,10 @@ const stopAudioMeter = () => {
   display: none;
 }
 
-.mobile-navbar .icon { width: 20px; height: 20px; }
+.mobile-navbar .icon {
+  width: 20px;
+  height: 20px;
+}
 
 .mobile-navbar__brand {
   display: inline-flex;
@@ -2004,6 +1920,7 @@ textarea:focus {
 .audio-wave {
   display: none;
 }
+
 .audio-wave__bar {
   width: 3px;
   height: 6px;
@@ -2012,14 +1929,35 @@ textarea:focus {
   animation: none;
   opacity: 0.9;
 }
-.audio-wave__bar:nth-child(2) { animation-duration: 1.05s; }
-.audio-wave__bar:nth-child(3) { animation-duration: 1.1s; }
-.audio-wave__bar:nth-child(4) { animation-duration: 0.95s; }
-.audio-wave__bar:nth-child(5) { animation-duration: 1.15s; }
+
+.audio-wave__bar:nth-child(2) {
+  animation-duration: 1.05s;
+}
+
+.audio-wave__bar:nth-child(3) {
+  animation-duration: 1.1s;
+}
+
+.audio-wave__bar:nth-child(4) {
+  animation-duration: 0.95s;
+}
+
+.audio-wave__bar:nth-child(5) {
+  animation-duration: 1.15s;
+}
 
 @keyframes audioWave {
-  0%, 100% { height: 6px; opacity: 0.6; }
-  50% { height: 18px; opacity: 1; }
+
+  0%,
+  100% {
+    height: 6px;
+    opacity: 0.6;
+  }
+
+  50% {
+    height: 18px;
+    opacity: 1;
+  }
 }
 
 .icon-button {
@@ -2045,16 +1983,20 @@ textarea:focus {
 /* Primary variant for Send button: match + New conversation gradient */
 .icon-button--primary {
   border-color: transparent;
-  background: linear-gradient(135deg, #1e40af, #3730a3); /* darker blue/indigo */
+  background: linear-gradient(135deg, #1e40af, #3730a3);
+  /* darker blue/indigo */
   color: #ffffff;
   box-shadow: 0 8px 18px rgba(55, 48, 163, 0.35);
 }
+
 .icon-button--primary:hover {
-  background: linear-gradient(135deg, #1e3a8a, #312e81); /* slightly deeper on hover */
+  background: linear-gradient(135deg, #1e3a8a, #312e81);
+  /* slightly deeper on hover */
   color: #ffffff;
   transform: translateY(-1px);
   box-shadow: 0 12px 26px rgba(55, 48, 163, 0.45);
 }
+
 /* Keyboard focus ring for accessibility */
 .icon-button--primary:focus-visible {
   outline: none;
@@ -2063,34 +2005,36 @@ textarea:focus {
     0 8px 18px rgba(99, 102, 241, 0.35);
 }
 
-  .icon {
-    width: 20px;
-    height: 20px;
-    display: block;
-    fill: currentColor;
-  }
+.icon {
+  width: 20px;
+  height: 20px;
+  display: block;
+  fill: currentColor;
+}
 
-  .suggestions {
-    margin-top: 0.75rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-  .suggestion-chip {
-    border: 1px solid rgba(148, 163, 184, 0.45);
-    background: #f8fafc;
-    color: #334155;
-    padding: 0.35rem 0.6rem;
-    border-radius: 999px;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-  }
-  .suggestion-chip:hover {
-    background: #eef2ff;
-    border-color: rgba(99, 102, 241, 0.45);
-    color: #4338ca;
-  }
+.suggestions {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.suggestion-chip {
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: #f8fafc;
+  color: #334155;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.suggestion-chip:hover {
+  background: #eef2ff;
+  border-color: rgba(99, 102, 241, 0.45);
+  color: #4338ca;
+}
 
 .icon--sm {
   width: 16px;
@@ -2113,10 +2057,19 @@ textarea:focus {
   box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.25);
   animation: glowPulse 1.5s infinite ease-in-out;
 }
+
 @keyframes glowPulse {
-  0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.25); }
-  50% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.14); }
-  100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.25); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.25);
+  }
+
+  50% {
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.14);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.25);
+  }
 }
 
 .composer__clear,
@@ -2140,7 +2093,8 @@ textarea:focus {
 }
 
 .composer__send {
-  background: #1e3a8a; /* deep primary */
+  background: #1e3a8a;
+  /* deep primary */
   color: #ffffff;
   min-width: 110px;
 }
@@ -2158,12 +2112,14 @@ textarea:focus {
 }
 
 @keyframes typingPulse {
+
   0%,
   80%,
   100% {
     opacity: 0.2;
     transform: translateY(0);
   }
+
   40% {
     opacity: 1;
     transform: translateY(-3px);
@@ -2213,6 +2169,7 @@ textarea:focus {
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
+
 .icon-button:hover {
   background: #e0e7ff;
   border-color: rgba(99, 102, 241, 0.45);
@@ -2226,6 +2183,7 @@ textarea:focus {
   color: #ffffff;
   box-shadow: 0 8px 18px rgba(34, 197, 94, 0.28);
 }
+
 .icon-button--recording:hover {
   background: linear-gradient(135deg, #22c55e, #16a34a);
   color: #ffffff;
@@ -2240,12 +2198,14 @@ textarea:focus {
   color: #ffffff;
   box-shadow: 0 8px 18px rgba(34, 197, 94, 0.28);
 }
+
 .icon-button--recording:hover {
   background: linear-gradient(135deg, #22c55e, #16a34a);
   color: #ffffff;
   transform: translateY(-1px);
   box-shadow: 0 12px 26px rgba(34, 197, 94, 0.38);
 }
+
 .icon {
   width: 20px;
   height: 20px;
@@ -2256,12 +2216,15 @@ textarea:focus {
 
 /* Auto mode toggle: black when idle, green when active */
 .auto-toggle {
-  background: #0f172a; /* slate-900 */
+  background: #0f172a;
+  /* slate-900 */
   color: #ffffff;
   border-color: transparent;
 }
+
 .auto-toggle:hover {
-  background: #1f2937; /* slate-800 */
+  background: #1f2937;
+  /* slate-800 */
   color: #ffffff;
   border-color: transparent;
 }
@@ -2273,6 +2236,7 @@ textarea:focus {
   color: #ffffff;
   box-shadow: 0 8px 18px rgba(34, 197, 94, 0.28);
 }
+
 .icon-button--recording:hover {
   background: linear-gradient(135deg, #22c55e, #16a34a);
   color: #ffffff;
@@ -2287,6 +2251,7 @@ textarea:focus {
   color: #ffffff;
   box-shadow: 0 8px 18px rgba(34, 197, 94, 0.28);
 }
+
 .icon-button--recording:hover {
   background: linear-gradient(135deg, #22c55e, #16a34a);
   color: #ffffff;
@@ -2297,12 +2262,15 @@ textarea:focus {
 
 /* Auto mode toggle: black when idle, green when active */
 .auto-toggle {
-  background: #0f172a; /* slate-900 */
+  background: #0f172a;
+  /* slate-900 */
   color: #ffffff;
   border-color: transparent;
 }
+
 .auto-toggle:hover {
-  background: #1f2937; /* slate-800 */
+  background: #1f2937;
+  /* slate-800 */
   color: #ffffff;
   border-color: transparent;
 }
@@ -2314,6 +2282,7 @@ textarea:focus {
   color: #ffffff;
   box-shadow: 0 8px 18px rgba(34, 197, 94, 0.28);
 }
+
 .icon-button--recording:hover {
   background: linear-gradient(135deg, #22c55e, #16a34a);
   color: #ffffff;
@@ -2328,6 +2297,7 @@ textarea:focus {
   color: #ffffff;
   box-shadow: 0 8px 18px rgba(34, 197, 94, 0.28);
 }
+
 .icon-button--recording:hover {
   background: linear-gradient(135deg, #22c55e, #16a34a);
   color: #ffffff;
@@ -2336,10 +2306,19 @@ textarea:focus {
 }
 
 @keyframes recordingPulse {
-  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.25); }
-  50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.14); }
-  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.25); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.25);
+  }
+
+  50% {
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.14);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.25);
+  }
 }
+
 /* Recording button: primary blue while listening */
 .icon-button--recording {
   border-color: transparent;
@@ -2347,6 +2326,7 @@ textarea:focus {
   color: #ffffff;
   box-shadow: 0 8px 18px rgba(99, 102, 241, 0.28);
 }
+
 .icon-button--recording:hover {
   background: linear-gradient(135deg, #3b82f6, #6366f1);
   color: #ffffff;
@@ -2361,12 +2341,14 @@ textarea:focus {
   color: #ffffff;
   box-shadow: 0 8px 18px rgba(55, 48, 163, 0.35);
 }
+
 .icon-button.icon-button--primary:hover {
   background: linear-gradient(135deg, #5A6CF2, #5A6CF2);
   color: #ffffff;
   transform: translateY(-1px);
   box-shadow: 0 12px 26px rgba(55, 48, 163, 0.45);
 }
+
 .icon-button.icon-button--primary:focus-visible {
   outline: none;
   box-shadow:
@@ -2549,6 +2531,3 @@ textarea:focus {
   }
 }
 </style>
-
-
-

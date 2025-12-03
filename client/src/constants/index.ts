@@ -1,3 +1,4 @@
+// Các cấp độ thành thạo tiếng Anh
 export const PROFICIENCY_LEVELS = [
   {
     id: 1,
@@ -26,18 +27,21 @@ export const PROFICIENCY_LEVELS = [
 
 ] as const;
 
+// Khóa lưu trữ trạng thái đã truy cập các tính năng
 export const VISITED_KEYS = {
   chat: "has-visited-chat",
   dictionary: "has-visited-dictionary",
   assignments: "has-visited-assignments",
 };
 
-export const CHAT_HISTORY_KEY = "chat-history";
-export const CHAT_ACTIVE_CONVERSATION_KEY = "chat-active-conversation-id";
-export const RECENT_DICTIONARY_SEARCHES_KEY = "recent-dictionary-searches";
-export const ASSIGNMENTS_HISTORY_KEY = "assignments-history";
-export const WRITING_HISTORY_KEY = "writing-history";
 
+export const CHAT_HISTORY_KEY = "chat-history"; // Khóa lưu trữ lịch sử người dùng
+export const CHAT_ACTIVE_CONVERSATION_KEY = "chat-active-conversation-id"; // Khóa lưu trữ cuộc trò chuyện đang hoạt động
+export const RECENT_DICTIONARY_SEARCHES_KEY = "recent-dictionary-searches"; // Khóa lưu trữ các tìm kiếm từ điển gần đây
+export const ASSIGNMENTS_HISTORY_KEY = "assignments-history"; // Khóa lưu trữ lịch sử bài tập
+export const WRITING_HISTORY_KEY = "writing-history"; // Khóa lưu trữ lịch sử viết
+
+// Từ khóa mẫu để sử dụng trong từ điển
 export const SAMPLE_DICTIONARY_KEYWORDS = [
   "genuine",
   "outsource",
@@ -89,6 +93,7 @@ export const SAMPLE_DICTIONARY_KEYWORDS = [
   "innovative",
 ];
 
+// Định nghĩa các tính năng chính của ứng dụng
 export const FEATURES = [
   {
     title: "TỪ ĐIỂN",

@@ -116,6 +116,7 @@ import {
 } from "@/constants";
 import { getUserPreferences, hasCompletedOnboarding } from "@/utils/localStorage";
 
+// Dinh nghia kieu cho mot tim kiem gan day
 interface RecentSearch {
   keyword: string;
   context?: string;
@@ -126,28 +127,28 @@ const keyword = ref("");
 const context = ref("");
 const showContext = ref(false);
 const error = ref("");
-const isSubmitting = ref(false);
-const showGuide = ref(false);
-const showRecent = ref(true);
-const suggestions = ref<string[]>([]);
-const recentSearches = reactive<RecentSearch[]>([]);
+const isSubmitting = ref(false); // Trang thai dang gui form
+const showGuide = ref(false); // Hien thi huong dan su dung
+const showRecent = ref(true); // Hien thi lich su tim kiem
+const suggestions = ref<string[]>([]); // Cac tu khoa goi y
+const recentSearches = reactive<RecentSearch[]>([]); // Lich su tim kiem gan day
 
-// Reveal or hide the optional context textarea.
+// Hien thi hoac an truong nhap ngu canh
 const toggleContext = () => {
   showContext.value = !showContext.value;
 };
 
-// Collapse the recent-search list to keep the UI compact.
+// Cho phep hien thi hoac an lich su tim kiem gan day
 const toggleRecent = () => {
   showRecent.value = !showRecent.value;
 };
 
-// Dismiss the onboarding tip for the dictionary feature.
+// Dong huong dan su dung cho lan dau tien
 const closeGuide = () => {
   showGuide.value = false;
 };
 
-// Persist the most recent search queries for quick reuse.
+// Luu tru cac tim kiem gan day de su dung nhanh
 const persistRecent = () => {
   if (typeof window === "undefined") {
     return;
@@ -159,14 +160,14 @@ const persistRecent = () => {
   );
 };
 
-// Pick a handful of sample keywords whenever the page loads.
+// Chon mot so tu khoa mau moi khi trang tai
 const shuffleSuggestions = () => {
   const pool = [...SAMPLE_DICTIONARY_KEYWORDS];
   pool.sort(() => Math.random() - 0.5);
   suggestions.value = pool.slice(0, 6);
 };
 
-// Navigate directly to the dictionary result view with query parameters.
+// Dieu huong den trang ket qua tim kiem voi tu khoa va ngu canh (neu co)
 const searchWord = (word: string, customContext?: string) => {
   const params = new URLSearchParams({ keyword: word });
   if (customContext) {
@@ -180,7 +181,7 @@ const searchWord = (word: string, customContext?: string) => {
     });
 };
 
-// Validate the search form, update history, and route to the results screen.
+// Xacnh dang gui form va xu ly du lieu truoc khi dieu huong
 const handleSubmit = () => {
   if (!keyword.value.trim()) {
     return;
@@ -222,7 +223,7 @@ const handleSubmit = () => {
   router.push(`/dictionary/result?${params.toString()}`);
 };
 
-// Load persisted preferences, show the guide if needed, and seed the suggestions.
+// Ham khoi tao khi component duoc tai
 onMounted(() => {
   if (!hasCompletedOnboarding()) {
     router.replace("/");

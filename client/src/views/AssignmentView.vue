@@ -90,30 +90,33 @@ import Navbar from "@/components/Navbar.vue";
 import wordBank from "@/data/words.json";
 import { addAssignmentRecord } from "@/utils/localStorage";
 
+// Dinh nghia cau hoi va cau hoi quiz sau khi da trang bi
 interface RawQuestion {
   word: string;
   choices: string[];
   answerIndex: number;
 }
 
+// Cau hoi quiz da duoc trang bi
 interface QuizQuestion {
   word: string;
   choices: string[];
   correctIndex: number;
 }
 
-const TOTAL_QUESTIONS = 10;
-const QUIZ_TYPE = "vocabulary-quiz";
-const QUIZ_TOPIC = "food";
+// Cau hinh quiz
+const TOTAL_QUESTIONS = 10; // So cau hoi trong mot vong quiz
+const QUIZ_TYPE = "vocabulary-quiz"; // Loai bai tap quiz
+const QUIZ_TOPIC = "food"; // Chu de bai tap quiz
 
-const questions = ref<QuizQuestion[]>([]);
-const currentIndex = ref(0);
-const selectedChoice = ref<number | null>(null);
-const score = ref(0);
-const state = ref<"awaiting" | "review" | "finished">("awaiting");
-const funFoodTip = ref("");
+const questions = ref<QuizQuestion[]>([]); // Danh sach cau hoi quiz
+const currentIndex = ref(0); // Chi so cau hoi hien tai
+const selectedChoice = ref<number | null>(null); // Dap an nguoi dung da chon
+const score = ref(0); // Diem so hien tai
+const state = ref<"awaiting" | "review" | "finished">("awaiting"); // Trang thai quiz
+const funFoodTip = ref(""); 
 
-// Fisher-Yates shuffle so both question order and answer order stay unpredictable.
+  // Ham tron mang ngau nhien de tao su da dang
 const shuffle = <T,>(source: T[]): T[] => {
   const copied = [...source];
   for (let i = copied.length - 1; i > 0; i -= 1) {
@@ -123,7 +126,7 @@ const shuffle = <T,>(source: T[]): T[] => {
   return copied;
 };
 
-// Build a fresh quiz round from the static word bank.
+// Tao mot vong quiz moi tu ngan hang tu
 const prepareQuestions = () => {
   const rawList = shuffle((wordBank as RawQuestion[]).slice());
   const prepared = rawList.slice(0, TOTAL_QUESTIONS).map((item) => {
@@ -158,7 +161,7 @@ const progressPercent = computed(() => {
   return `${Math.min(progressValue * 100, 100)}%`;
 });
 
-// Handle a choice click, scoring immediately and moving the UI into review mode.
+// Xu ly khi nguoi dung chon dap an, cham diem ngay va chuyen sang che do xem lai.
 const selectChoice = (index: number) => {
   if (state.value !== "awaiting") {
     return;
@@ -171,7 +174,7 @@ const selectChoice = (index: number) => {
   state.value = "review";
 };
 
-// Advance to the next question or finish the quiz once the list is exhausted.
+// Chuyen sang cau hoi tiep theo hoac ket thuc khi het cau hoi.
 const goToNext = () => {
   if (state.value !== "review") {
     return;
@@ -192,12 +195,12 @@ const goToNext = () => {
   state.value = "awaiting";
 };
 
-// Reset the quiz so the learner can play again right away.
+// Dat lai quiz de nguoi dung choi lai ngay.
 const restartGame = () => {
   prepareQuestions();
 };
 
-// Derive the CSS modifier for each answer button during the review state.
+// Tinh class CSS cho moi nut dap an khi dang xem lai.
 const choiceClass = (index: number) => {
   if (!isReviewing.value || !currentQuestion.value) {
     return "";
@@ -225,7 +228,7 @@ const resultMessage = computed(() => {
   return "Đừng bỏ cuộc, chơi lại để thuộc thêm nhiều từ mới!";
 });
 
-// Pull a random meal from the public API to keep the fun fact section fresh.
+// Lay ngau nhien mon an tu API cong khai de phan vui nhon luon moi.
 const loadRandomMeal = async () => {
   try {
     const response = await fetch("https://www.themealdb.com/api/json/v1/1/random.php");
@@ -243,7 +246,7 @@ const loadRandomMeal = async () => {
   }
 };
 
-// Generate the first round and tip as soon as the component renders.
+// Tao vong quiz va meo nho ngay khi component render.
 onMounted(() => {
   prepareQuestions();
   loadRandomMeal();
