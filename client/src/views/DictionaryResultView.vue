@@ -9,7 +9,7 @@
         </button>
         <div class="toolbar__spacer"></div>
         <button
-          v-if="audioSrc"
+          v-if="canSpeak"
           class="toolbar__btn"
           type="button"
           :disabled="isPlaying"
@@ -46,9 +46,7 @@ import { hasCompletedOnboarding } from "@/utils/localStorage";
 
 interface DictionaryResponse {
   content: string;
-  audioUrls?: {
-    us?: string;
-  };
+  word?: string;
 }
 
 const router = useRouter();
@@ -58,30 +56,14 @@ const result = ref<DictionaryResponse | null>(null); // Ket qua tra cuu
 const isLoading = ref(true); // Trang thai dang tai
 const error = ref(""); // Loi khi tra cuu
 const isPlaying = ref(false); // Trang thai phat am
-const audioElement = ref<HTMLAudioElement | null>(null); // Phan tu audio
 
 const keyword = computed(() => (route.query.keyword as string | undefined) ?? ""); // Tu khoa tra cuu
 const context = computed(() => (route.query.context as string | undefined) ?? ""); // Ngu canh tra cuu
 
-const audioSrc = computed(() => result.value?.audioUrls?.us ?? "");
-
-// Tao lai phan tu audio moi khi co url phat am moi
-watch(audioSrc, (src) => {
-  if (!src) {
-    audioElement.value = null;
-    return;
-  }
-
-  // Tao doi tuong Audio moi
-  const audio = new Audio(src);
-  audio.addEventListener("ended", () => {
-    isPlaying.value = false;
-  });
-  audio.addEventListener("pause", () => {
-    isPlaying.value = false;
-  });
-  audioElement.value = audio;
-});
+// Kiem tra browser co ho tro speechSynthesis khong
+const canSpeak = computed(() => 
+  typeof window !== "undefined" && "speechSynthesis" in window && keyword.value.trim().length > 0
+);
 
 // Xu ly noi dung ket qua tra cuu de hien thi
 const renderedContent = computed(() => {
@@ -98,17 +80,36 @@ const renderedContent = computed(() => {
   return `<div>${segments.map((text) => `<p>${text}</p>`).join("")}</div>`;
 });
 
-// Phat am bang tieng Anh khi nguoi hoc bam vao nut
-const playAudio = async () => {
-  if (!audioElement.value) {
+// Phat am bang browser speechSynthesis API
+const playAudio = () => {
+  if (!canSpeak.value) {
     return;
   }
 
   try {
-    isPlaying.value = true;
-    await audioElement.value.play();
+    // Dung speech synthesis hien co
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(keyword.value);
+    utterance.lang = "en-US";
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+    
+    utterance.onstart = () => {
+      isPlaying.value = true;
+    };
+    
+    utterance.onend = () => {
+      isPlaying.value = false;
+    };
+    
+    utterance.onerror = () => {
+      isPlaying.value = false;
+    };
+    
+    window.speechSynthesis.speak(utterance);
   } catch (error_) {
-    console.error("Cannot play pronunciation audio", error_);
+    console.error("Cannot speak word", error_);
     isPlaying.value = false;
   }
 };

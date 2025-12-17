@@ -27,16 +27,3 @@ class TranslationResponse(BaseModel):
     """Ket qua dich tra ve"""
 
     translatedText: str
-
-
-class IPAInfo(BaseModel):
-    """Thong tin phien am va link audio"""
-
-    ipa: str
-    audioUrls: dict[str, str]
-
-
-class DictionaryResponseWithIPA(DictionaryResponse):
-    """Ket qua tra cuu kem thong tin phien am"""
-
-    ipaInfo: IPAInfo | None = None

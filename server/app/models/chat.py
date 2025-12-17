@@ -27,9 +27,3 @@ class ChatResponse(BaseModel):
 
     reply: str
     followUpQuestions: list[str]
-
-
-class WhisperResponse(BaseModel):
-    """Ket qua transcript sau khi goi Whisper"""
-
-    transcript: str

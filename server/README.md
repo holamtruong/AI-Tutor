@@ -1,10 +1,10 @@
 # AI Tutor Backend (FastAPI)
 
-Hệ thống backend FastAPI phục vụ gia sư tiếng Anh tương tác, tích hợp OpenAI (chat, Whisper, chấm bài viết) và Google Gemini (giải nghĩa từ, dịch thuật).
+Hệ thống backend FastAPI phục vụ gia sư tiếng Anh tương tác, tích hợp OpenAI cho tất cả các tính năng AI.
 
 ## Model usage
-- Gemini Flash 2.0 xử lý tra cứu từ điển và dịch thuật vì prompt đòi hỏi giải thích song ngữ dài, nhiều định dạng trong khi model này có độ trễ thấp và chi phí tiết kiệm.
-- GPT-4o-mini đảm nhiệm hội thoại, chấm bài viết theo JSON và Whisper nhận dạng giọng nói nhờ dùng chung OpenAI client ổn định, bảo đảm phản hồi đúng cấu trúc.
+- GPT-4o-mini xử lý hội thoại, tra cứu từ điển, dịch thuật và chấm bài viết với khả năng phản hồi JSON ổn định và chi phí tối ưu ($0.15/1M input tokens).
+- Whisper (OpenAI) nhận dạng giọng nói chuyển thành văn bản với độ chính xác cao.
 
 ## Tính năng chính
 - Các endpoint REST cho trò chuyện, tra cứu từ điển, chấm điểm bài viết và chuyển giọng nói thành văn bản
@@ -19,8 +19,7 @@ Hệ thống backend FastAPI phục vụ gia sư tiếng Anh tương tác, tích
 
 ## Biến môi trường
 Khai báo các biến này trong `.env` khi phát triển và cấu hình trên Render:
-- `OPENAI_API_KEY` – bắt buộc cho chat, chấm viết và Whisper
-- `GEMINI_API_KEY` – bắt buộc cho tra cứu từ điển và dịch thuật
+- `OPENAI_API_KEY` – bắt buộc cho tất cả tính năng AI (chat, dictionary, translation, chấm viết và Whisper)
 - `PORT` – tùy chọn khi chạy local (mặc định 5050); Render sẽ tự đặt biến này
 
 Sao chép `.env.example` thành `.env` và điền giá trị thực tế trước khi chạy.
@@ -54,7 +53,7 @@ Nếu không đặt `PORT`, uvicorn sẽ mặc định 8000. Nên đặt `PORT=5
    - Lệnh build: `pip install --upgrade pip && pip install -r requirements.txt`
    - Lệnh khởi động: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
    - Đường dẫn health check: `/api/Healthcheck`
-4. Thiết lập `OPENAI_API_KEY` và `GEMINI_API_KEY` trong Render dashboard.
+4. Thiết lập `OPENAI_API_KEY` trong Render dashboard.
 5. Deploy và theo dõi log để đảm bảo dịch vụ hoạt động ổn định.
 
 ## Tham chiếu nhanh API
@@ -82,8 +81,7 @@ Nếu không đặt `PORT`, uvicorn sẽ mặc định 8000. Nên đặt `PORT=5
    - `app/models/*`: schema request/response trả về JSON chuẩn cho frontend
 
 - Tích hợp mô hình AI
-   - Google Gemini 2.0 Flash: tra cứu từ điển và dịch (giải thích song ngữ, chi phí thấp, độ trễ thấp)
-   - OpenAI GPT-4o-mini: hội thoại và chấm điểm bài viết (định dạng JSON ổn định)
+   - OpenAI GPT-4o-mini: hội thoại, tra cứu từ điển, dịch thuật và chấm điểm bài viết (định dạng JSON ổn định, chi phí tối ưu)
    - OpenAI Whisper: chuyển giọng nói thành văn bản (file upload -> transcript)
 
 - Thiết kế API
@@ -93,7 +91,7 @@ Nếu không đặt `PORT`, uvicorn sẽ mặc định 8000. Nên đặt `PORT=5
 
 - Triển khai & vận hành
    - Render: build `pip install -r requirements.txt`, start `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-   - Cấu hình biến môi trường trong dashboard: `OPENAI_API_KEY`, `GEMINI_API_KEY`
+   - Cấu hình biến môi trường trong dashboard: `OPENAI_API_KEY`
    - Theo dõi health check và log để giám sát
 
 ## Thư viện sử dụng

@@ -6,37 +6,31 @@ from fastapi import APIRouter, HTTPException
 
 from ..models.dictionary import (
     DictionaryRequest,
-    DictionaryResponseWithIPA,
-    IPAInfo,
+    DictionaryResponse,
     TranslationRequest,
     TranslationResponse,
 )
-from ..services.dictionary_service import extract_ipa_and_audio
-from ..services.gemini_service import generate_dictionary_content, generate_translation
+from ..services.openai_service import generate_dictionary_content, generate_translation
 
 router = APIRouter()
 
 
-@router.post("/", response_model=DictionaryResponseWithIPA)
-async def search_dictionary(payload: DictionaryRequest) -> DictionaryResponseWithIPA:
-    """Sinh noi dung tu dien va thong tin IPA"""
+@router.post("/", response_model=DictionaryResponse)
+async def search_dictionary(payload: DictionaryRequest) -> DictionaryResponse:
+    """Sinh noi dung tu dien"""
 
     keyword = payload.keyword.strip()
     if not keyword:
         raise HTTPException(status_code=400, detail="Keyword is required.")
 
-    # goi Gemini tao noi dung giau ngu canh
+    # goi OpenAI tao noi dung giau ngu canh
     content = await generate_dictionary_content(keyword, payload.context)
-    # lay them phien am va audio tu API cong khai
-    ipa, audio_urls = await extract_ipa_and_audio(keyword)
-
-    ipa_info = IPAInfo(ipa=ipa, audioUrls=audio_urls) if ipa or any(audio_urls.values()) else None
-    return DictionaryResponseWithIPA(word=keyword, content=content, ipaInfo=ipa_info)
+    return DictionaryResponse(word=keyword, content=content)
 
 
 @router.post("/translate", response_model=TranslationResponse)
 async def translate(payload: TranslationRequest) -> TranslationResponse:
-    """Dich tieng Anh sang tieng Viet bang Gemini"""
+    """Dich tieng Anh sang tieng Viet bang OpenAI"""
 
     text = payload.text.strip()
     if not text:

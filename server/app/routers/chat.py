@@ -6,8 +6,8 @@ from typing import Any
 
 from fastapi import APIRouter, File, HTTPException, UploadFile
 
-from ..models.chat import ChatMessage, ChatRequest, ChatResponse, WhisperResponse
-from ..services.openai_service import create_chat_completion, parse_chat_json, transcribe_audio
+from ..models.chat import ChatMessage, ChatRequest, ChatResponse
+from ..services.openai_service import create_chat_completion, parse_chat_json
 
 router = APIRouter()
 
@@ -100,19 +100,3 @@ async def chat(payload: ChatRequest) -> ChatResponse:
     content = completion.get("content", "")
     reply, follow_up = parse_chat_json(content)
     return ChatResponse(reply=reply or content, followUpQuestions=follow_up)
-
-
-@router.post("/whisper", response_model=WhisperResponse)
-async def whisper(file: UploadFile = File(...)) -> WhisperResponse:
-    """Chuyen tieng noi thanh text bang Whisper"""
-
-    file_bytes = await file.read()
-    if not file_bytes:
-        raise HTTPException(status_code=400, detail="Invalid audio file.")
-
-    # thuc hien goi Whisper asynchronously thong qua threadpool
-    transcript = await transcribe_audio(file.filename or "audio.webm", file_bytes)
-    if not transcript:
-        raise HTTPException(status_code=500, detail="Unable to transcribe audio.")
-
-    return WhisperResponse(transcript=transcript)

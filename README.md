@@ -16,7 +16,7 @@
 - Web API: Speech Synthesis, Speech Recognition, LocalStorage
 - Styling: CSS thuần, tối ưu nhẹ
 - Backend: [Python 3.11+](https://www.python.org/) + [FastAPI](https://fastapi.tiangolo.com/) (ASGI) chạy với Uvicorn
-- Tích hợp mô hình: OpenAI (GPT-4o-mini, Whisper), Google Gemini (gemini-2.0-flash)
+- Tích hợp mô hình: OpenAI (GPT-4o-mini cho chat, dictionary và translation; Whisper cho speech-to-text)
 - Hạ tầng: Client trên Vercel, Server trên Render
 
 ## Cấu trúc thư mục chính
@@ -33,9 +33,9 @@ client/
 server/
   app/
     main.py         # Khởi tạo FastAPI, health check, đăng ký router
-    core/config.py  # Đọc biến môi trường (OPENAI_API_KEY, GEMINI_API_KEY, PORT)
+    core/config.py  # Đọc biến môi trường (OPENAI_API_KEY, PORT)
     routers/        # chat, dictionary, writing
-    services/       # openai_service, gemini_service
+    services/       # openai_service, ai_service, dictionary_service
     models/         # schema request/response
   requirements.txt  # phụ thuộc Python
   render.yaml       # blueprint triển khai trên Render (Python)
@@ -44,8 +44,7 @@ vercel.json         # cấu hình build/deploy client trên Vercel
 
 ## Thiết lập môi trường
 - Biến môi trường Backend (đặt trong `server/.env` khi phát triển, cấu hình trong Render khi triển khai):
-  - `OPENAI_API_KEY` – bắt buộc cho chat/chấm viết/Whisper
-  - `GEMINI_API_KEY` – bắt buộc cho tra cứu từ điển/dịch thuật
+  - `OPENAI_API_KEY` – bắt buộc cho chat, dictionary, translation, chấm viết và Whisper
   - `PORT` – tùy chọn khi chạy local (mặc định 5050). Render tự cấp biến `PORT` khi chạy production
 
 - Cấu hình domain API cho Frontend: client hiện dùng auto-detect trong `client/src/config/api.ts`:

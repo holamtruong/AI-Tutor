@@ -9,7 +9,6 @@ class Settings(BaseSettings):
     """Dinh nghia cac truong cau hinh doc tu moi truong"""
 
     openai_api_key: str | None = None
-    gemini_api_key: str | None = None
     port: int = 5050
 
     model_config = SettingsConfigDict(
